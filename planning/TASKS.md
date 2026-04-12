@@ -22,10 +22,10 @@
   - `ZimMarket.Integration.Tests` (xUnit, refs API, Testcontainers)
   - Enforce project reference rules — no Infrastructure reference from Domain or Application
 
-- [ ] 0.3 Install NuGet packages per project:
+- [x] 0.3 Install NuGet packages per project:
   - **Domain**: none
-  - **Application**: `MediatR`, `FluentValidation`, `Mapster`, `Mapster.Generator`
-  - **Infrastructure**: `Microsoft.EntityFrameworkCore`, `Npgsql.EntityFrameworkCore.PostgreSQL`, `StackExchange.Redis`, `Hangfire.Core`, `Hangfire.PostgreSql`, `Microsoft.AspNetCore.SignalR`, `Azure.Storage.Blobs`, `Serilog`, `Twilio`, `SendGrid`, `FirebaseAdmin`
+  - **Application**: `MediatR`, `FluentValidation`, `Mapster`, `Mapster.DependencyInjection` *(replaces non-existent `Mapster.Generator` package)*
+  - **Infrastructure**: `Microsoft.EntityFrameworkCore`, `Npgsql.EntityFrameworkCore.PostgreSQL`, `StackExchange.Redis`, `Hangfire.Core`, `Hangfire.PostgreSql`, `Azure.Storage.Blobs`, `Serilog`, `Twilio`, `SendGrid`, `FirebaseAdmin`; **`FrameworkReference` `Microsoft.AspNetCore.App`** for SignalR and other ASP.NET Core surface *(not the obsolete `Microsoft.AspNetCore.SignalR` package)*
   - **API**: `Microsoft.AspNetCore.Authentication.JwtBearer`, `Scalar.AspNetCore`, `Serilog.AspNetCore`
   - **Tests**: `xUnit`, `Bogus`, `FluentAssertions`, `NSubstitute`, `Testcontainers.PostgreSql`, `Testcontainers.Redis`
 
