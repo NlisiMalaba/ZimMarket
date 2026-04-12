@@ -43,60 +43,60 @@
 
 ## Module 1 — Domain Layer
 
-- [ ] 1.1 Create `BaseEntity` abstract class in Domain: `Id (Guid)`, `CreatedAt (DateTimeOffset)`, `UpdatedAt (DateTimeOffset)`, `DomainEvents (private List<IDomainEvent>)`, `AddDomainEvent()`, `PopDomainEvents()` (clears list and returns snapshot)
+- [x] 1.1 Create `BaseEntity` abstract class in Domain: `Id (Guid)`, `CreatedAt (DateTimeOffset)`, `UpdatedAt (DateTimeOffset)`, `DomainEvents (private List<IDomainEvent>)`, `AddDomainEvent()`, `PopDomainEvents()` (clears list and returns snapshot)
 
-- [ ] 1.2 Create `IDomainEvent` marker interface (implements `INotification` from MediatR)
+- [x] 1.2 Create `IDomainEvent` marker interface (implements `INotification` from MediatR)
 
-- [ ] 1.3 Create value objects — each must be immutable (record or sealed class with private constructor + static `Create` factory returning `Result<T>`):
+- [x] 1.3 Create value objects — each must be immutable (record or sealed class with private constructor + static `Create` factory returning `Result<T>`):
   - `Money(Amount: decimal, Currency: Currency)` — with `ToZwl(rate)`, `ToUsd(rate)` methods; no negative amounts; max 2 decimal places
   - `Address(Street, Suburb, City, Country)` — all fields required, max lengths enforced
   - `PhoneNumber(Value: string)` — Zimbabwe format validation (+263...), strip spaces
   - `GeoCoordinate(Latitude: double, Longitude: double)` — valid range checks
   - `Currency` enum: `USD`, `ZWL`
 
-- [ ] 1.4 Create `UserRole` enum: `Customer`, `Seller`, `Driver`, `Admin`, `SuperAdmin`
+- [x] 1.4 Create `UserRole` enum: `Customer`, `Seller`, `Driver`, `Admin`, `SuperAdmin`
 
-- [ ] 1.5 Create `KycStatus` enum: `NotSubmitted`, `PendingReview`, `Approved`, `Rejected`
+- [x] 1.5 Create `KycStatus` enum: `NotSubmitted`, `PendingReview`, `Approved`, `Rejected`
 
-- [ ] 1.6 Create `OrderStatus` enum with all states: `Pending → Paid → AtWarehouse → QcPassed → Batched → OutForDelivery → Delivered → Cancelled → Refunded`; add extension method `IsTerminal()` (Delivered, Cancelled, Refunded) and `CanTransitionTo(OrderStatus next)` with valid transition map
+- [x] 1.6 Create `OrderStatus` enum with all states: `Pending → Paid → AtWarehouse → QcPassed → Batched → OutForDelivery → Delivered → Cancelled → Refunded`; add extension method `IsTerminal()` (Delivered, Cancelled, Refunded) and `CanTransitionTo(OrderStatus next)` with valid transition map
 
-- [ ] 1.7 Create `User` base aggregate root entity extending `BaseEntity`:
+- [x] 1.7 Create `User` base aggregate root entity extending `BaseEntity`:
   - Properties: `Email`, `PhoneNumber (PhoneNumber)`, `PasswordHash`, `Role (UserRole)`, `KycStatus`, `IsActive`, `RefreshTokenHash`, `RefreshTokenExpiry`
   - No public property setters — all state changes via domain methods
   - Domain method: `Deactivate()` — sets `IsActive = false`
 
-- [ ] 1.8 Create `Customer` entity extending `User`:
+- [x] 1.8 Create `Customer` entity extending `User`:
   - `DeliveryAddresses: List<Address>` (max 5)
   - `PushNotificationToken: string?`
   - Domain methods: `AddAddress(Address)`, `RemoveAddress(Guid)`, `UpdatePushToken(string)`
 
-- [ ] 1.9 Create `Seller` entity extending `User`:
+- [x] 1.9 Create `Seller` entity extending `User`:
   - `BusinessName`, `NationalIdDocumentKey (string)`, `ProofOfResidenceDocumentKey (string)`, `IsApproved (bool)`, `RejectionReason (string?)`
   - Domain methods: `Approve()` — sets approved, raises `SellerApprovedEvent`; `Reject(reason)` — sets rejected, raises `SellerRejectedEvent`; `SubmitKyc(nationalIdKey, proofKey)` — transitions `KycStatus` to `PendingReview`
 
-- [ ] 1.10 Create `Driver` entity extending `User`:
+- [x] 1.10 Create `Driver` entity extending `User`:
   - `LicenseNumber`, `LicenseDocumentKey`, `VehicleRegistration`, `VehicleDocumentKey`, `DriverStatus (Available | OnDelivery | Offline)`, `LastKnownLocation (GeoCoordinate?)`
   - Domain methods: `Approve()`, `Reject(reason)`, `UpdateLocation(GeoCoordinate)` — raises `DriverLocationUpdatedEvent`, `SetStatus(DriverStatus)`
 
-- [ ] 1.11 Create `Category` entity: `Id`, `Name`, `Slug`, `ParentCategoryId (Guid?)` (supports nested categories, max 2 levels)
+- [x] 1.11 Create `Category` entity: `Id`, `Name`, `Slug`, `ParentCategoryId (Guid?)` (supports nested categories, max 2 levels)
 
-- [ ] 1.12 Create `Product` aggregate root:
+- [x] 1.12 Create `Product` aggregate root:
   - Properties: `SellerId (Guid)`, `Title`, `Description`, `Price (Money)`, `CategoryId`, `StockQuantity (int)`, `ImageKeys (List<string>)`, `Status (Active | Suspended | Deleted)`, `PickupAddress (Address)`
   - Domain methods: `UpdateDetails(...)`, `UpdateStock(int delta)` — validates never negative; raises `StockDepletedEvent` when hits 0; `Suspend()`, `Restore()`, `Delete()`
   - Invariant: max 5 image keys
 
-- [ ] 1.13 Create `Order` aggregate root:
+- [x] 1.13 Create `Order` aggregate root:
   - Properties: `CustomerId`, `Items (List<OrderItem>)`, `DeliveryAddress (Address)`, `Status (OrderStatus)`, `PaymentStatus`, `PaymentReference`, `TotalAmount (Money)`
   - `OrderItem`: `ProductId`, `ProductTitle (snapshot)`, `UnitPrice (Money)`, `Quantity`, `LineTotal (Money)` — calculated, not stored
   - Domain methods: `ConfirmPayment(reference)` — validates `Pending` state, transitions to `Paid`, raises `PaymentConfirmedEvent`; `Cancel(reason)` — validates not terminal; `UpdateStatus(OrderStatus next)` — validates transition via `CanTransitionTo`
 
-- [ ] 1.14 Create `DeliveryBatch` aggregate root:
+- [x] 1.14 Create `DeliveryBatch` aggregate root:
   - Properties: `DriverId (Guid)`, `OrderIds (List<Guid>)`, `Status (Created | Collected | InTransit | Completed)`, `WarehouseId (Guid)`, `CollectedAt`, `CompletedAt`
   - Domain methods: `AssignDriver(Guid driverId)`, `MarkCollected()`, `MarkInTransit()`, `Complete()` — each raises corresponding domain event
 
-- [ ] 1.15 Create `WarehouseItem` entity: `OrderId`, `ProductId`, `ArrivedAt`, `QcStatus (Pending | Passed | Failed)`, `QcNotes`, `PackagedAt`, `BatchId (Guid?)`
+- [x] 1.15 Create `WarehouseItem` entity: `OrderId`, `ProductId`, `ArrivedAt`, `QcStatus (Pending | Passed | Failed)`, `QcNotes`, `PackagedAt`, `BatchId (Guid?)`
 
-- [ ] 1.16 Create all domain events as records implementing `IDomainEvent`:
+- [x] 1.16 Create all domain events as records implementing `IDomainEvent`:
   - `SellerRegisteredEvent(Guid SellerId)`
   - `SellerApprovedEvent(Guid SellerId)`
   - `SellerRejectedEvent(Guid SellerId, string Reason)`
@@ -109,16 +109,16 @@
   - `DriverLocationUpdatedEvent(Guid DriverId, double Lat, double Lng, List<Guid> ActiveOrderIds)`
   - `DeliveryCompletedEvent(Guid BatchId, Guid DriverId)`
 
-- [ ] 1.17 Create repository interfaces in `Domain/Interfaces/Repositories/`:
+- [x] 1.17 Create repository interfaces in `Domain/Interfaces/Repositories/`:
   - `IUserRepository<T>` (generic, constrained to `User`) — `GetByIdAsync`, `GetByEmailAsync`, `GetByPhoneAsync`, `AddAsync`, `UpdateAsync`
   - `IProductRepository` — `GetByIdAsync`, `GetPagedAsync(ProductFilter, PaginationParams)`, `FindBySellerAsync(Guid sellerId)`, `AddAsync`, `UpdateAsync`
   - `IOrderRepository` — `GetByIdAsync`, `GetByCustomerAsync`, `GetByStatusAsync`, `AddAsync`, `UpdateAsync`
   - `IDeliveryBatchRepository` — `GetByIdAsync`, `GetActiveByDriverAsync`, `GetPendingBatchesAsync`, `AddAsync`, `UpdateAsync`
   - `IWarehouseItemRepository` — `GetByOrderIdAsync`, `GetUnbatchedAsync`, `AddAsync`, `UpdateAsync`
 
-- [ ] 1.18 Create `IUnitOfWork` interface: exposes all repositories as properties; `SaveChangesAsync(CancellationToken)`; `BeginTransactionAsync()`; `CommitAsync()`; `RollbackAsync()`
+- [x] 1.18 Create `IUnitOfWork` interface: exposes all repositories as properties; `SaveChangesAsync(CancellationToken)`; `BeginTransactionAsync()`; `CommitAsync()`; `RollbackAsync()`
 
-- [ ]* 1.19 Write unit tests for domain entities:
+- [x]* 1.19 Write unit tests for domain entities:
   - **Order status transition**: verify all valid transitions succeed; verify invalid transitions return failure
   - **Product stock**: verify stock cannot go negative; `StockDepletedEvent` raised at 0
   - **Money value object**: verify negative amount rejected; ZWL conversion is correct; equality works
