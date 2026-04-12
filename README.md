@@ -39,7 +39,7 @@ Client apps (React Native / Expo, Next.js admin) are planned alongside this repo
 
 2. **Environment variables**
 
-   After `.env.example` is added (Module 0), copy it to `.env` and fill in secrets (for example: `cp .env.example .env` on Git Bash/macOS/Linux, or `Copy-Item .env.example .env` in PowerShell).
+   Copy `.env.example` to `.env` and fill in secrets (for example: `cp .env.example .env` on Git Bash/macOS/Linux, or `Copy-Item .env.example .env` in PowerShell). See comments in `.env.example` for Docker Compose and ASP.NET settings.
 
    Never commit `.env`; it is listed in `.gitignore`.
 
@@ -50,7 +50,7 @@ Client apps (React Native / Expo, Next.js admin) are planned alongside this repo
    dotnet build ZimMarket.sln
    ```
 
-   **Docker:** create a root `.env` (see `.env.example` when present), then `docker compose up --build` from the repo root. The API image is built from `src/ZimMarket.API/Dockerfile`. Smoke test: `GET http://localhost:${API_PORT:-8080}/health` should return **200**.
+   **Docker:** create a root `.env` from `.env.example`, then `docker compose up --build` from the repo root. The API image is built from `src/ZimMarket.API/Dockerfile`. Smoke test: `GET http://localhost:${API_PORT:-8080}/health` should return **200**.
 
 ## Contributing
 

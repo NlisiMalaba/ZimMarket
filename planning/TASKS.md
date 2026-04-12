@@ -33,7 +33,7 @@
 
 - [x] 0.5 Create `Dockerfile` for `ZimMarket.API` using multi-stage build (SDK → runtime); add `.dockerignore`; confirm `docker compose up` starts all services and API returns 200 on `GET /health`
 
-- [ ] 0.6 Create `.env.example` with all required keys documented (DB connection, Redis, JWT, Blob, SMS, Email, Payment, FCM); commit `.env.example`, never `.env`
+- [x] 0.6 Create `.env.example` with all required keys documented (DB connection, Redis, JWT, Blob, SMS, Email, Payment, FCM); commit `.env.example`, never `.env`
 
 - [ ] 0.7 Create `GitHub Actions` CI workflow (`.github/workflows/ci.yml`): restore → build → test → Docker build; trigger on `push` to `main` and all PRs
 
