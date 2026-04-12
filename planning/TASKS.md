@@ -35,7 +35,7 @@
 
 - [x] 0.6 Create `.env.example` with all required keys documented (DB connection, Redis, JWT, Blob, SMS, Email, Payment, FCM); commit `.env.example`, never `.env`
 
-- [ ] 0.7 Create `GitHub Actions` CI workflow (`.github/workflows/ci.yml`): restore → build → test → Docker build; trigger on `push` to `main` and all PRs
+- [x] 0.7 Create `GitHub Actions` CI workflow (`.github/workflows/ci.yml`): restore → build → test → Docker build; trigger on `push` to `main` and all PRs
 
 - [ ] **Checkpoint 0** — `docker compose up` starts cleanly; `GET /health` returns 200; CI pipeline passes on a clean branch
 
