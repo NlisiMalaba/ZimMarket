@@ -18,11 +18,13 @@ Client apps (React Native / Expo, Next.js admin) are planned alongside this repo
 ## Repository layout
 
 - `planning/` — task list and architecture reference (`TASKS.md`, `DESIGN.md`)
-- Solution and source projects will live at the repository root as they are added (see Module 0 in `planning/TASKS.md`)
+- `ZimMarket.sln` — solution file at the repository root
+- `src/` — application projects (`ZimMarket.Domain`, `ZimMarket.Application`, `ZimMarket.Infrastructure`, `ZimMarket.API`, `ZimMarket.Shared`)
+- `tests/` — test projects (xUnit)
 
 ## Prerequisites
 
-- [.NET SDK 10](https://dotnet.microsoft.com/download) (when the solution is present)
+- [.NET SDK 10](https://dotnet.microsoft.com/download)
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) (for Postgres, Redis, API via Compose — added in later tasks)
 - Git
 
@@ -41,11 +43,11 @@ Client apps (React Native / Expo, Next.js admin) are planned alongside this repo
 
    Never commit `.env`; it is listed in `.gitignore`.
 
-3. **Build and run (once the solution exists)**
+3. **Build**
 
    ```bash
-   dotnet restore
-   dotnet build
+   dotnet restore ZimMarket.sln
+   dotnet build ZimMarket.sln
    ```
 
    Docker-based local run will be documented when `docker-compose.yml` and the API project are in place (`docker compose up`, health check at `/health`).

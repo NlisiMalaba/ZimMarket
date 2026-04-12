@@ -11,7 +11,7 @@
 
 - [x] 0.1 Initialise Git repository; create `.gitignore` (dotnet, node, .env files); create root `README.md` with project overview and local setup instructions
 
-- [ ] 0.2 Create solution file and all project skeletons with correct references:
+- [x] 0.2 Create solution file and all project skeletons with correct references:
   - `ZimMarket.Domain` (class library, no external deps)
   - `ZimMarket.Application` (class library, refs Domain)
   - `ZimMarket.Infrastructure` (class library, refs Application + Domain)
