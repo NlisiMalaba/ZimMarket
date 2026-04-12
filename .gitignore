@@ -1,0 +1,72 @@
+# Environment and secrets — never commit
+.env
+.env.*
+!.env.example
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# IDE / editors
+.vs/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.rsuser
+
+# .NET / C#
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+*.userprefs
+project.lock.json
+project.fragment.lock.json
+artifacts/
+**/packages/
+*.nupkg
+*.snupkg
+*.nuget.props
+*.nuget.targets
+TestResults/
+[Tt]est[Rr]esult*/
+*.coverage
+*.coveragexml
+BenchmarkDotNet.Artifacts/
+*.DotSettings.user
+
+# Build / publish
+publish/
+out/
+*.dll
+*.exe
+!**/tools/**/*.exe
+
+# Node / JavaScript (Expo, Next.js, tooling)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.npm
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+dist/
+.next/
+.nuxt/
+.expo/
+web-build/
+*.tsbuildinfo
+
+# Docker (optional local overrides with secrets)
+docker-compose.override.yml.local
