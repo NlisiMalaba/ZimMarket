@@ -50,7 +50,7 @@ Client apps (React Native / Expo, Next.js admin) are planned alongside this repo
    dotnet build ZimMarket.sln
    ```
 
-   Docker-based local run will be documented when `docker-compose.yml` and the API project are in place (`docker compose up`, health check at `/health`).
+   **Docker:** create `.env` from `.env.example` when available, then after the API `Dockerfile` exists (task 0.5) run `docker compose up` from the repo root. Compose merges `docker-compose.override.yml` for dev (exposed Postgres/Redis ports).
 
 ## Contributing
 

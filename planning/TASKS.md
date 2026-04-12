@@ -29,7 +29,7 @@
   - **API**: `Microsoft.AspNetCore.Authentication.JwtBearer`, `Scalar.AspNetCore`, `Serilog.AspNetCore`
   - **Tests**: `xUnit`, `Bogus`, `FluentAssertions`, `NSubstitute`, `Testcontainers.PostgreSql`, `Testcontainers.Redis`
 
-- [ ] 0.4 Create `docker-compose.yml` and `docker-compose.override.yml` (dev) with services: `api`, `postgres`, `redis`, `hangfire-dashboard`; add health checks on postgres and redis; add named volumes for data persistence; configure environment variable passthrough from `.env`
+- [x] 0.4 Create `docker-compose.yml` and `docker-compose.override.yml` (dev) with services: `api`, `postgres`, `redis`, `hangfire-dashboard`; add health checks on postgres and redis; add named volumes for data persistence; configure environment variable passthrough from `.env`
 
 - [ ] 0.5 Create `Dockerfile` for `ZimMarket.API` using multi-stage build (SDK → runtime); add `.dockerignore`; confirm `docker compose up` starts all services and API returns 200 on `GET /health`
 

@@ -1,0 +1,19 @@
+# Development overrides — merged automatically when you run `docker compose up`
+# (unless COMPOSE_FILE excludes this file). Safe to commit; no secrets here.
+
+services:
+  api:
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+
+  hangfire-dashboard:
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+
+  postgres:
+    ports:
+      - "${POSTGRES_HOST_PORT:-5432}:5432"
+
+  redis:
+    ports:
+      - "${REDIS_HOST_PORT:-6379}:6379"

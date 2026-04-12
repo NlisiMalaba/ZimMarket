@@ -1,0 +1,79 @@
+# ZimMarket — base stack (production-oriented defaults).
+# Requires `.env` at the repository root (see `.env.example` in task 0.6).
+# `docker compose` reads `.env` for interpolation; `env_file` passes values into containers.
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    env_file:
+      - .env
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    command: >
+      sh -c "redis-server --appendonly yes --requirepass $$REDIS_PASSWORD"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a \"$$REDIS_PASSWORD\" ping | grep -q PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: src/ZimMarket.API/Dockerfile
+    env_file:
+      - .env
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+      ASPNETCORE_URLS: http://+:8080
+    ports:
+      - "${API_PORT:-8080}:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Hangfire background job server (same image as API). Dashboard UI is typically hosted on `api` at `/hangfire` when wired in the app.
+  hangfire-dashboard:
+    build:
+      context: .
+      dockerfile: src/ZimMarket.API/Dockerfile
+    env_file:
+      - .env
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+    command: ["dotnet", "ZimMarket.API.dll", "--worker"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
