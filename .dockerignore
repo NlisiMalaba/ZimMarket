@@ -1,0 +1,37 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Docs and planning (not needed in API image)
+planning
+README.md
+**/*.md
+
+# Tests
+tests
+**/*Tests*
+**/*.Tests/**
+
+# Build outputs & tooling
+**/bin/
+**/obj/
+**/out/
+**/publish/
+**/TestResults/
+.vs/
+.vscode/
+.idea/
+
+# Local env (never bake secrets into images)
+.env
+.env.*
+!.env.example
+
+# Docker
+**/Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Node (if present later)
+**/node_modules/
