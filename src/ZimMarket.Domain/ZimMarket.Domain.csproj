@@ -7,10 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MediatR" Version="14.1.0" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\ZimMarket.Shared\ZimMarket.Shared.csproj" />
   </ItemGroup>
 

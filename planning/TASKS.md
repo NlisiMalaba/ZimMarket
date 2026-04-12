@@ -45,7 +45,7 @@
 
 - [x] 1.1 Create `BaseEntity` abstract class in Domain: `Id (Guid)`, `CreatedAt (DateTimeOffset)`, `UpdatedAt (DateTimeOffset)`, `DomainEvents (private List<IDomainEvent>)`, `AddDomainEvent()`, `PopDomainEvents()` (clears list and returns snapshot)
 
-- [x] 1.2 Create `IDomainEvent` marker interface (implements `INotification` from MediatR)
+- [x] 1.2 Create `IDomainEvent` marker interface (MediatR `INotification` bridged in Application/Infrastructure; Domain stays package-free)
 
 - [x] 1.3 Create value objects — each must be immutable (record or sealed class with private constructor + static `Create` factory returning `Result<T>`):
   - `Money(Amount: decimal, Currency: Currency)` — with `ToZwl(rate)`, `ToUsd(rate)` methods; no negative amounts; max 2 decimal places
@@ -126,7 +126,7 @@
   - **Seller KYC state machine**: `SubmitKyc` only works from `NotSubmitted`; `Approve` only from `PendingReview`
   - _Requirements: Domain invariants_
 
-- [ ] **Checkpoint 1** — All domain unit tests pass; domain project has zero dependencies on external packages
+- [x] **Checkpoint 1** — All domain unit tests pass; domain project has zero dependencies on external packages
 
 ---
 
