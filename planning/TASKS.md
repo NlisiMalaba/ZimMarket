@@ -132,15 +132,15 @@
 
 ## Module 2 — Application Layer Foundation
 
-- [ ] 2.1 Create `Result<T>` and `Result` (non-generic) classes in `Application/Common/Models/`:
+- [x] 2.1 Create `Result<T>` and `Result` (non-generic) classes in `Application/Common/Models/`:
   - `Result<T>`: `IsSuccess`, `Value`, `ErrorCode`, `ErrorMessage`, `ValidationErrors (List<ValidationError>?)`
   - Static factories: `Success(T value)`, `Failure(string code, string message)`, `ValidationFailure(List<ValidationError> errors)`
   - `Result` (non-generic): same but no value — for commands with no return
   - `ValidationError(string Field, string Message)`
 
-- [ ] 2.2 Create `PaginationParams` in `Shared`: `Page (default 1)`, `PageSize (default 20, max 100)`, `SortBy`, `SortDir`; create `PagedList<T>`: `Items`, `Page`, `PageSize`, `TotalCount`, `TotalPages`, `HasNextPage`, `HasPreviousPage`
+- [x] 2.2 Create `PaginationParams` in `Shared`: `Page (default 1)`, `PageSize (default 20, max 100)`, `SortBy`, `SortDir`; create `PagedList<T>`: `Items`, `Page`, `PageSize`, `TotalCount`, `TotalPages`, `HasNextPage`, `HasPreviousPage`
 
-- [ ] 2.3 Create common application interfaces in `Application/Common/Interfaces/`:
+- [x] 2.3 Create common application interfaces in `Application/Common/Interfaces/`:
   - `ICurrentUser`: `UserId (Guid)`, `Role (UserRole)`, `IsAuthenticated (bool)`, `GetClaim(string)`
   - `IFileStorage`: `UploadAsync(stream, key, contentType, ct)`, `GenerateSasUrlAsync(key, expiry, ct)`, `DeleteAsync(key, ct)`, `GetPresignedUploadUrlAsync(key, contentType, ct)`
   - `IPaymentGateway`: `InitiateAsync(PaymentRequest, ct) → PaymentInitiateResult`; `VerifyWebhookAsync(payload, signature, ct) → PaymentWebhookResult`
@@ -150,17 +150,17 @@
   - `ICacheService`: `GetAsync<T>(key, ct)`, `SetAsync<T>(key, value, ttl, ct)`, `RemoveAsync(key, ct)`, `RemoveByPatternAsync(pattern, ct)`
   - `IExchangeRateService`: `GetUsdToZwlAsync(ct) → decimal`
 
-- [ ] 2.4 Create MediatR pipeline behaviours in `Application/Common/Behaviours/`:
+- [x] 2.4 Create MediatR pipeline behaviours in `Application/Common/Behaviours/`:
   - **`LoggingBehaviour<TRequest, TResponse>`** — log request name, `UserId`, duration (ms), success/failure; use structured logging (not string interpolation)
   - **`ValidationBehaviour<TRequest, TResponse>`** — discover all `IValidator<TRequest>` from DI; run all validators; if any fail, return `Result.ValidationFailure(errors)` without calling handler; never throw exceptions
   - **`TransactionBehaviour<TRequest, TResponse>`** — only for commands (implement `ICommand` marker interface); wrap handler in `IUnitOfWork` transaction; rollback on exception; no-op for queries
   - **`CachingBehaviour<TRequest, TResponse>`** — only for queries implementing `ICacheable (string CacheKey, TimeSpan Ttl)`; check `ICacheService` first; populate on miss; skip on cache error (never fail a request due to cache unavailability)
 
-- [ ] 2.5 Create marker interfaces: `ICommand`, `ICommand<T>`, `IQuery<T>` — all extend `IRequest<Result>` or `IRequest<Result<T>>`; use these as constraints in behaviour registrations
+- [x] 2.5 Create marker interfaces: `ICommand`, `ICommand<T>`, `IQuery<T>` — all extend `IRequest<Result>` or `IRequest<Result<T>>`; use these as constraints in behaviour registrations
 
-- [ ] 2.6 Create `DependencyInjection.cs` in Application: register MediatR (scan assembly), FluentValidation (scan assembly), pipeline behaviours in correct order (Logging → Validation → Transaction → Caching)
+- [x] 2.6 Create `DependencyInjection.cs` in Application: register MediatR (scan assembly), FluentValidation (scan assembly), pipeline behaviours in correct order (Logging → Validation → Transaction → Caching)
 
-- [ ] **Checkpoint 2** — Application layer compiles; behaviours registered correctly; basic MediatR pipeline test passes (mock handler receives request)
+- [x] **Checkpoint 2** — Application layer compiles; behaviours registered correctly; basic MediatR pipeline test passes (mock handler receives request)
 
 ---
 
