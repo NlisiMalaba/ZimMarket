@@ -178,7 +178,7 @@
   - Define all indexes (see DESIGN.md section 13)
   - Configure cascade delete rules explicitly (never rely on defaults)
 
-- [ ] 3.3 Create `UnitOfWork` implementing `IUnitOfWork`: wraps `AppDbContext`; lazily initialises repositories; transaction management via `IDbContextTransaction`
+- [x] 3.3 Create `UnitOfWork` implementing `IUnitOfWork`: wraps `AppDbContext`; lazily initialises repositories; transaction management via `IDbContextTransaction`
 
 - [ ] 3.4 Create concrete repositories implementing all interfaces from Domain:
   - Use `IQueryable` + LINQ — no raw SQL unless performance-critical
