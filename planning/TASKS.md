@@ -166,7 +166,7 @@
 
 ## Module 3 — Infrastructure Layer
 
-- [ ] 3.1 Create `AppDbContext` extending `DbContext`:
+- [x] 3.1 Create `AppDbContext` extending `DbContext`:
   - `DbSet<Customer>`, `DbSet<Seller>`, `DbSet<Driver>`, `DbSet<Product>`, `DbSet<Category>`, `DbSet<Order>`, `DbSet<OrderItem>`, `DbSet<DeliveryBatch>`, `DbSet<WarehouseItem>`, `DbSet<ExchangeRate>`
   - Apply all configurations from assembly via `ApplyConfigurationsFromAssembly`
   - Override `SaveChangesAsync` to: auto-set `CreatedAt`/`UpdatedAt`; collect and dispatch domain events via `IPublisher` (MediatR); domain events dispatched **after** save succeeds
