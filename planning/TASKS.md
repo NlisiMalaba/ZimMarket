@@ -171,7 +171,7 @@
   - Apply all configurations from assembly via `ApplyConfigurationsFromAssembly`
   - Override `SaveChangesAsync` to: auto-set `CreatedAt`/`UpdatedAt`; collect and dispatch domain events via `IPublisher` (MediatR); domain events dispatched **after** save succeeds
 
-- [ ] 3.2 Create EF entity configurations (`IEntityTypeConfiguration<T>`) for each entity — put in `Persistence/Configurations/`:
+- [x] 3.2 Create EF entity configurations (`IEntityTypeConfiguration<T>`) for each entity — put in `Persistence/Configurations/`:
   - Use `HasKey`, `IsRequired`, `HasMaxLength`, value object conversions (`OwnsOne` for `Address`, `Money`, `GeoCoordinate`, `PhoneNumber`)
   - Table-per-hierarchy (TPH) for User discriminator column
   - Soft delete: global query filter `WHERE deleted_at IS NULL` on `Product`
