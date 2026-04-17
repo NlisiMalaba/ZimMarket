@@ -188,7 +188,7 @@
 
 - [x] 3.5 Create initial EF Core migration; add seed data migration for: default categories (Electronics, Clothing, Food, Home & Garden, Agriculture, Other), SuperAdmin user (credentials from env), initial exchange rate row
 
-- [ ] 3.6 Create `JwtService`:
+- [x] 3.6 Create `JwtService`:
   - Generate access tokens (RS256, 15 min expiry) with claims: `sub (userId)`, `email`, `role`, `kycStatus`, `jti`
   - Generate refresh tokens (cryptographically random 64 bytes, base64 encoded)
   - `ValidateAccessToken(token) → ClaimsPrincipal?` — used in middleware

@@ -60,6 +60,26 @@ public abstract class User : BaseEntity
         UpdatedAt = DateTimeOffset.UtcNow;
     }
 
+    /// <summary>
+    /// Persists a PBKDF2 hash of the refresh token (never the raw token). Call <see cref="ClearRefreshToken"/> on logout or rotation.
+    /// </summary>
+    public void SetRefreshToken(string pbkdf2StoredHash, DateTimeOffset expiresAtUtc)
+    {
+        if (string.IsNullOrWhiteSpace(pbkdf2StoredHash))
+            throw new ArgumentException("Refresh token hash is required.", nameof(pbkdf2StoredHash));
+
+        RefreshTokenHash = pbkdf2StoredHash.Trim();
+        RefreshTokenExpiry = expiresAtUtc;
+        UpdatedAt = DateTimeOffset.UtcNow;
+    }
+
+    public void ClearRefreshToken()
+    {
+        RefreshTokenHash = null;
+        RefreshTokenExpiry = null;
+        UpdatedAt = DateTimeOffset.UtcNow;
+    }
+
     protected void SetKycStatus(KycStatus kycStatus)
     {
         KycStatus = kycStatus;
