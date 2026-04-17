@@ -15,7 +15,9 @@ internal sealed class OrderRepository : IOrderRepository
     }
 
     public Task<Order?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default) =>
-        _dbContext.Orders.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+        _dbContext.Orders
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
     public async Task<IReadOnlyList<Order>> GetByCustomerAsync(Guid customerId, CancellationToken cancellationToken = default) =>
         await _dbContext.Orders

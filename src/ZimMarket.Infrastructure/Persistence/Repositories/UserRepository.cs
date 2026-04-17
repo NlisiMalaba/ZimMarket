@@ -18,15 +18,21 @@ internal sealed class UserRepository<TUser> : IUserRepository<TUser>
     }
 
     public Task<TUser?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default) =>
-        _users.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+        _users
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
     public Task<TUser?> GetByEmailAsync(string email, CancellationToken cancellationToken = default) =>
-        _users.FirstOrDefaultAsync(x => x.Email == email, cancellationToken);
+        _users
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Email == email, cancellationToken);
 
     public Task<TUser?> GetByPhoneAsync(PhoneNumber phoneNumber, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(phoneNumber);
-        return _users.FirstOrDefaultAsync(x => x.PhoneNumber.Value == phoneNumber.Value, cancellationToken);
+        return _users
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.PhoneNumber.Value == phoneNumber.Value, cancellationToken);
     }
 
     public async Task AddAsync(TUser user, CancellationToken cancellationToken = default)

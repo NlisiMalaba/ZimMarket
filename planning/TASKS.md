@@ -180,7 +180,7 @@
 
 - [x] 3.3 Create `UnitOfWork` implementing `IUnitOfWork`: wraps `AppDbContext`; lazily initialises repositories; transaction management via `IDbContextTransaction`
 
-- [ ] 3.4 Create concrete repositories implementing all interfaces from Domain:
+- [x] 3.4 Create concrete repositories implementing all interfaces from Domain:
   - Use `IQueryable` + LINQ — no raw SQL unless performance-critical
   - Use `AsNoTracking()` on all query-only reads
   - `ProductRepository.GetPagedAsync` must support: category filter, price range, text search (EF.Functions.ILike or full-text), seller filter; apply `OrderBy` before `Skip/Take`

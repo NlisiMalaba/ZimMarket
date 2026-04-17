@@ -16,7 +16,9 @@ internal sealed class ProductRepository : IProductRepository
     }
 
     public Task<Product?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default) =>
-        _dbContext.Products.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+        _dbContext.Products
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
     public async Task<PagedList<Product>> GetPagedAsync(
         ProductFilter filter,
@@ -31,7 +33,10 @@ internal sealed class ProductRepository : IProductRepository
         if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
         {
             string term = filter.SearchTerm.Trim();
-            query = query.Where(x => x.Title.Contains(term) || x.Description.Contains(term));
+            string pattern = $"%{term}%";
+            query = query.Where(x =>
+                EF.Functions.ILike(x.Title, pattern) ||
+                EF.Functions.ILike(x.Description, pattern));
         }
 
         if (filter.CategoryId.HasValue)
@@ -42,6 +47,9 @@ internal sealed class ProductRepository : IProductRepository
 
         if (filter.MaxPriceUsd.HasValue)
             query = query.Where(x => x.Price.Amount <= filter.MaxPriceUsd.Value);
+
+        if (filter.SellerId.HasValue)
+            query = query.Where(x => x.SellerId == filter.SellerId.Value);
 
         query = query.OrderByDescending(x => x.CreatedAt);
 

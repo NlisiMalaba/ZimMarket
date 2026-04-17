@@ -15,12 +15,16 @@ internal sealed class DeliveryBatchRepository : IDeliveryBatchRepository
     }
 
     public Task<DeliveryBatch?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default) =>
-        _dbContext.DeliveryBatches.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+        _dbContext.DeliveryBatches
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
     public Task<DeliveryBatch?> GetActiveByDriverAsync(Guid driverId, CancellationToken cancellationToken = default) =>
-        _dbContext.DeliveryBatches.FirstOrDefaultAsync(
-            x => x.DriverId == driverId && x.Status != DeliveryBatchStatus.Completed,
-            cancellationToken);
+        _dbContext.DeliveryBatches
+            .AsNoTracking()
+            .FirstOrDefaultAsync(
+                x => x.DriverId == driverId && x.Status != DeliveryBatchStatus.Completed,
+                cancellationToken);
 
     public async Task<IReadOnlyList<DeliveryBatch>> GetPendingBatchesAsync(CancellationToken cancellationToken = default) =>
         await _dbContext.DeliveryBatches
