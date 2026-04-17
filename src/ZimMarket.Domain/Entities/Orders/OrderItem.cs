@@ -5,6 +5,13 @@ namespace ZimMarket.Domain.Entities.Orders;
 
 public sealed class OrderItem
 {
+    // EF Core materialization (owned types cannot bind to constructor parameters).
+    private OrderItem()
+    {
+        ProductTitle = string.Empty;
+        UnitPrice = null!;
+    }
+
     private OrderItem(Guid productId, string productTitle, Money unitPrice, int quantity)
     {
         ProductId = productId;
@@ -13,13 +20,13 @@ public sealed class OrderItem
         Quantity = quantity;
     }
 
-    public Guid ProductId { get; }
+    public Guid ProductId { get; private set; }
 
-    public string ProductTitle { get; }
+    public string ProductTitle { get; private set; } = null!;
 
-    public Money UnitPrice { get; }
+    public Money UnitPrice { get; private set; } = null!;
 
-    public int Quantity { get; }
+    public int Quantity { get; private set; }
 
     public Money LineTotal
     {

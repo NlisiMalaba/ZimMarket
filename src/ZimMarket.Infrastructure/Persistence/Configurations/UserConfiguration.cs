@@ -39,14 +39,16 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
                     .HasColumnName("phone_number")
                     .HasMaxLength(MappingConstants.PhoneMaxLength)
                     .IsRequired();
+                phone.HasIndex(p => p.Value).IsUnique();
             });
 
         builder.HasIndex(x => x.Email).IsUnique();
-        builder.HasIndex("phone_number").IsUnique();
 
         builder.HasDiscriminator<UserRole>("user_type")
             .HasValue<Customer>(UserRole.Customer)
             .HasValue<Seller>(UserRole.Seller)
-            .HasValue<Driver>(UserRole.Driver);
+            .HasValue<Driver>(UserRole.Driver)
+            .HasValue<AdminUser>(UserRole.Admin)
+            .HasValue<SuperAdminUser>(UserRole.SuperAdmin);
     }
 }

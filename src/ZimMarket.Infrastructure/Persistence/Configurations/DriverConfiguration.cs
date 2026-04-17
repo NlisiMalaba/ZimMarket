@@ -35,10 +35,10 @@ public sealed class DriverConfiguration : IEntityTypeConfiguration<Driver>
             {
                 location.Property(x => x.Latitude).HasColumnName("last_known_latitude");
                 location.Property(x => x.Longitude).HasColumnName("last_known_longitude");
+                location.HasIndex(x => new { x.Latitude, x.Longitude });
             });
 
         builder.HasIndex(x => x.LicenseNumber).IsUnique();
         builder.HasIndex(x => x.VehicleRegistration).IsUnique();
-        builder.HasIndex("last_known_latitude", "last_known_longitude");
     }
 }

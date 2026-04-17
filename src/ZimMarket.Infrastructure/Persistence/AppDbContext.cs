@@ -26,6 +26,10 @@ public sealed class AppDbContext : DbContext
 
     public DbSet<Driver> Drivers => Set<Driver>();
 
+    public DbSet<AdminUser> AdminUsers => Set<AdminUser>();
+
+    public DbSet<SuperAdminUser> SuperAdminUsers => Set<SuperAdminUser>();
+
     public DbSet<Product> Products => Set<Product>();
 
     public DbSet<Category> Categories => Set<Category>();

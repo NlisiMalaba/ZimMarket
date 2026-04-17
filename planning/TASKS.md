@@ -186,7 +186,7 @@
   - `ProductRepository.GetPagedAsync` must support: category filter, price range, text search (EF.Functions.ILike or full-text), seller filter; apply `OrderBy` before `Skip/Take`
   - Never expose `IQueryable` outside the repository — return concrete types
 
-- [ ] 3.5 Create initial EF Core migration; add seed data migration for: default categories (Electronics, Clothing, Food, Home & Garden, Agriculture, Other), SuperAdmin user (credentials from env), initial exchange rate row
+- [x] 3.5 Create initial EF Core migration; add seed data migration for: default categories (Electronics, Clothing, Food, Home & Garden, Agriculture, Other), SuperAdmin user (credentials from env), initial exchange rate row
 
 - [ ] 3.6 Create `JwtService`:
   - Generate access tokens (RS256, 15 min expiry) with claims: `sub (userId)`, `email`, `role`, `kycStatus`, `jti`

@@ -20,7 +20,8 @@ public sealed class CustomerConfiguration : IEntityTypeConfiguration<Customer>
                 addressBuilder.Property(x => x.Id)
                     .HasColumnName("id")
                     .ValueGeneratedNever();
-                addressBuilder.HasKey("customer_id", "id");
+                // Shadow FK uses the column name from WithOwner().HasForeignKey; CLR key property is Id (column "id").
+                addressBuilder.HasKey("customer_id", nameof(CustomerDeliveryAddress.Id));
 
                 addressBuilder.OwnsOne(
                     x => x.Address,
