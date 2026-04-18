@@ -311,18 +311,18 @@
 
 ## Module 5 — File Upload
 
-- [ ] 5.1 Create `GetPresignedUploadUrlQuery(FileType, ContentType, FileSizeBytes)` with handler:
+- [x] 5.1 Create `GetPresignedUploadUrlQuery(FileType, ContentType, FileSizeBytes)` with handler:
   - `FileType` enum: `ProductImage`, `NationalId`, `ProofOfResidence`, `DriverLicense`, `VehicleDoc`, `DeliveryPhoto`, `ProfilePhoto`
   - Validate content type (images: `image/jpeg`, `image/png`, `image/webp` only; max 5MB)
   - Generate file key: `{container}/{userId}/{guid}.{ext}`
   - Call `IFileStorage.GetPresignedUploadUrlAsync`
   - Return `Result<PresignedUrlDto> { UploadUrl, FileKey, ExpiresAt }`
 
-- [ ] 5.2 Create `FilesController` (`/api/v1/files`):
+- [x] 5.2 Create `FilesController` (`/api/v1/files`):
   - `POST /presigned-url` [Authorize] → `GetPresignedUploadUrlQuery`
   - `GET /kyc-document/{key}` [Authorize(Admin)] → calls `IFileStorage.GenerateSasUrlAsync` and returns short-lived URL (never redirect directly to SAS — log the access)
 
-- [ ] **Checkpoint 5** — Client can get presigned URL, upload directly to blob, use key in subsequent commands
+- [x] **Checkpoint 5** — Client can get presigned URL, upload directly to blob, use key in subsequent commands
 
 ---
 
