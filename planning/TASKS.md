@@ -377,24 +377,24 @@
 
 ## Module 7 — Orders & Cart
 
-- [ ] 7.1 Create `PlaceOrderCommand(Items: List<OrderItemDto>, DeliveryAddress, PaymentMethod)` with handler:
+- [x] 7.1 Create `PlaceOrderCommand(Items: List<OrderItemDto>, DeliveryAddress, PaymentMethod)` with handler:
   - `[Authorize(Customer)]`
   - For each item: verify product exists, is `Active`, has sufficient stock; create stock reservation (decrement `StockQuantity` within same transaction)
   - Calculate `TotalAmount` in USD (always); create `Order` entity with `Status = Pending`
   - Raise `OrderPlacedEvent`; save; return `Result<PlaceOrderResultDto> { OrderId, TotalUsd, TotalZwl }`
   - The total in ZWL is calculated at order time using current exchange rate and included in response for display — it is not stored
 
-- [ ] 7.2 Create `CancelOrderCommand(OrderId, Reason)` with handler:
+- [x] 7.2 Create `CancelOrderCommand(OrderId, Reason)` with handler:
   - `[Authorize(Customer)]` — customer can only cancel their own order
   - Verify order is in cancellable state (`CanTransitionTo(Cancelled)`)
   - Call `order.Cancel(reason)`; restore stock (reverse the reservation); save
   - Raise domain event to notify seller
 
-- [ ] 7.3 Create `GetOrderByIdQuery(OrderId)` with handler:
+- [x] 7.3 Create `GetOrderByIdQuery(OrderId)` with handler:
   - `[Authorize]` — customer sees own orders; admin/seller see relevant orders
   - Return `Result<OrderDetailDto>` including current status, items, payment status, delivery batch id if assigned
 
-- [ ] 7.4 Create `GetCustomerOrdersQuery(Page, PageSize, StatusFilter?)` [Authorize(Customer)]
+- [x] 7.4 Create `GetCustomerOrdersQuery(Page, PageSize, StatusFilter?)` [Authorize(Customer)]
 
 - [ ] 7.5 Create `OrdersController` (`/api/v1/orders`):
   - `POST /` → `PlaceOrderCommand` [Authorize(Customer)]
