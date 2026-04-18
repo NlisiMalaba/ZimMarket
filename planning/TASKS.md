@@ -214,7 +214,7 @@
 
 - [ ] 3.10 Create `EcocashService` implementing `IPaymentGateway` (same interface as Paynow — swappable via factory)
 
-- [ ] 3.11 Create `PaymentGatewayFactory` implementing `IPaymentGatewayFactory`: resolves correct gateway by `PaymentMethod` using .NET keyed services
+- [x] 3.11 Create `PaymentGatewayFactory` implementing `IPaymentGatewayFactory`: resolves correct gateway by `PaymentMethod` using .NET keyed services
 
 - [ ] 3.12 Create `TwilioSmsService` implementing `ISmsService`; create `SendGridEmailService` implementing `IEmailService` with HTML email templates for: welcome, KYC approved, KYC rejected, order confirmation, delivery notification
 

@@ -110,8 +110,10 @@ public static class DependencyInjection
                 sp.GetRequiredService<ILogger<PaynowService>>(),
                 sp.GetRequiredService<IHostEnvironment>()));
 
-            services.AddKeyedSingleton<IPaymentGateway>("paynow", (sp, _) => sp.GetRequiredService<PaynowService>());
+            services.AddKeyedSingleton<IPaymentGateway>(PaymentGatewayKeys.Paynow, (sp, _) => sp.GetRequiredService<PaynowService>());
         }
+
+        services.AddSingleton<IPaymentGatewayFactory, PaymentGatewayFactory>();
 
         return services;
     }
