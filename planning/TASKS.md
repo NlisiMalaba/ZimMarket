@@ -431,7 +431,7 @@
   - Notify seller (push + email) via `IPushNotificationService` / `IEmailService` (dispatched via Hangfire fire-and-forget)
   - Notify customer (push + SMS receipt)
 
-- [ ] 8.4 Create `PaymentsController` (`/api/v1/payments`):
+- [x] 8.4 Create `PaymentsController` (`/api/v1/payments`):
   - `POST /initiate` → `InitiatePaymentCommand` [Authorize(Customer)]
   - `POST /webhook/paynow` → `ProcessPaymentWebhookCommand(... GatewayType.Paynow)` [no auth — HMAC verified inside]
   - `POST /webhook/ecocash` → `ProcessPaymentWebhookCommand(... GatewayType.Ecocash)` [same]
