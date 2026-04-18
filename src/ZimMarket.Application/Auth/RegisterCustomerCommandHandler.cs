@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+using ZimMarket.Application.Common;
 using ZimMarket.Application.Common.Interfaces;
 using ZimMarket.Application.Common.Models;
 using ZimMarket.Domain.Entities.Users;
@@ -57,13 +58,13 @@ public sealed class RegisterCustomerCommandHandler : IRequestHandler<RegisterCus
         if (await _userIdentityRead.ExistsWithEmailAsync(normalizedEmail, cancellationToken).ConfigureAwait(false))
         {
             _logger.LogDebug("Customer registration rejected: email {Email} already exists.", normalizedEmail);
-            return Result<AuthTokensDto>.Failure("Auth.EmailTaken", "This email is already registered.");
+            return Result<AuthTokensDto>.Failure(AuthErrorCodes.UserAlreadyExists, "This email is already registered.");
         }
 
         if (await _userIdentityRead.ExistsWithPhoneAsync(phone, cancellationToken).ConfigureAwait(false))
         {
             _logger.LogDebug("Customer registration rejected: phone already exists.");
-            return Result<AuthTokensDto>.Failure("Auth.PhoneTaken", "This phone number is already registered.");
+            return Result<AuthTokensDto>.Failure(AuthErrorCodes.UserPhoneAlreadyExists, "This phone number is already registered.");
         }
 
         DateTimeOffset now = DateTimeOffset.UtcNow;

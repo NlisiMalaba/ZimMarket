@@ -82,7 +82,8 @@ public static class WebAuthenticationServiceCollectionExtensions
 
         using RSA rsa = RSA.Create();
         rsa.ImportFromPem(jwt.PublicKeyPem);
-        var signingKey = new RsaSecurityKey(rsa);
+        // Copy parameters so the key is not tied to `rsa`'s lifetime (a `using`-disposed RSA would break validation).
+        var signingKey = new RsaSecurityKey(rsa.ExportParameters(false));
 
         services.AddAuthentication(options =>
             {

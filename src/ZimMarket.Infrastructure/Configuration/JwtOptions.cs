@@ -19,6 +19,12 @@ public sealed class JwtOptions
     [Range(1, 120)]
     public int AccessTokenLifetimeMinutes { get; set; } = 15;
 
+    /// <summary>
+    /// When set, overrides <see cref="AccessTokenLifetimeMinutes"/> for access token expiry (short-lived tokens for integration tests).
+    /// </summary>
+    [Range(1, 600)]
+    public int? AccessTokenLifetimeSeconds { get; set; }
+
     [Range(1, 365)]
     public int RefreshTokenLifetimeDays { get; set; } = 30;
 

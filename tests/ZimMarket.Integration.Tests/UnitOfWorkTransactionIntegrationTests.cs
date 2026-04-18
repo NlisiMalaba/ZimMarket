@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using ZimMarket.Domain.Entities.Catalogue;
 using ZimMarket.Domain.Interfaces;
@@ -39,17 +40,21 @@ public sealed class UnitOfWorkTransactionIntegrationTests
 
         categoryResult.IsSuccess.Should().BeTrue();
 
-        await uow.BeginTransactionAsync();
-        try
+        IExecutionStrategy strategy = db.Database.CreateExecutionStrategy();
+        await strategy.ExecuteAsync(async () =>
         {
-            db.Add(categoryResult.Value!);
-            await db.SaveChangesAsync();
-            throw new InvalidOperationException("Simulated mid-command failure.");
-        }
-        catch (InvalidOperationException)
-        {
-            await uow.RollbackAsync();
-        }
+            await uow.BeginTransactionAsync();
+            try
+            {
+                db.Add(categoryResult.Value!);
+                await db.SaveChangesAsync();
+                throw new InvalidOperationException("Simulated mid-command failure.");
+            }
+            catch (InvalidOperationException)
+            {
+                await uow.RollbackAsync();
+            }
+        });
 
         await using AsyncServiceScope verifyScope = _fixture.Services.CreateAsyncScope();
         AppDbContext dbVerify = verifyScope.ServiceProvider.GetRequiredService<AppDbContext>();

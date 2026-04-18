@@ -295,17 +295,17 @@
   - `POST /kyc/driver` → `SubmitDriverKycCommand` [Authorize(Driver)]
   - All endpoints return consistent JSON envelope; map `Result` to status codes
 
-- [ ]* 4.12 Write unit tests for auth handlers:
+- [x]* 4.12 Write unit tests for auth handlers:
   - **RegisterCustomer**: duplicate email returns `USER_ALREADY_EXISTS`; duplicate phone returns conflict; successful registration returns tokens
   - **Login**: wrong password returns `AUTH_INVALID_CREDENTIALS`; deactivated account returns forbidden
   - **RefreshToken**: expired refresh token returns `AUTH_REFRESH_INVALID`; valid rotation returns new pair and invalidates old
   - **SubmitSellerKyc**: non-seller caller returns forbidden; already submitted returns conflict
 
-- [ ]* 4.13 Write integration tests for auth endpoints (using `WebApplicationFactory` + Testcontainers):
+- [x]* 4.13 Write integration tests for auth endpoints (using `WebApplicationFactory` + Testcontainers):
   - Full registration → login → refresh → logout flow
   - Concurrent registration with same email returns 409 on second request
 
-- [ ] **Checkpoint 4** — Auth endpoints working end-to-end; JWT validated on protected routes; KYC submission persisted; all auth tests pass
+- [x] **Checkpoint 4** — Auth endpoints working end-to-end; JWT validated on protected routes; KYC submission persisted; all auth tests pass
 
 ---
 

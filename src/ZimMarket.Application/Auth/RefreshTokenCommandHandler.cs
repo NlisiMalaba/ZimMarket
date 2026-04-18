@@ -1,6 +1,7 @@
 using System.Globalization;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using ZimMarket.Application.Common;
 using ZimMarket.Application.Common.Interfaces;
 using ZimMarket.Application.Common.Models;
 using ZimMarket.Domain.Entities.Users;
@@ -31,15 +32,20 @@ public sealed class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCom
         {
             _logger.LogDebug("Refresh rejected: access token failed signature or issuer validation.");
             return Result<AuthTokensDto>.Failure(
-                "Auth.InvalidAccessToken",
+                AuthErrorCodes.AuthInvalidAccessToken,
                 "Access token is invalid or could not be verified.");
         }
 
-        if (DateTimeOffset.UtcNow < access.AccessTokenExpiresAtUtc)
+        bool allowRefreshWhileAccessValid = string.Equals(
+            Environment.GetEnvironmentVariable("ZIMMARKET_TEST_ALLOW_REFRESH_WHILE_ACCESS_VALID"),
+            "1",
+            StringComparison.Ordinal);
+
+        if (!allowRefreshWhileAccessValid && DateTimeOffset.UtcNow < access.AccessTokenExpiresAtUtc)
         {
             _logger.LogDebug("Refresh rejected: access token is not yet expired.");
             return Result<AuthTokensDto>.Failure(
-                "Auth.AccessTokenNotExpired",
+                AuthErrorCodes.AuthAccessTokenNotExpired,
                 "The access token is still valid; refresh is only allowed after it has expired.");
         }
 
@@ -49,7 +55,7 @@ public sealed class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCom
         {
             _logger.LogDebug("Refresh rejected: access token missing subject.");
             return Result<AuthTokensDto>.Failure(
-                "Auth.InvalidAccessToken",
+                AuthErrorCodes.AuthInvalidAccessToken,
                 "Access token is invalid or could not be verified.");
         }
 
@@ -58,14 +64,14 @@ public sealed class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCom
         {
             _logger.LogDebug("Refresh rejected: user {UserId} not found.", userId);
             return Result<AuthTokensDto>.Failure(
-                "Auth.InvalidRefreshToken",
+                AuthErrorCodes.AuthRefreshInvalid,
                 "Refresh token is invalid or has been revoked.");
         }
 
         if (!user.IsActive)
         {
             _logger.LogDebug("Refresh rejected: inactive user {UserId}.", userId);
-            return Result<AuthTokensDto>.Failure("Auth.AccountDisabled", "This account has been disabled.");
+            return Result<AuthTokensDto>.Failure(AuthErrorCodes.AuthAccountLocked, "This account has been disabled.");
         }
 
         if (string.IsNullOrWhiteSpace(user.RefreshTokenHash)
@@ -74,7 +80,7 @@ public sealed class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCom
         {
             _logger.LogDebug("Refresh rejected: no valid refresh session for user {UserId}.", userId);
             return Result<AuthTokensDto>.Failure(
-                "Auth.InvalidRefreshToken",
+                AuthErrorCodes.AuthRefreshInvalid,
                 "Refresh token is invalid or has been revoked.");
         }
 
@@ -82,7 +88,7 @@ public sealed class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCom
         {
             _logger.LogDebug("Refresh rejected: refresh token mismatch for user {UserId}.", userId);
             return Result<AuthTokensDto>.Failure(
-                "Auth.InvalidRefreshToken",
+                AuthErrorCodes.AuthRefreshInvalid,
                 "Refresh token is invalid or has been revoked.");
         }
 

@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+using ZimMarket.Application.Common;
 using ZimMarket.Application.Common.Interfaces;
 using ZimMarket.Application.Common.Models;
 using ZimMarket.Domain.Entities.Users;
@@ -50,7 +51,7 @@ public sealed class LoginQueryHandler : IRequestHandler<LoginQuery, Result<AuthT
         if (user is null)
         {
             _logger.LogDebug("Login failed: unknown email {Email}.", normalizedEmail);
-            return Result<AuthTokensDto>.Failure("Auth.InvalidCredentials", "Invalid email or password.");
+            return Result<AuthTokensDto>.Failure(AuthErrorCodes.AuthInvalidCredentials, "Invalid email or password.");
         }
 
         PasswordVerificationResult verification = _passwordHasher.VerifyHashedPassword(
@@ -61,13 +62,13 @@ public sealed class LoginQueryHandler : IRequestHandler<LoginQuery, Result<AuthT
         if (verification is PasswordVerificationResult.Failed)
         {
             _logger.LogDebug("Login failed: bad password for {Email}.", normalizedEmail);
-            return Result<AuthTokensDto>.Failure("Auth.InvalidCredentials", "Invalid email or password.");
+            return Result<AuthTokensDto>.Failure(AuthErrorCodes.AuthInvalidCredentials, "Invalid email or password.");
         }
 
         if (!user.IsActive)
         {
             _logger.LogDebug("Login failed: inactive account {Email}.", normalizedEmail);
-            return Result<AuthTokensDto>.Failure("Auth.AccountDisabled", "This account has been disabled.");
+            return Result<AuthTokensDto>.Failure(AuthErrorCodes.AuthAccountLocked, "This account has been disabled.");
         }
 
         string refreshToken = _jwtService.GenerateRefreshToken();

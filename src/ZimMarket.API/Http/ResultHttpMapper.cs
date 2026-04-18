@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using ZimMarket.Application.Common;
 using ZimMarket.Application.Common.Models;
 
 namespace ZimMarket.API.Http;
@@ -58,17 +59,17 @@ public static class ResultHttpMapper
 
         return errorCode switch
         {
-            "Auth.InvalidCredentials" => StatusCodes.Status401Unauthorized,
-            "Auth.InvalidRefreshToken" => StatusCodes.Status401Unauthorized,
-            "Auth.InvalidAccessToken" => StatusCodes.Status401Unauthorized,
-            "Auth.AccountDisabled" => StatusCodes.Status403Forbidden,
-            "Auth.EmailTaken" => StatusCodes.Status409Conflict,
-            "Auth.PhoneTaken" => StatusCodes.Status409Conflict,
+            AuthErrorCodes.AuthInvalidCredentials => StatusCodes.Status401Unauthorized,
+            AuthErrorCodes.AuthRefreshInvalid => StatusCodes.Status401Unauthorized,
+            AuthErrorCodes.AuthInvalidAccessToken => StatusCodes.Status401Unauthorized,
+            AuthErrorCodes.AuthAccountLocked => StatusCodes.Status403Forbidden,
+            AuthErrorCodes.UserAlreadyExists => StatusCodes.Status409Conflict,
+            AuthErrorCodes.UserPhoneAlreadyExists => StatusCodes.Status409Conflict,
             "Kyc.Forbidden" => StatusCodes.Status403Forbidden,
             "Kyc.SellerNotFound" => StatusCodes.Status404NotFound,
             "Kyc.DriverNotFound" => StatusCodes.Status404NotFound,
             "Kyc.AlreadySubmitted" => StatusCodes.Status409Conflict,
-            "Auth.AccessTokenNotExpired" => StatusCodes.Status400BadRequest,
+            AuthErrorCodes.AuthAccessTokenNotExpired => StatusCodes.Status400BadRequest,
             _ => StatusCodes.Status400BadRequest
         };
     }

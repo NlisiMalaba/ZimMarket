@@ -67,7 +67,9 @@ public sealed class JwtService : IJwtService
 
         var jti = Guid.NewGuid().ToString("N");
         var now = DateTimeOffset.UtcNow;
-        var expires = now.AddMinutes(_options.AccessTokenLifetimeMinutes);
+        DateTimeOffset expires = _options.AccessTokenLifetimeSeconds is int ttlSeconds and > 0
+            ? now.AddSeconds(ttlSeconds)
+            : now.AddMinutes(_options.AccessTokenLifetimeMinutes);
 
         var claims = new List<Claim>
         {

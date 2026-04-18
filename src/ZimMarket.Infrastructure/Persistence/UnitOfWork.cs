@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using ZimMarket.Domain.Entities.Users;
 using ZimMarket.Domain.Interfaces;
@@ -80,5 +81,29 @@ public sealed class UnitOfWork : IUnitOfWork
             await _transaction.DisposeAsync();
             _transaction = null;
         }
+    }
+
+    public async Task<T> RunInTransactionAsync<T>(Func<Task<T>> operation, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(operation);
+
+        IExecutionStrategy strategy = _dbContext.Database.CreateExecutionStrategy();
+        return await strategy.ExecuteAsync(
+            async ct =>
+            {
+                await BeginTransactionAsync(ct).ConfigureAwait(false);
+                try
+                {
+                    T result = await operation().ConfigureAwait(false);
+                    await CommitAsync(ct).ConfigureAwait(false);
+                    return result;
+                }
+                catch
+                {
+                    await RollbackAsync(ct).ConfigureAwait(false);
+                    throw;
+                }
+            },
+            cancellationToken).ConfigureAwait(false);
     }
 }

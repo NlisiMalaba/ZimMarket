@@ -26,4 +26,10 @@ public interface IUnitOfWork
     Task CommitAsync(CancellationToken cancellationToken = default);
 
     Task RollbackAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Runs <paramref name="operation"/> inside one database transaction, using the EF execution strategy when configured
+    /// (required when Npgsql retry-on-failure is enabled).
+    /// </summary>
+    Task<T> RunInTransactionAsync<T>(Func<Task<T>> operation, CancellationToken cancellationToken = default);
 }
