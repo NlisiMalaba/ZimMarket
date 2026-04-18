@@ -87,6 +87,18 @@ public sealed class Order : BaseEntity
     }
 
     /// <summary>
+    /// Records that the order was persisted after checkout (lines reserved); raises <see cref="OrderPlacedEvent"/> for downstream handlers.
+    /// </summary>
+    public void MarkPlaced()
+    {
+        if (Status != OrderStatus.Pending)
+            throw new DomainException("Order can only be marked as placed while pending.");
+
+        UpdatedAt = DateTimeOffset.UtcNow;
+        AddDomainEvent(new OrderPlacedEvent(Id, CustomerId, TotalAmount.Amount));
+    }
+
+    /// <summary>
     /// Records that the customer started checkout with the payment provider while the order remains <see cref="OrderStatus.Pending"/>.
     /// </summary>
     public void MarkPaymentInitiated(string gatewayReference, PaymentMethod method)
