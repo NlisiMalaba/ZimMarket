@@ -437,11 +437,11 @@
   - `POST /webhook/ecocash` → `ProcessPaymentWebhookCommand(... GatewayType.Ecocash)` [same]
   - Webhook endpoints must return `200 OK` immediately even if processing fails (acknowledge receipt; log internally)
 
-- [ ]* 8.5 Write unit tests:
+- [x]* 8.5 Write unit tests:
   - **InitiatePayment**: order not owned by caller returns forbidden; already-initiated order with same idempotency key returns same result (not duplicate)
   - **ProcessWebhook**: invalid HMAC returns failure without processing; duplicate reference is idempotent; successful webhook triggers `PaymentConfirmedEvent`
 
-- [ ] **Checkpoint 8** — Payment initiation returns redirect URL; webhook processes and updates order; notifications dispatched
+- [x] **Checkpoint 8** — Payment initiation returns redirect URL; webhook processes and updates order; notifications dispatched
 
 ---
 
