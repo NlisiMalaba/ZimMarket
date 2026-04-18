@@ -48,6 +48,12 @@ public static class DependencyInjection
         if (services.All(d => d.ServiceType != typeof(ISmsService)))
             services.AddSingleton<ISmsService, NullSmsService>();
 
+        if (services.All(d => d.ServiceType != typeof(IPushNotificationService)))
+            services.AddSingleton<IPushNotificationService, NullPushNotificationService>();
+
+        if (services.All(d => d.ServiceType != typeof(INotificationJobScheduler)))
+            services.AddSingleton<INotificationJobScheduler, InlineNotificationJobScheduler>();
+
         return services;
     }
 }

@@ -7,6 +7,9 @@ public interface IOrderRepository
 {
     Task<Order?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
+    /// <summary>Loads the order with change tracking so updates are persisted on save.</summary>
+    Task<Order?> GetByIdTrackedAsync(Guid id, CancellationToken cancellationToken = default);
+
     Task<IReadOnlyList<Order>> GetByCustomerAsync(Guid customerId, CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<Order>> GetByStatusAsync(OrderStatus status, CancellationToken cancellationToken = default);

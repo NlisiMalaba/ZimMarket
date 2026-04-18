@@ -27,6 +27,15 @@ public sealed class Order : BaseEntity
 
     public string? PaymentReference { get; private set; }
 
+    /// <summary>Gateway-specific reference returned when payment was initiated (e.g. Paynow poll URL).</summary>
+    public string? PaymentGatewayReference { get; private set; }
+
+    /// <summary>Payment channel used for the current initiation attempt.</summary>
+    public PaymentMethod? InitiatedPaymentMethod { get; private set; }
+
+    /// <summary>Provider reference from the last failed webhook (used for idempotent failure handling).</summary>
+    public string? FailedGatewayPaymentReference { get; private set; }
+
     public Money TotalAmount { get; private set; } = null!;
 
     public string? CancellationReason { get; private set; }
@@ -77,6 +86,29 @@ public sealed class Order : BaseEntity
         return Result<Order>.Success(order);
     }
 
+    /// <summary>
+    /// Records that the customer started checkout with the payment provider while the order remains <see cref="OrderStatus.Pending"/>.
+    /// </summary>
+    public void MarkPaymentInitiated(string gatewayReference, PaymentMethod method)
+    {
+        if (Status != OrderStatus.Pending)
+            throw new DomainException("Payment can only be initiated while the order is pending.");
+
+        if (PaymentStatus is not PaymentStatus.Pending and not PaymentStatus.Failed)
+            throw new DomainException("Payment has already been initiated or completed for this order.");
+
+        if (string.IsNullOrWhiteSpace(gatewayReference))
+            throw new DomainException("Gateway reference is required.");
+
+        if (PaymentStatus == PaymentStatus.Failed)
+            FailedGatewayPaymentReference = null;
+
+        PaymentGatewayReference = gatewayReference.Trim();
+        InitiatedPaymentMethod = method;
+        PaymentStatus = PaymentStatus.Initiated;
+        UpdatedAt = DateTimeOffset.UtcNow;
+    }
+
     public void ConfirmPayment(string reference)
     {
         if (Status != OrderStatus.Pending)
@@ -91,6 +123,32 @@ public sealed class Order : BaseEntity
         Status = OrderStatus.Paid;
         UpdatedAt = DateTimeOffset.UtcNow;
         AddDomainEvent(new PaymentConfirmedEvent(Id, trimmed));
+    }
+
+    /// <summary>
+    /// Records a definitive payment failure from the provider while the order remains <see cref="OrderStatus.Pending"/>.
+    /// </summary>
+    public void MarkPaymentFailed(string providerPaymentReference, string? reason)
+    {
+        if (Status != OrderStatus.Pending)
+            throw new DomainException("Payment failure can only be recorded while the order is pending.");
+
+        if (PaymentStatus == PaymentStatus.Paid)
+            throw new DomainException("Cannot record payment failure after payment is confirmed.");
+
+        if (string.IsNullOrWhiteSpace(providerPaymentReference))
+            throw new DomainException("Provider payment reference is required.");
+
+        string trimmedRef = providerPaymentReference.Trim();
+
+        if (PaymentStatus == PaymentStatus.Failed
+            && string.Equals(FailedGatewayPaymentReference, trimmedRef, StringComparison.OrdinalIgnoreCase))
+            return;
+
+        FailedGatewayPaymentReference = trimmedRef;
+        PaymentStatus = PaymentStatus.Failed;
+        UpdatedAt = DateTimeOffset.UtcNow;
+        AddDomainEvent(new PaymentFailedEvent(Id, trimmedRef, string.IsNullOrWhiteSpace(reason) ? null : reason.Trim()));
     }
 
     public void Cancel(string reason)
