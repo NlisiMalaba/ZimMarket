@@ -34,20 +34,9 @@ public sealed class ExchangeRateService : IExchangeRateService
 
     public async Task<decimal> GetUsdToZwlAsync(CancellationToken cancellationToken = default)
     {
-        try
-        {
-            decimal? cached = await _cache.GetAsync<decimal>(UsdToZwlCacheKey, cancellationToken).ConfigureAwait(false);
-            if (cached is > 0)
-                return cached.Value;
-        }
-        catch (OperationCanceledException)
-        {
-            throw;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex, "Exchange rate cache read failed; falling back to database.");
-        }
+        decimal? cached = await _cache.GetAsync<decimal>(UsdToZwlCacheKey, cancellationToken).ConfigureAwait(false);
+        if (cached is > 0)
+            return cached.Value;
 
         decimal? fromDatabase = await TryReadLatestRateFromDatabaseAsync(cancellationToken).ConfigureAwait(false);
         if (fromDatabase is > 0)

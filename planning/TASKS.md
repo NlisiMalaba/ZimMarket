@@ -222,7 +222,7 @@
 
 - [x] 3.14 Create `HangfireJobSetup.cs`: configure Hangfire with PostgreSQL storage; register all recurring jobs with `AddOrUpdate`; create `HangfireAuthFilter` (admin-only access to Hangfire dashboard)
 
-- [ ] 3.15 Create `ExchangeRateService` implementing `IExchangeRateService`: fetch from Redis first (key: `exchange-rate:usd-zwl`); if miss, read from DB `exchange_rates` table; return last known rate (never fail on stale rate)
+- [x] 3.15 Create `ExchangeRateService` implementing `IExchangeRateService`: fetch from Redis first (key: `exchange-rate:usd-zwl`); if miss, read from DB `exchange_rates` table; return last known rate (never fail on stale rate)
 
 - [ ] 3.16 Create `Infrastructure/DependencyInjection.cs`: register all services, keyed services (payment gateways), DbContext (with retry policy for transient failures), Redis connection multiplexer (singleton), Hangfire, SignalR
 
