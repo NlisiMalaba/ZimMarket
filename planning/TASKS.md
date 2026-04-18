@@ -396,7 +396,7 @@
 
 - [x] 7.4 Create `GetCustomerOrdersQuery(Page, PageSize, StatusFilter?)` [Authorize(Customer)]
 
-- [ ] 7.5 Create `OrdersController` (`/api/v1/orders`):
+- [x] 7.5 Create `OrdersController` (`/api/v1/orders`):
   - `POST /` → `PlaceOrderCommand` [Authorize(Customer)]
   - `GET /` → `GetCustomerOrdersQuery` [Authorize(Customer)]
   - `GET /{id}` → `GetOrderByIdQuery` [Authorize]
