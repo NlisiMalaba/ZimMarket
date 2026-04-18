@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using ZimMarket.Application.Common.Interfaces;
+using ZimMarket.Application.Common.Models;
 using ZimMarket.Domain.Enums;
 using ZimMarket.Infrastructure.Configuration;
 
@@ -24,6 +25,8 @@ public sealed class JwtService : IJwtService
     private readonly Lazy<RsaSecurityKey> _validationKey;
     private readonly Lazy<TokenValidationParameters> _validationParameters;
 
+    private readonly Lazy<TokenValidationParameters> _validationParametersIgnoringLifetime;
+
     public JwtService(IOptions<JwtOptions> options, ILogger<JwtService> logger)
     {
         _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
@@ -40,6 +43,19 @@ public sealed class JwtService : IJwtService
             ValidateAudience = true,
             ValidAudience = _options.Audience,
             ValidateLifetime = true,
+            ClockSkew = TimeSpan.FromMinutes(1),
+            ValidAlgorithms = [SecurityAlgorithms.RsaSha256]
+        });
+
+        _validationParametersIgnoringLifetime = new Lazy<TokenValidationParameters>(() => new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = _validationKey.Value,
+            ValidateIssuer = true,
+            ValidIssuer = _options.Issuer,
+            ValidateAudience = true,
+            ValidAudience = _options.Audience,
+            ValidateLifetime = false,
             ClockSkew = TimeSpan.FromMinutes(1),
             ValidAlgorithms = [SecurityAlgorithms.RsaSha256]
         });
@@ -169,6 +185,37 @@ public sealed class JwtService : IJwtService
         catch (ArgumentException ex)
         {
             _logger.LogDebug(ex, "Access token validation failed.");
+            return null;
+        }
+    }
+
+    public AccessTokenForRefreshPrincipal? TryValidateAccessTokenForRefresh(string accessToken)
+    {
+        if (string.IsNullOrWhiteSpace(accessToken))
+            return null;
+
+        try
+        {
+            ClaimsPrincipal principal = _tokenHandler.ValidateToken(
+                accessToken,
+                _validationParametersIgnoringLifetime.Value,
+                out SecurityToken securityToken);
+
+            if (securityToken is not JwtSecurityToken jwt)
+                return null;
+
+            return new AccessTokenForRefreshPrincipal(
+                principal,
+                new DateTimeOffset(jwt.ValidTo, TimeSpan.Zero));
+        }
+        catch (SecurityTokenException ex)
+        {
+            _logger.LogDebug(ex, "Access token refresh validation failed.");
+            return null;
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogDebug(ex, "Access token refresh validation failed.");
             return null;
         }
     }

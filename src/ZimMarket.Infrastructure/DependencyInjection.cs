@@ -82,6 +82,7 @@ public static class DependencyInjection
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IUserIdentityReadRepository, UserIdentityReadRepository>();
+        services.AddScoped<IUserLoginRepository, UserLoginRepository>();
         services.AddScoped<IExchangeRateService, ExchangeRateService>();
         services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
     }

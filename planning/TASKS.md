@@ -251,32 +251,32 @@
   - Raise `SellerRegisteredEvent` (handler sends welcome email with KYC instructions)
   - Return `Result<AuthTokensDto>`
 
-- [ ] 4.3 Create `RegisterDriverCommand(Email, Phone, Password, FullName)` with handler:
+- [x] 4.3 Create `RegisterDriverCommand(Email, Phone, Password, FullName)` with handler:
   - Set `KycStatus = NotSubmitted`
   - Raise `DriverRegisteredEvent`
   - Return `Result<AuthTokensDto>`
 
-- [ ] 4.4 Create `LoginQuery(Email, Password, DeviceInfo?)` with handler:
+- [x] 4.4 Create `LoginQuery(Email, Password, DeviceInfo?)` with handler:
   - Validate credentials; check `IsActive`; check `KycStatus` where relevant
   - Issue access + refresh token pair
   - Return `Result<AuthTokensDto>` with `KycStatus` included so client can redirect to KYC upload screen
 
-- [ ] 4.5 Create `RefreshTokenCommand(AccessToken, RefreshToken)` with handler:
+- [x] 4.5 Create `RefreshTokenCommand(AccessToken, RefreshToken)` with handler:
   - Validate access token is expired (not invalid sig); validate refresh token hash matches; check not expired
   - Rotate: generate new pair, invalidate old refresh token
   - Return `Result<AuthTokensDto>`
 
-- [ ] 4.6 Create `LogoutCommand(RefreshToken)`: clear refresh token hash from user record
+- [x] 4.6 Create `LogoutCommand(RefreshToken)`: clear refresh token hash from user record
 
-- [ ] 4.7 Create `SubmitSellerKycCommand(NationalIdKey, ProofOfResidenceKey)` with handler:
+- [x] 4.7 Create `SubmitSellerKycCommand(NationalIdKey, ProofOfResidenceKey)` with handler:
   - Verify caller is a `Seller` (via `ICurrentUser`)
   - Validate file keys exist in blob storage (call `IFileStorage.ExistsAsync`)
   - Call `seller.SubmitKyc(...)` domain method
   - Save, return `Result`
 
-- [ ] 4.8 Create `SubmitDriverKycCommand(LicenseDocKey, VehicleDocKey, LicenseNumber, VehicleRegistration)` — same pattern
+- [x] 4.8 Create `SubmitDriverKycCommand(LicenseDocKey, VehicleDocKey, LicenseNumber, VehicleRegistration)` — same pattern
 
-- [ ] 4.9 Create domain event handlers (MediatR `INotificationHandler<T>`):
+- [x] 4.9 Create domain event handlers (MediatR `INotificationHandler<T>`):
   - `SellerRegisteredEventHandler` → send welcome email via `IEmailService`
   - `SellerApprovedEventHandler` → send approval SMS + email; update `KycStatus` claim
   - `SellerRejectedEventHandler` → send rejection email with reason

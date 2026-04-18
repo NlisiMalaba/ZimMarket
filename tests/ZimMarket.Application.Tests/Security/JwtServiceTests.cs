@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Cryptography;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
+using ZimMarket.Application.Common.Models;
 using ZimMarket.Domain.Enums;
 using ZimMarket.Infrastructure.Configuration;
 using ZimMarket.Infrastructure.Security;
@@ -54,5 +55,29 @@ public sealed class JwtServiceTests
 
         Assert.True(sut.VerifyRefreshToken(refresh, hash));
         Assert.False(sut.VerifyRefreshToken(refresh + "x", hash));
+    }
+
+    [Fact]
+    public void TryValidateAccessTokenForRefresh_on_valid_token_returns_principal_and_expiry()
+    {
+        JwtService sut = CreateSut();
+        Guid userId = Guid.NewGuid();
+        string token = sut.GenerateAccessToken(userId, "user@example.com", UserRole.Customer, KycStatus.Approved);
+
+        AccessTokenForRefreshPrincipal? result = sut.TryValidateAccessTokenForRefresh(token);
+
+        Assert.NotNull(result);
+        Assert.Equal(userId.ToString("D"), result.Principal.FindFirst(JwtRegisteredClaimNames.Sub)?.Value);
+        Assert.True(result.AccessTokenExpiresAtUtc > DateTimeOffset.UtcNow);
+    }
+
+    [Fact]
+    public void TryValidateAccessTokenForRefresh_on_tampered_token_returns_null()
+    {
+        JwtService sut = CreateSut();
+        string token = sut.GenerateAccessToken(Guid.NewGuid(), "user@example.com", UserRole.Customer, KycStatus.Approved);
+        string tampered = token[..^4] + "xxxx";
+
+        Assert.Null(sut.TryValidateAccessTokenForRefresh(tampered));
     }
 }

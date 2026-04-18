@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using ZimMarket.Application.Common.Models;
 using ZimMarket.Domain.Enums;
 
 namespace ZimMarket.Application.Common.Interfaces;
@@ -25,4 +26,10 @@ public interface IJwtService
 
     /// <summary>Validates signature, issuer, audience, lifetime, and algorithm (RS256). Returns null if invalid.</summary>
     ClaimsPrincipal? ValidateAccessToken(string accessToken);
+
+    /// <summary>
+    /// Validates signature, issuer, audience, and algorithm (RS256) while ignoring lifetime.
+    /// Returns null if the token is malformed or fails cryptographic or issuer checks (including expired signing keys).
+    /// </summary>
+    AccessTokenForRefreshPrincipal? TryValidateAccessTokenForRefresh(string accessToken);
 }

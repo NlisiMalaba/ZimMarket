@@ -116,7 +116,8 @@ public sealed class RegisterCustomerCommandHandler : IRequestHandler<RegisterCus
             new AuthTokensDto
             {
                 AccessToken = accessToken,
-                RefreshToken = refreshToken
+                RefreshToken = refreshToken,
+                KycStatus = customer.KycStatus
             });
     }
 }

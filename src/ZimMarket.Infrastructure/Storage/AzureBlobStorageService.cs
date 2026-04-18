@@ -103,6 +103,18 @@ public sealed class AzureBlobStorageService : IFileStorage
     }
 
     /// <inheritdoc />
+    public async Task<bool> ExistsAsync(string key, CancellationToken cancellationToken = default)
+    {
+        (string containerName, string blobPath) = ParseAndValidateKey(key);
+        BlobClient blobClient = _blobServiceClient
+            .GetBlobContainerClient(containerName)
+            .GetBlobClient(blobPath);
+
+        Azure.Response<bool> exists = await blobClient.ExistsAsync(cancellationToken).ConfigureAwait(false);
+        return exists.Value;
+    }
+
+    /// <inheritdoc />
     public async Task<string> GetPresignedUploadUrlAsync(
         string key,
         string contentType,
