@@ -8,6 +8,7 @@ using StackExchange.Redis;
 using ZimMarket.Application.Common.Interfaces;
 using ZimMarket.Infrastructure.Caching;
 using ZimMarket.Infrastructure.Configuration;
+using ZimMarket.Infrastructure.Notifications;
 using ZimMarket.Infrastructure.Payments;
 using ZimMarket.Infrastructure.Security;
 using ZimMarket.Infrastructure.Storage;
@@ -114,6 +115,49 @@ public static class DependencyInjection
         }
 
         services.AddSingleton<IPaymentGatewayFactory, PaymentGatewayFactory>();
+
+        string? twilioAccountSid = configuration["Twilio:AccountSid"];
+        string? twilioAuthToken = configuration["Twilio:AuthToken"];
+        string? twilioFrom = configuration["Twilio:FromPhoneNumber"];
+        if (!string.IsNullOrWhiteSpace(twilioAccountSid)
+            && !string.IsNullOrWhiteSpace(twilioAuthToken)
+            && !string.IsNullOrWhiteSpace(twilioFrom))
+        {
+            services.AddOptions<TwilioOptions>()
+                .Bind(configuration.GetSection(TwilioOptions.SectionName))
+                .PostConfigure(options =>
+                {
+                    if (string.IsNullOrWhiteSpace(options.AccountSid))
+                        options.AccountSid = twilioAccountSid;
+                    if (string.IsNullOrWhiteSpace(options.AuthToken))
+                        options.AuthToken = twilioAuthToken;
+                    if (string.IsNullOrWhiteSpace(options.FromPhoneNumber))
+                        options.FromPhoneNumber = twilioFrom;
+                })
+                .ValidateDataAnnotations()
+                .ValidateOnStart();
+
+            services.AddSingleton<ISmsService, TwilioSmsService>();
+        }
+
+        string? sendGridApiKey = configuration["SendGrid:ApiKey"];
+        if (!string.IsNullOrWhiteSpace(sendGridApiKey))
+        {
+            services.AddOptions<SendGridOptions>()
+                .Bind(configuration.GetSection(SendGridOptions.SectionName))
+                .PostConfigure(options =>
+                {
+                    if (string.IsNullOrWhiteSpace(options.ApiKey))
+                        options.ApiKey = sendGridApiKey;
+                })
+                .ValidateDataAnnotations()
+                .Validate(
+                    o => !string.IsNullOrWhiteSpace(o.FromEmail),
+                    "SendGrid:FromEmail is required when SendGrid is enabled.")
+                .ValidateOnStart();
+
+            services.AddSingleton<IEmailService, SendGridEmailService>();
+        }
 
         return services;
     }
