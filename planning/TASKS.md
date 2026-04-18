@@ -200,7 +200,7 @@
   - Swallow `RedisException` with logging — cache failures must never break requests
   - Use `IConnectionMultiplexer` (registered as singleton)
 
-- [ ] 3.8 Create `AzureBlobStorageService` implementing `IFileStorage`:
+- [x] 3.8 Create `AzureBlobStorageService` implementing `IFileStorage`:
   - Separate containers per document type (product-images, kyc-documents, delivery-photos)
   - `GenerateSasUrlAsync` generates read-only SAS with TTL from config (KYC docs: 1 hour, others: 24 hours)
   - `GetPresignedUploadUrlAsync` generates write-only SAS for direct client upload (never relay file bytes through API)
