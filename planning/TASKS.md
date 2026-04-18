@@ -226,13 +226,13 @@
 
 - [x] 3.16 Create `Infrastructure/DependencyInjection.cs`: register all services, keyed services (payment gateways), DbContext (with retry policy for transient failures), Redis connection multiplexer (singleton), Hangfire, SignalR
 
-- [ ]* 3.17 Write integration tests using Testcontainers:
+- [x]* 3.17 Write integration tests using Testcontainers:
   - **ProductRepository**: add product → retrieve by id → update stock → soft delete → confirm filtered from queries
   - **UnitOfWork transaction**: command that fails mid-way → verify DB is unchanged (rollback works)
   - **RedisCacheService**: set → get → TTL expires → returns null; `RemoveByPattern` removes correct keys
   - _All tests use real Postgres + Redis containers spun up by Testcontainers_
 
-- [ ] **Checkpoint 3** — Infrastructure layer compiles; migration applies cleanly (`docker compose up`); integration tests pass
+- [x] **Checkpoint 3** — Infrastructure layer compiles; migration applies cleanly (`docker compose up`); integration tests pass
 
 ---
 
