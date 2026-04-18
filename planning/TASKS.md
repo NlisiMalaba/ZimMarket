@@ -194,7 +194,7 @@
   - `ValidateAccessToken(token) → ClaimsPrincipal?` — used in middleware
   - Store refresh token as PBKDF2 hash on the `User` entity (never plaintext)
 
-- [ ] 3.7 Create `RedisCacheService` implementing `ICacheService`:
+- [x] 3.7 Create `RedisCacheService` implementing `ICacheService`:
   - Serialize/deserialize with `System.Text.Json`
   - `RemoveByPatternAsync` using `SCAN` (never `KEYS` — blocks Redis)
   - Swallow `RedisException` with logging — cache failures must never break requests
