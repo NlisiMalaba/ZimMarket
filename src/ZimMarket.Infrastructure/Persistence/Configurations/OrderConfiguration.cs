@@ -18,6 +18,9 @@ public sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
         builder.Property(x => x.PaymentStatus).IsRequired();
 
         builder.Property(x => x.PaymentReference).HasMaxLength(200);
+        builder.Property(x => x.PaymentGatewayReference).HasMaxLength(500);
+        builder.Property(x => x.FailedGatewayPaymentReference).HasMaxLength(200);
+        builder.Property(x => x.InitiatedPaymentMethod);
         builder.Property(x => x.CancellationReason).HasMaxLength(1000);
         builder.Property(x => x.CreatedAt).IsRequired();
         builder.Property(x => x.UpdatedAt).IsRequired();

@@ -18,6 +18,7 @@ public sealed class UnitOfWork : IUnitOfWork
     private IProductRepository? _products;
     private ICategoryRepository? _categories;
     private IOrderRepository? _orders;
+    private IPaymentIdempotencyRepository? _paymentIdempotency;
     private IDeliveryBatchRepository? _deliveryBatches;
     private IWarehouseItemRepository? _warehouseItems;
 
@@ -37,6 +38,9 @@ public sealed class UnitOfWork : IUnitOfWork
     public ICategoryRepository Categories => _categories ??= new CategoryRepository(_dbContext);
 
     public IOrderRepository Orders => _orders ??= new OrderRepository(_dbContext);
+
+    public IPaymentIdempotencyRepository PaymentIdempotency =>
+        _paymentIdempotency ??= new PaymentIdempotencyRepository(_dbContext);
 
     public IDeliveryBatchRepository DeliveryBatches => _deliveryBatches ??= new DeliveryBatchRepository(_dbContext);
 

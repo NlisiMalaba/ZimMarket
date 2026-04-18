@@ -4,6 +4,7 @@ using ZimMarket.Domain.Entities;
 using ZimMarket.Domain.Entities.Catalogue;
 using ZimMarket.Domain.Entities.Logistics;
 using ZimMarket.Domain.Entities.Orders;
+using ZimMarket.Domain.Entities.Payments;
 using ZimMarket.Domain.Entities.Users;
 using ZimMarket.Domain.Entities.Warehouse;
 using ZimMarket.Domain.Events;
@@ -37,6 +38,8 @@ public sealed class AppDbContext : DbContext
     public DbSet<Order> Orders => Set<Order>();
 
     public DbSet<OrderItem> OrderItems => Set<OrderItem>();
+
+    public DbSet<PaymentIdempotencyRecord> PaymentIdempotencyRecords => Set<PaymentIdempotencyRecord>();
 
     public DbSet<DeliveryBatch> DeliveryBatches => Set<DeliveryBatch>();
 

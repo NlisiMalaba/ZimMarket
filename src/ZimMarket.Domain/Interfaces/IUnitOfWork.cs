@@ -17,6 +17,8 @@ public interface IUnitOfWork
 
     IOrderRepository Orders { get; }
 
+    IPaymentIdempotencyRepository PaymentIdempotency { get; }
+
     IDeliveryBatchRepository DeliveryBatches { get; }
 
     IWarehouseItemRepository WarehouseItems { get; }

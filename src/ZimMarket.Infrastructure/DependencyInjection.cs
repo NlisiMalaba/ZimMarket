@@ -45,6 +45,8 @@ public static class DependencyInjection
         RegisterSendGrid(services, configuration);
         RegisterFirebase(services, configuration);
         services.AddZimMarketHangfire(configuration);
+        if (HangfireJobSetup.IsHangfireStorageConfigured(configuration))
+            services.AddTransient<INotificationJobScheduler, HangfireNotificationJobScheduler>();
 
         return services;
     }

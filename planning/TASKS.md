@@ -412,36 +412,36 @@
 
 ## Module 8 — Payments
 
-- [ ] 8.1 Create `InitiatePaymentCommand(OrderId, PaymentMethod)` with handler:
+- [x] 8.1 Create `InitiatePaymentCommand(OrderId, PaymentMethod)` with handler:
   - `[Authorize(Customer)]` — verify caller owns the order
   - Verify order is `Pending`; check not already initiated (idempotency via `Idempotency-Key` header stored in DB)
   - Call `IPaymentGatewayFactory.Create(method).InitiateAsync(...)` with order total
   - Persist payment record (`PaymentStatus = Initiated`, `GatewayReference`, `Method`)
   - Return `Result<PaymentInitiateDto> { PaymentUrl, GatewayReference }`
 
-- [ ] 8.2 Create `ProcessPaymentWebhookCommand(Payload, Signature, GatewayType)` with handler:
+- [x] 8.2 Create `ProcessPaymentWebhookCommand(Payload, Signature, GatewayType)` with handler:
   - Called from webhook endpoint (no `[Authorize]` — instead verify HMAC signature inside handler)
   - `IPaymentGateway.VerifyWebhookAsync(...)` — return `Result.Failure` if invalid signature (log the attempt)
   - On success: call `order.ConfirmPayment(reference)` → saves → dispatches `PaymentConfirmedEvent`
   - On failure: update `PaymentStatus = Failed`; raise event to notify customer
   - **Idempotent** — if reference already processed, return success without re-processing
 
-- [ ] 8.3 Create `PaymentConfirmedEventHandler`:
+- [x] 8.3 Create `PaymentConfirmedEventHandler`:
   - Update order status to `Paid`
   - Notify seller (push + email) via `IPushNotificationService` / `IEmailService` (dispatched via Hangfire fire-and-forget)
   - Notify customer (push + SMS receipt)
 
-- [ ] 8.4 Create `PaymentsController` (`/api/v1/payments`):
+- [x] 8.4 Create `PaymentsController` (`/api/v1/payments`):
   - `POST /initiate` → `InitiatePaymentCommand` [Authorize(Customer)]
   - `POST /webhook/paynow` → `ProcessPaymentWebhookCommand(... GatewayType.Paynow)` [no auth — HMAC verified inside]
   - `POST /webhook/ecocash` → `ProcessPaymentWebhookCommand(... GatewayType.Ecocash)` [same]
   - Webhook endpoints must return `200 OK` immediately even if processing fails (acknowledge receipt; log internally)
 
-- [ ]* 8.5 Write unit tests:
+- [x]* 8.5 Write unit tests:
   - **InitiatePayment**: order not owned by caller returns forbidden; already-initiated order with same idempotency key returns same result (not duplicate)
   - **ProcessWebhook**: invalid HMAC returns failure without processing; duplicate reference is idempotent; successful webhook triggers `PaymentConfirmedEvent`
 
-- [ ] **Checkpoint 8** — Payment initiation returns redirect URL; webhook processes and updates order; notifications dispatched
+- [x] **Checkpoint 8** — Payment initiation returns redirect URL; webhook processes and updates order; notifications dispatched
 
 ---
 
