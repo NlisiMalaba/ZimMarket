@@ -356,7 +356,7 @@
 
 - [x] 6.8 Create `GetCategoriesQuery` implementing `ICacheable` (key: `categories:all`, TTL: 1 hour)
 
-- [ ] 6.9 Create `ProductsController` (`/api/v1/products`):
+- [x] 6.9 Create `ProductsController` (`/api/v1/products`):
   - `GET /` → `SearchProductsQuery` [public]
   - `GET /{id}` → `GetProductByIdQuery` [public]
   - `POST /` → `CreateProductCommand` [Authorize(SellerApproved)]
@@ -366,12 +366,12 @@
   - `GET /my` → `GetSellerProductsQuery` [Authorize(Seller)]
   - `GET /categories` → `GetCategoriesQuery` [public]
 
-- [ ]* 6.10 Write unit tests for catalogue handlers:
+- [x]* 6.10 Write unit tests for catalogue handlers:
   - **CreateProduct**: non-approved seller returns forbidden; more than 5 images returns validation error; invalid category returns error
   - **SearchProducts**: text filter returns matching results; price range filter excludes out-of-range; pagination returns correct page
   - **UpdateProduct**: caller not owner returns forbidden; valid update invalidates cache
 
-- [ ] **Checkpoint 6** — Product CRUD works end-to-end; search returns filtered paginated results; cache invalidated on updates
+- [x] **Checkpoint 6** — Product CRUD works end-to-end; search returns filtered paginated results; cache invalidated on updates
 
 ---
 

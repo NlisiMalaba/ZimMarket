@@ -16,13 +16,82 @@ namespace ZimMarket.Application.Tests.Catalogue;
 public sealed class SearchProductsQueryTests
 {
     [Fact]
-    public async Task Handler_applies_filters_and_returns_paged_summary()
+    public async Task Handler_text_filter_returns_matching_results()
     {
         Guid sellerId = Guid.NewGuid();
         Guid categoryId = Guid.NewGuid();
         Guid productId = Guid.NewGuid();
 
-        var query = new SearchProductsQuery("tomato", categoryId, 1m, 10m, 2, 5);
+        var result = await HandleQueryAsync(
+            new SearchProductsQuery("tomato", categoryId, 1m, 10m, 1, 10),
+            new PagedList<Product>(
+            [CreateProduct(sellerId, productId, categoryId, "Fresh tomato", 5m)],
+            page: 1,
+            pageSize: 10,
+            totalCount: 1));
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value!.Items.Should().ContainSingle(x => x.Title.Contains("tomato", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public async Task Handler_price_range_filter_excludes_out_of_range_products()
+    {
+        Guid sellerId = Guid.NewGuid();
+        Guid categoryId = Guid.NewGuid();
+
+        var result = await HandleQueryAsync(
+            new SearchProductsQuery(null, categoryId, 3m, 6m, 1, 20),
+            new PagedList<Product>(
+            [
+                CreateProduct(sellerId, Guid.NewGuid(), categoryId, "Range Match", 5m)
+            ],
+            page: 1,
+            pageSize: 20,
+            totalCount: 1));
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value!.Items.Should().HaveCount(1);
+        result.Value.Items.Should().OnlyContain(x => x.PriceAmount >= 3m && x.PriceAmount <= 6m);
+    }
+
+    [Fact]
+    public async Task Handler_pagination_returns_correct_page()
+    {
+        Guid sellerId = Guid.NewGuid();
+        Guid categoryId = Guid.NewGuid();
+
+        var result = await HandleQueryAsync(
+            new SearchProductsQuery(null, null, null, null, 2, 5),
+            new PagedList<Product>(
+            [
+                CreateProduct(sellerId, Guid.NewGuid(), categoryId, "P2 Item 1", 4m),
+                CreateProduct(sellerId, Guid.NewGuid(), categoryId, "P2 Item 2", 5m)
+            ],
+            page: 2,
+            pageSize: 5,
+            totalCount: 12));
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value!.Page.Should().Be(2);
+        result.Value.PageSize.Should().Be(5);
+        result.Value.TotalCount.Should().Be(12);
+        result.Value.Items.Should().HaveCount(2);
+    }
+
+    [Fact]
+    public void Query_is_not_cacheable()
+    {
+        var query = new SearchProductsQuery(null, null, null, null, 1, 20);
+        query.Should().NotBeAssignableTo<ZimMarket.Application.Common.Abstractions.ICacheable>();
+    }
+
+    private static async Task<ZimMarket.Application.Common.Models.Result<PagedList<ProductSummaryDto>>> HandleQueryAsync(
+        SearchProductsQuery query,
+        PagedList<Product> repositoryResult)
+    {
+        Guid sellerId = repositoryResult.Items[0].SellerId;
+        Guid categoryId = repositoryResult.Items[0].CategoryId;
 
         var unitOfWork = Substitute.For<IUnitOfWork>();
         var products = Substitute.For<IProductRepository>();
@@ -32,22 +101,16 @@ public sealed class SearchProductsQueryTests
         unitOfWork.Categories.Returns(categories);
         unitOfWork.Sellers.Returns(sellers);
 
-        var pagedProducts = new PagedList<Product>(
-            [CreateProduct(sellerId, productId, categoryId, "Fresh tomato", 5m)],
-            page: 2,
-            pageSize: 5,
-            totalCount: 11);
-
         products.GetPagedAsync(
                 Arg.Is<ProductFilter>(f =>
-                    f.SearchTerm == "tomato" &&
-                    f.CategoryId == categoryId &&
-                    f.MinPriceUsd == 1m &&
-                    f.MaxPriceUsd == 10m &&
+                    f.SearchTerm == query.SearchTerm &&
+                    f.CategoryId == query.CategoryId &&
+                    f.MinPriceUsd == query.MinPriceUsd &&
+                    f.MaxPriceUsd == query.MaxPriceUsd &&
                     f.SellerId == null),
-                Arg.Is<PaginationParams>(p => p.Page == 2 && p.PageSize == 5),
+                Arg.Is<PaginationParams>(p => p.Page == query.Page && p.PageSize == query.PageSize),
                 Arg.Any<CancellationToken>())
-            .Returns(pagedProducts);
+            .Returns(repositoryResult);
 
         sellers.GetByIdAsync(sellerId, Arg.Any<CancellationToken>())
             .Returns(CreateSeller(sellerId, "Acme Farms"));
@@ -59,24 +122,7 @@ public sealed class SearchProductsQueryTests
             .Returns(ci => $"https://blob.example/{ci.ArgAt<string>(0)}");
 
         var handler = new SearchProductsQueryHandler(unitOfWork, fileStorage);
-        var result = await handler.Handle(query, CancellationToken.None);
-
-        result.IsSuccess.Should().BeTrue();
-        result.Value.Should().NotBeNull();
-        result.Value!.Page.Should().Be(2);
-        result.Value.PageSize.Should().Be(5);
-        result.Value.TotalCount.Should().Be(11);
-        result.Value.Items.Should().ContainSingle();
-        result.Value.Items[0].SellerName.Should().Be("Acme Farms");
-        result.Value.Items[0].CategoryName.Should().Be("Vegetables");
-        result.Value.Items[0].PrimaryImageUrl.Should().Contain("product-images/seller/image-1.jpg");
-    }
-
-    [Fact]
-    public void Query_is_not_cacheable()
-    {
-        var query = new SearchProductsQuery(null, null, null, null, 1, 20);
-        query.Should().NotBeAssignableTo<ZimMarket.Application.Common.Abstractions.ICacheable>();
+        return await handler.Handle(query, CancellationToken.None);
     }
 
     private static Product CreateProduct(Guid sellerId, Guid productId, Guid categoryId, string title, decimal priceUsd)

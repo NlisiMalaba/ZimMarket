@@ -57,6 +57,44 @@ public sealed class CreateProductCommandHandlerTests
     }
 
     [Fact]
+    public async Task Handle_more_than_five_images_returns_validation_error()
+    {
+        var currentUser = CreateApprovedSellerCurrentUser();
+
+        var unitOfWork = Substitute.For<IUnitOfWork>();
+        var categories = Substitute.For<ICategoryRepository>();
+        unitOfWork.Categories.Returns(categories);
+        categories.ExistsAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>()).Returns(true);
+
+        var fileStorage = Substitute.For<IFileStorage>();
+        fileStorage.ExistsAsync(Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(true);
+
+        var handler = new CreateProductCommandHandler(
+            currentUser,
+            unitOfWork,
+            fileStorage,
+            NullLogger<CreateProductCommandHandler>.Instance);
+
+        var result = await handler.Handle(
+            CreateValidCommand() with
+            {
+                ImageKeys =
+                [
+                    "product-images/seller/image-1.jpg",
+                    "product-images/seller/image-2.jpg",
+                    "product-images/seller/image-3.jpg",
+                    "product-images/seller/image-4.jpg",
+                    "product-images/seller/image-5.jpg",
+                    "product-images/seller/image-6.jpg"
+                ]
+            },
+            CancellationToken.None);
+
+        result.IsSuccess.Should().BeFalse();
+        result.ValidationErrors.Should().NotBeNull();
+    }
+
+    [Fact]
     public async Task Handle_valid_request_adds_product_and_returns_id()
     {
         var currentUser = CreateApprovedSellerCurrentUser();
