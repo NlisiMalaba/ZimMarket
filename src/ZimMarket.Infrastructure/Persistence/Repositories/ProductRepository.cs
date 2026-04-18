@@ -1,8 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using ZimMarket.Domain.Common;
+using ZimMarket.Domain.Common.Specifications;
 using ZimMarket.Domain.Entities.Catalogue;
 using ZimMarket.Domain.Interfaces.Repositories;
 using ZimMarket.Shared;
+using ZimMarket.Infrastructure.Persistence.Specifications.Products;
 
 namespace ZimMarket.Infrastructure.Persistence.Repositories;
 
@@ -29,27 +31,8 @@ internal sealed class ProductRepository : IProductRepository
         ArgumentNullException.ThrowIfNull(pagination);
 
         IQueryable<Product> query = _dbContext.Products.AsNoTracking();
-
-        if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
-        {
-            string term = filter.SearchTerm.Trim();
-            string pattern = $"%{term}%";
-            query = query.Where(x =>
-                EF.Functions.ILike(x.Title, pattern) ||
-                EF.Functions.ILike(x.Description, pattern));
-        }
-
-        if (filter.CategoryId.HasValue)
-            query = query.Where(x => x.CategoryId == filter.CategoryId.Value);
-
-        if (filter.MinPriceUsd.HasValue)
-            query = query.Where(x => x.Price.Amount >= filter.MinPriceUsd.Value);
-
-        if (filter.MaxPriceUsd.HasValue)
-            query = query.Where(x => x.Price.Amount <= filter.MaxPriceUsd.Value);
-
-        if (filter.SellerId.HasValue)
-            query = query.Where(x => x.SellerId == filter.SellerId.Value);
+        ISpecification<Product> specification = BuildSpecification(filter);
+        query = ApplySpecification(query, specification);
 
         query = query.OrderByDescending(x => x.CreatedAt);
 
@@ -60,6 +43,38 @@ internal sealed class ProductRepository : IProductRepository
             .ToListAsync(cancellationToken);
 
         return new PagedList<Product>(items, pagination.Page, pagination.PageSize, totalCount);
+    }
+
+    private static ISpecification<Product> BuildSpecification(ProductFilter filter)
+    {
+        var specifications = new List<ISpecification<Product>>();
+
+        if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
+            specifications.Add(new SearchTermProductSpecification(filter.SearchTerm));
+
+        if (filter.CategoryId.HasValue)
+            specifications.Add(new CategoryProductSpecification(filter.CategoryId.Value));
+
+        if (filter.MinPriceUsd.HasValue)
+            specifications.Add(new MinPriceProductSpecification(filter.MinPriceUsd.Value));
+
+        if (filter.MaxPriceUsd.HasValue)
+            specifications.Add(new MaxPriceProductSpecification(filter.MaxPriceUsd.Value));
+
+        if (filter.SellerId.HasValue)
+            specifications.Add(new SellerProductSpecification(filter.SellerId.Value));
+
+        return new CompositeSpecification<Product>(specifications);
+    }
+
+    private static IQueryable<Product> ApplySpecification(
+        IQueryable<Product> query,
+        ISpecification<Product> specification)
+    {
+        foreach (var criteria in specification.Criteria)
+            query = query.Where(criteria);
+
+        return query;
     }
 
     public async Task<IReadOnlyList<Product>> FindBySellerAsync(Guid sellerId, CancellationToken cancellationToken = default) =>

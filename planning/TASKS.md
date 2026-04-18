@@ -328,35 +328,35 @@
 
 ## Module 6 — Catalogue (Products)
 
-- [ ] 6.1 Create `CreateProductCommand(Title, Description, PriceUsd, CategoryId, StockQuantity, ImageKeys, PickupAddress)` with handler:
+- [x] 6.1 Create `CreateProductCommand(Title, Description, PriceUsd, CategoryId, StockQuantity, ImageKeys, PickupAddress)` with handler:
   - `[Authorize(Policy = Policies.SellerApproved)]` — KYC must be approved
   - Validate: category exists, max 5 image keys, price > 0, stock ≥ 0, image keys exist in blob
   - Create `Product` entity; save; return `Result<Guid>` (product id)
 
-- [ ] 6.2 Create `UpdateProductCommand(ProductId, ...)` with handler:
+- [x] 6.2 Create `UpdateProductCommand(ProductId, ...)` with handler:
   - Verify caller owns the product (`product.SellerId == currentUser.UserId`)
   - Call domain methods on `Product`; save; invalidate cache key `product:{id}`
 
-- [ ] 6.3 Create `DeleteProductCommand(ProductId)` with handler:
+- [x] 6.3 Create `DeleteProductCommand(ProductId)` with handler:
   - Verify ownership; call `product.Delete()` (soft delete); save; invalidate cache
 
-- [ ] 6.4 Create `UpdateStockCommand(ProductId, Delta)` with handler (for seller to adjust inventory)
+- [x] 6.4 Create `UpdateStockCommand(ProductId, Delta)` with handler (for seller to adjust inventory)
 
-- [ ] 6.5 Create `GetProductByIdQuery(Guid ProductId)` implementing `ICacheable`:
+- [x] 6.5 Create `GetProductByIdQuery(Guid ProductId)` implementing `ICacheable`:
   - Cache key: `product:{productId}`, TTL: 10 minutes
   - Return `Result<ProductDetailDto>` with seller name, category, all images as public URLs
 
-- [ ] 6.6 Create `SearchProductsQuery(SearchTerm?, CategoryId?, MinPriceUsd?, MaxPriceUsd?, Page, PageSize)` with handler:
+- [x] 6.6 Create `SearchProductsQuery(SearchTerm?, CategoryId?, MinPriceUsd?, MaxPriceUsd?, Page, PageSize)` with handler:
   - Apply full-text search via `EF.Functions.ToTsVector` / `ILike` fallback
   - Apply all filters via `Specification<Product>` pattern (compose specs)
   - Return `Result<PagedList<ProductSummaryDto>>`
   - Do **not** cache search results — too many permutations
 
-- [ ] 6.7 Create `GetSellerProductsQuery(Page, PageSize)` [Authorize(Seller)] — returns caller's own products including inactive ones
+- [x] 6.7 Create `GetSellerProductsQuery(Page, PageSize)` [Authorize(Seller)] — returns caller's own products including inactive ones
 
-- [ ] 6.8 Create `GetCategoriesQuery` implementing `ICacheable` (key: `categories:all`, TTL: 1 hour)
+- [x] 6.8 Create `GetCategoriesQuery` implementing `ICacheable` (key: `categories:all`, TTL: 1 hour)
 
-- [ ] 6.9 Create `ProductsController` (`/api/v1/products`):
+- [x] 6.9 Create `ProductsController` (`/api/v1/products`):
   - `GET /` → `SearchProductsQuery` [public]
   - `GET /{id}` → `GetProductByIdQuery` [public]
   - `POST /` → `CreateProductCommand` [Authorize(SellerApproved)]
@@ -366,12 +366,12 @@
   - `GET /my` → `GetSellerProductsQuery` [Authorize(Seller)]
   - `GET /categories` → `GetCategoriesQuery` [public]
 
-- [ ]* 6.10 Write unit tests for catalogue handlers:
+- [x]* 6.10 Write unit tests for catalogue handlers:
   - **CreateProduct**: non-approved seller returns forbidden; more than 5 images returns validation error; invalid category returns error
   - **SearchProducts**: text filter returns matching results; price range filter excludes out-of-range; pagination returns correct page
   - **UpdateProduct**: caller not owner returns forbidden; valid update invalidates cache
 
-- [ ] **Checkpoint 6** — Product CRUD works end-to-end; search returns filtered paginated results; cache invalidated on updates
+- [x] **Checkpoint 6** — Product CRUD works end-to-end; search returns filtered paginated results; cache invalidated on updates
 
 ---
 
