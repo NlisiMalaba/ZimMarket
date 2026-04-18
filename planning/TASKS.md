@@ -402,11 +402,11 @@
   - `GET /{id}` → `GetOrderByIdQuery` [Authorize]
   - `POST /{id}/cancel` → `CancelOrderCommand` [Authorize(Customer)]
 
-- [ ]* 7.6 Write unit tests:
+- [x]* 7.6 Write unit tests:
   - **PlaceOrder**: out-of-stock product returns `PRODUCT_OUT_OF_STOCK`; stock is decremented on success; `OrderPlacedEvent` is raised
   - **CancelOrder**: terminal status returns `ORDER_CANNOT_CANCEL`; stock is restored on cancellation
 
-- [ ] **Checkpoint 7** — Orders placed, cancelled, retrieved; stock correctly managed
+- [x] **Checkpoint 7** — Orders placed, cancelled, retrieved; stock correctly managed
 
 ---
 
