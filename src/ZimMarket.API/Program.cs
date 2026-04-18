@@ -1,3 +1,6 @@
+using Microsoft.AspNetCore.OpenApi;
+using Scalar.AspNetCore;
+using ZimMarket.API.OpenApi;
 using ZimMarket.Application;
 using ZimMarket.Application.Common.Interfaces;
 using ZimMarket.Application.Common.Services;
@@ -11,7 +14,9 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication();
 builder.Services.AddControllers();
 builder.Services.AddHealthChecks();
-builder.Services.AddOpenApi();
+builder.Services.AddTransient<ZimMarketOpenApiDocumentTransformer>();
+builder.Services.AddOpenApi(options =>
+    options.AddDocumentTransformer<ZimMarketOpenApiDocumentTransformer>());
 
 builder.Services.AddHttpContextAccessor();
 
@@ -33,6 +38,7 @@ if (HangfireJobSetup.IsHangfireStorageConfigured(app.Configuration))
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.MapScalarApiReference(options => options.WithTitle("ZimMarket API"));
 }
 
 app.UseAuthentication();
