@@ -245,7 +245,7 @@
   - Return `Result<AuthTokensDto>` (access token + refresh token)
   - _No domain events needed for customer registration_
 
-- [ ] 4.2 Create `RegisterSellerCommand(Email, Phone, Password, FullName, BusinessName)` with handler:
+- [x] 4.2 Create `RegisterSellerCommand(Email, Phone, Password, FullName, BusinessName)` with handler:
   - Similar to customer registration
   - Set `KycStatus = NotSubmitted`
   - Raise `SellerRegisteredEvent` (handler sends welcome email with KYC instructions)
