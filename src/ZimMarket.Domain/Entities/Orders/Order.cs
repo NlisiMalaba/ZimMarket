@@ -77,6 +77,15 @@ public sealed class Order : BaseEntity
         return Result<Order>.Success(order);
     }
 
+    public void MarkPlaced()
+    {
+        if (Status != OrderStatus.Pending)
+            throw new DomainException("Order can only be marked as placed while pending.");
+
+        AddDomainEvent(new OrderPlacedEvent(Id, CustomerId, TotalAmount.Amount));
+        UpdatedAt = DateTimeOffset.UtcNow;
+    }
+
     public void ConfirmPayment(string reference)
     {
         if (Status != OrderStatus.Pending)
@@ -107,6 +116,7 @@ public sealed class Order : BaseEntity
         CancellationReason = reason.Trim();
         Status = OrderStatus.Cancelled;
         UpdatedAt = DateTimeOffset.UtcNow;
+        AddDomainEvent(new OrderCancelledEvent(Id, CustomerId, CancellationReason));
     }
 
     public void UpdateStatus(OrderStatus next)
