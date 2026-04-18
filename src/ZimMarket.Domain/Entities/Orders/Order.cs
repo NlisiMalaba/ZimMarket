@@ -165,6 +165,7 @@ public sealed class Order : BaseEntity
         CancellationReason = reason.Trim();
         Status = OrderStatus.Cancelled;
         UpdatedAt = DateTimeOffset.UtcNow;
+        AddDomainEvent(new OrderCancelledEvent(Id, CustomerId, CancellationReason));
     }
 
     public void UpdateStatus(OrderStatus next)

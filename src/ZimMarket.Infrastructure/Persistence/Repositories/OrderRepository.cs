@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using ZimMarket.Domain.Entities.Orders;
 using ZimMarket.Domain.Enums;
 using ZimMarket.Domain.Interfaces.Repositories;
+using ZimMarket.Shared;
 
 namespace ZimMarket.Infrastructure.Persistence.Repositories;
 
@@ -25,12 +26,50 @@ internal sealed class OrderRepository : IOrderRepository
             .Include(x => x.Items)
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
+    public Task<Order?> GetByIdWithItemsAsync(Guid id, CancellationToken cancellationToken = default) =>
+        _dbContext.Orders
+            .AsNoTracking()
+            .Include(x => x.Items)
+            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+
+    public Task<Order?> GetByIdForUpdateAsync(Guid id, CancellationToken cancellationToken = default) =>
+        _dbContext.Orders
+            .Include(x => x.Items)
+            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+
     public async Task<IReadOnlyList<Order>> GetByCustomerAsync(Guid customerId, CancellationToken cancellationToken = default) =>
         await _dbContext.Orders
             .AsNoTracking()
             .Where(x => x.CustomerId == customerId)
             .OrderByDescending(x => x.CreatedAt)
             .ToListAsync(cancellationToken);
+
+    public async Task<PagedList<Order>> GetByCustomerPagedAsync(
+        Guid customerId,
+        PaginationParams pagination,
+        OrderStatus? statusFilter,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(pagination);
+
+        IQueryable<Order> query = _dbContext.Orders
+            .AsNoTracking()
+            .Where(x => x.CustomerId == customerId);
+
+        if (statusFilter.HasValue)
+            query = query.Where(x => x.Status == statusFilter.Value);
+
+        query = query.OrderByDescending(x => x.CreatedAt);
+
+        long totalCount = await query.LongCountAsync(cancellationToken).ConfigureAwait(false);
+        List<Order> items = await query
+            .Skip((pagination.Page - 1) * pagination.PageSize)
+            .Take(pagination.PageSize)
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        return new PagedList<Order>(items, pagination.Page, pagination.PageSize, totalCount);
+    }
 
     public async Task<IReadOnlyList<Order>> GetByStatusAsync(OrderStatus status, CancellationToken cancellationToken = default) =>
         await _dbContext.Orders

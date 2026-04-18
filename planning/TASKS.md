@@ -328,35 +328,35 @@
 
 ## Module 6 — Catalogue (Products)
 
-- [ ] 6.1 Create `CreateProductCommand(Title, Description, PriceUsd, CategoryId, StockQuantity, ImageKeys, PickupAddress)` with handler:
+- [x] 6.1 Create `CreateProductCommand(Title, Description, PriceUsd, CategoryId, StockQuantity, ImageKeys, PickupAddress)` with handler:
   - `[Authorize(Policy = Policies.SellerApproved)]` — KYC must be approved
   - Validate: category exists, max 5 image keys, price > 0, stock ≥ 0, image keys exist in blob
   - Create `Product` entity; save; return `Result<Guid>` (product id)
 
-- [ ] 6.2 Create `UpdateProductCommand(ProductId, ...)` with handler:
+- [x] 6.2 Create `UpdateProductCommand(ProductId, ...)` with handler:
   - Verify caller owns the product (`product.SellerId == currentUser.UserId`)
   - Call domain methods on `Product`; save; invalidate cache key `product:{id}`
 
-- [ ] 6.3 Create `DeleteProductCommand(ProductId)` with handler:
+- [x] 6.3 Create `DeleteProductCommand(ProductId)` with handler:
   - Verify ownership; call `product.Delete()` (soft delete); save; invalidate cache
 
-- [ ] 6.4 Create `UpdateStockCommand(ProductId, Delta)` with handler (for seller to adjust inventory)
+- [x] 6.4 Create `UpdateStockCommand(ProductId, Delta)` with handler (for seller to adjust inventory)
 
-- [ ] 6.5 Create `GetProductByIdQuery(Guid ProductId)` implementing `ICacheable`:
+- [x] 6.5 Create `GetProductByIdQuery(Guid ProductId)` implementing `ICacheable`:
   - Cache key: `product:{productId}`, TTL: 10 minutes
   - Return `Result<ProductDetailDto>` with seller name, category, all images as public URLs
 
-- [ ] 6.6 Create `SearchProductsQuery(SearchTerm?, CategoryId?, MinPriceUsd?, MaxPriceUsd?, Page, PageSize)` with handler:
+- [x] 6.6 Create `SearchProductsQuery(SearchTerm?, CategoryId?, MinPriceUsd?, MaxPriceUsd?, Page, PageSize)` with handler:
   - Apply full-text search via `EF.Functions.ToTsVector` / `ILike` fallback
   - Apply all filters via `Specification<Product>` pattern (compose specs)
   - Return `Result<PagedList<ProductSummaryDto>>`
   - Do **not** cache search results — too many permutations
 
-- [ ] 6.7 Create `GetSellerProductsQuery(Page, PageSize)` [Authorize(Seller)] — returns caller's own products including inactive ones
+- [x] 6.7 Create `GetSellerProductsQuery(Page, PageSize)` [Authorize(Seller)] — returns caller's own products including inactive ones
 
-- [ ] 6.8 Create `GetCategoriesQuery` implementing `ICacheable` (key: `categories:all`, TTL: 1 hour)
+- [x] 6.8 Create `GetCategoriesQuery` implementing `ICacheable` (key: `categories:all`, TTL: 1 hour)
 
-- [ ] 6.9 Create `ProductsController` (`/api/v1/products`):
+- [x] 6.9 Create `ProductsController` (`/api/v1/products`):
   - `GET /` → `SearchProductsQuery` [public]
   - `GET /{id}` → `GetProductByIdQuery` [public]
   - `POST /` → `CreateProductCommand` [Authorize(SellerApproved)]
@@ -366,47 +366,47 @@
   - `GET /my` → `GetSellerProductsQuery` [Authorize(Seller)]
   - `GET /categories` → `GetCategoriesQuery` [public]
 
-- [ ]* 6.10 Write unit tests for catalogue handlers:
+- [x]* 6.10 Write unit tests for catalogue handlers:
   - **CreateProduct**: non-approved seller returns forbidden; more than 5 images returns validation error; invalid category returns error
   - **SearchProducts**: text filter returns matching results; price range filter excludes out-of-range; pagination returns correct page
   - **UpdateProduct**: caller not owner returns forbidden; valid update invalidates cache
 
-- [ ] **Checkpoint 6** — Product CRUD works end-to-end; search returns filtered paginated results; cache invalidated on updates
+- [x] **Checkpoint 6** — Product CRUD works end-to-end; search returns filtered paginated results; cache invalidated on updates
 
 ---
 
 ## Module 7 — Orders & Cart
 
-- [ ] 7.1 Create `PlaceOrderCommand(Items: List<OrderItemDto>, DeliveryAddress, PaymentMethod)` with handler:
+- [x] 7.1 Create `PlaceOrderCommand(Items: List<OrderItemDto>, DeliveryAddress, PaymentMethod)` with handler:
   - `[Authorize(Customer)]`
   - For each item: verify product exists, is `Active`, has sufficient stock; create stock reservation (decrement `StockQuantity` within same transaction)
   - Calculate `TotalAmount` in USD (always); create `Order` entity with `Status = Pending`
   - Raise `OrderPlacedEvent`; save; return `Result<PlaceOrderResultDto> { OrderId, TotalUsd, TotalZwl }`
   - The total in ZWL is calculated at order time using current exchange rate and included in response for display — it is not stored
 
-- [ ] 7.2 Create `CancelOrderCommand(OrderId, Reason)` with handler:
+- [x] 7.2 Create `CancelOrderCommand(OrderId, Reason)` with handler:
   - `[Authorize(Customer)]` — customer can only cancel their own order
   - Verify order is in cancellable state (`CanTransitionTo(Cancelled)`)
   - Call `order.Cancel(reason)`; restore stock (reverse the reservation); save
   - Raise domain event to notify seller
 
-- [ ] 7.3 Create `GetOrderByIdQuery(OrderId)` with handler:
+- [x] 7.3 Create `GetOrderByIdQuery(OrderId)` with handler:
   - `[Authorize]` — customer sees own orders; admin/seller see relevant orders
   - Return `Result<OrderDetailDto>` including current status, items, payment status, delivery batch id if assigned
 
-- [ ] 7.4 Create `GetCustomerOrdersQuery(Page, PageSize, StatusFilter?)` [Authorize(Customer)]
+- [x] 7.4 Create `GetCustomerOrdersQuery(Page, PageSize, StatusFilter?)` [Authorize(Customer)]
 
-- [ ] 7.5 Create `OrdersController` (`/api/v1/orders`):
+- [x] 7.5 Create `OrdersController` (`/api/v1/orders`):
   - `POST /` → `PlaceOrderCommand` [Authorize(Customer)]
   - `GET /` → `GetCustomerOrdersQuery` [Authorize(Customer)]
   - `GET /{id}` → `GetOrderByIdQuery` [Authorize]
   - `POST /{id}/cancel` → `CancelOrderCommand` [Authorize(Customer)]
 
-- [ ]* 7.6 Write unit tests:
+- [x]* 7.6 Write unit tests:
   - **PlaceOrder**: out-of-stock product returns `PRODUCT_OUT_OF_STOCK`; stock is decremented on success; `OrderPlacedEvent` is raised
   - **CancelOrder**: terminal status returns `ORDER_CANNOT_CANCEL`; stock is restored on cancellation
 
-- [ ] **Checkpoint 7** — Orders placed, cancelled, retrieved; stock correctly managed
+- [x] **Checkpoint 7** — Orders placed, cancelled, retrieved; stock correctly managed
 
 ---
 
