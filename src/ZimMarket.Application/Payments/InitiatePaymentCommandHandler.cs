@@ -77,7 +77,7 @@ public sealed class InitiatePaymentCommandHandler : IRequestHandler<InitiatePaym
         }
 
         var order = await _unitOfWork.Orders
-            .GetByIdTrackedAsync(request.OrderId, cancellationToken)
+            .GetByIdForUpdateAsync(request.OrderId, cancellationToken)
             .ConfigureAwait(false);
 
         if (order is null)

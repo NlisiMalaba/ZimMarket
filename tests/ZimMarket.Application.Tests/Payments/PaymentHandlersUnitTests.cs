@@ -29,7 +29,7 @@ public sealed class PaymentHandlersUnitTests
         currentUser.Role.Returns(UserRole.Customer);
 
         var order = CreatePendingOrder(customerId: Guid.NewGuid());
-        orderRepo.GetByIdTrackedAsync(order.Id, Arg.Any<CancellationToken>()).Returns(order);
+        orderRepo.GetByIdForUpdateAsync(order.Id, Arg.Any<CancellationToken>()).Returns(order);
         idempotencyRepo.GetByKeyAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
             .Returns((PaymentIdempotencyRecord?)null);
 
@@ -100,7 +100,7 @@ public sealed class PaymentHandlersUnitTests
         result.Value.GatewayReference.Should().Be(existing.GatewayReference);
 
         gatewayFactory.DidNotReceive().Create(Arg.Any<PaymentMethod>());
-        await orderRepo.DidNotReceive().GetByIdTrackedAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>());
+        await orderRepo.DidNotReceive().GetByIdForUpdateAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>());
         await idempotencyRepo.DidNotReceive().AddAsync(Arg.Any<PaymentIdempotencyRecord>(), Arg.Any<CancellationToken>());
     }
 
@@ -132,7 +132,7 @@ public sealed class PaymentHandlersUnitTests
 
         result.IsSuccess.Should().BeFalse();
         result.ErrorCode.Should().Be(PaymentErrorCodes.WebhookInvalidSignature);
-        await orderRepo.DidNotReceive().GetByIdTrackedAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>());
+        await orderRepo.DidNotReceive().GetByIdForUpdateAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -158,7 +158,7 @@ public sealed class PaymentHandlersUnitTests
                 PaymentReference = "pay-ref-1",
                 Status = "Paid"
             });
-        orderRepo.GetByIdTrackedAsync(order.Id, Arg.Any<CancellationToken>()).Returns(order);
+        orderRepo.GetByIdForUpdateAsync(order.Id, Arg.Any<CancellationToken>()).Returns(order);
 
         var handler = new ProcessPaymentWebhookCommandHandler(
             unitOfWork,
@@ -187,7 +187,7 @@ public sealed class PaymentHandlersUnitTests
         gatewayFactory.Create(PaymentMethod.Paynow).Returns(gateway);
 
         var order = CreatePendingOrder(Guid.NewGuid());
-        orderRepo.GetByIdTrackedAsync(order.Id, Arg.Any<CancellationToken>()).Returns(order);
+        orderRepo.GetByIdForUpdateAsync(order.Id, Arg.Any<CancellationToken>()).Returns(order);
         gateway.VerifyWebhookAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
             .Returns(new PaymentWebhookResult
             {

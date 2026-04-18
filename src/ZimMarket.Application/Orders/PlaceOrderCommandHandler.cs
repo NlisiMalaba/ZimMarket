@@ -130,7 +130,6 @@ public sealed class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand
         }
 
         Order order = orderResult.Value!;
-        order.MarkPlaced();
 
         await _unitOfWork.Orders.AddAsync(order, cancellationToken).ConfigureAwait(false);
 

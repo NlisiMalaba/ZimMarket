@@ -70,7 +70,7 @@ public sealed class ProcessPaymentWebhookCommandHandler : IRequestHandler<Proces
         Guid orderId = verified.OrderId.Value;
 
         var order = await _unitOfWork.Orders
-            .GetByIdTrackedAsync(orderId, cancellationToken)
+            .GetByIdForUpdateAsync(orderId, cancellationToken)
             .ConfigureAwait(false);
 
         if (order is null)
