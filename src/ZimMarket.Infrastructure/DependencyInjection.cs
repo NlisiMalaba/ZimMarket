@@ -1,4 +1,5 @@
 using Azure.Storage.Blobs;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -9,8 +10,10 @@ using ZimMarket.Application.Common.Interfaces;
 using ZimMarket.Infrastructure.BackgroundJobs;
 using ZimMarket.Infrastructure.Caching;
 using ZimMarket.Infrastructure.Configuration;
+using ZimMarket.Infrastructure.ExchangeRates;
 using ZimMarket.Infrastructure.Notifications;
 using ZimMarket.Infrastructure.Payments;
+using ZimMarket.Infrastructure.Persistence;
 using ZimMarket.Infrastructure.Security;
 using ZimMarket.Infrastructure.Storage;
 
@@ -21,6 +24,16 @@ public static class DependencyInjection
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         ArgumentNullException.ThrowIfNull(configuration);
+
+        string? defaultConnection =
+            configuration.GetConnectionString("DefaultConnection")
+            ?? configuration["ConnectionStrings:DefaultConnection"];
+
+        if (!string.IsNullOrWhiteSpace(defaultConnection))
+        {
+            services.AddDbContext<AppDbContext>(options => options.UseNpgsql(defaultConnection));
+            services.AddScoped<IExchangeRateService, ExchangeRateService>();
+        }
 
         string? redisConnectionString =
             configuration["Redis:ConnectionString"]
