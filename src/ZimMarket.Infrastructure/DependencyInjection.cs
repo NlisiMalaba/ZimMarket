@@ -159,6 +159,23 @@ public static class DependencyInjection
             services.AddSingleton<IEmailService, SendGridEmailService>();
         }
 
+        bool firebaseAdc = configuration.GetValue("Firebase:UseApplicationDefaultCredentials", false);
+        bool firebaseHasJson = !string.IsNullOrWhiteSpace(configuration["Firebase:CredentialsJson"]);
+        bool firebaseHasPath = !string.IsNullOrWhiteSpace(configuration["Firebase:CredentialsPath"]);
+        if (firebaseAdc || firebaseHasJson || firebaseHasPath)
+        {
+            services.AddOptions<FirebaseAdminOptions>()
+                .Bind(configuration.GetSection(FirebaseAdminOptions.SectionName))
+                .Validate(
+                    o => o.UseApplicationDefaultCredentials
+                        || !string.IsNullOrWhiteSpace(o.CredentialsJson)
+                        || !string.IsNullOrWhiteSpace(o.CredentialsPath),
+                    "Firebase: set UseApplicationDefaultCredentials, CredentialsJson, or CredentialsPath.")
+                .ValidateOnStart();
+
+            services.AddSingleton<IPushNotificationService, FcmPushNotificationService>();
+        }
+
         return services;
     }
 }

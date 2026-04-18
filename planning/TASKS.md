@@ -218,7 +218,7 @@
 
 - [x] 3.12 Create `TwilioSmsService` implementing `ISmsService`; create `SendGridEmailService` implementing `IEmailService` with HTML email templates for: welcome, KYC approved, KYC rejected, order confirmation, delivery notification
 
-- [ ] 3.13 Create `FcmPushNotificationService` implementing `IPushNotificationService` using Firebase Admin SDK
+- [x] 3.13 Create `FcmPushNotificationService` implementing `IPushNotificationService` using Firebase Admin SDK
 
 - [ ] 3.14 Create `HangfireJobSetup.cs`: configure Hangfire with PostgreSQL storage; register all recurring jobs with `AddOrUpdate`; create `HangfireAuthFilter` (admin-only access to Hangfire dashboard)
 
