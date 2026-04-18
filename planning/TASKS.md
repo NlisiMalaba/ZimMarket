@@ -143,7 +143,7 @@
 - [x] 2.3 Create common application interfaces in `Application/Common/Interfaces/`:
   - `ICurrentUser`: `UserId (Guid)`, `Role (UserRole)`, `IsAuthenticated (bool)`, `GetClaim(string)`
   - `IFileStorage`: `UploadAsync(stream, key, contentType, ct)`, `GenerateSasUrlAsync(key, expiry, ct)`, `DeleteAsync(key, ct)`, `GetPresignedUploadUrlAsync(key, contentType, ct)`
-  - `IPaymentGateway`: `InitiateAsync(PaymentRequest, ct) → PaymentInitiateResult`; `VerifyWebhookAsync(payload, signature, ct) → PaymentWebhookResult`
+  - `IPaymentGateway`: `InitiateAsync(PaymentRequest, ct) → PaymentInitiateResult`; `VerifyWebhookAsync(payload, signature, ct) → PaymentWebhookResult`; `PollStatusAsync(pollUrl, ct) → PaymentPollResult`
   - `ISmsService`: `SendAsync(to, message, ct)`
   - `IEmailService`: `SendAsync(EmailMessage, ct)`
   - `IPushNotificationService`: `SendAsync(token, title, body, data, ct)`; `SendToTopicAsync(topic, ...)`
@@ -206,7 +206,7 @@
   - `GetPresignedUploadUrlAsync` generates write-only SAS for direct client upload (never relay file bytes through API)
   - Validate allowed content types before generating upload URL
 
-- [ ] 3.9 Create `PaynowService` implementing `IPaymentGateway`:
+- [x] 3.9 Create `PaynowService` implementing `IPaymentGateway`:
   - Initiate payment (returns redirect URL for web, or mobile checkout URL)
   - Poll payment status
   - `VerifyWebhookAsync` — verify HMAC-SHA512 signature using shared secret from config; return failure if invalid (do not process)

@@ -1,11 +1,14 @@
 using Azure.Storage.Blobs;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using StackExchange.Redis;
 using ZimMarket.Application.Common.Interfaces;
 using ZimMarket.Infrastructure.Caching;
 using ZimMarket.Infrastructure.Configuration;
+using ZimMarket.Infrastructure.Payments;
 using ZimMarket.Infrastructure.Security;
 using ZimMarket.Infrastructure.Storage;
 
@@ -73,6 +76,41 @@ public static class DependencyInjection
             });
 
             services.AddSingleton<IFileStorage, AzureBlobStorageService>();
+        }
+
+        int paynowIntegrationId = configuration.GetValue<int>("Paynow:IntegrationId");
+        string? paynowIntegrationKey = configuration["Paynow:IntegrationKey"];
+        if (paynowIntegrationId > 0 && !string.IsNullOrWhiteSpace(paynowIntegrationKey))
+        {
+            services.AddOptions<PaynowOptions>()
+                .Bind(configuration.GetSection(PaynowOptions.SectionName))
+                .PostConfigure(options =>
+                {
+                    if (string.IsNullOrWhiteSpace(options.IntegrationKey))
+                        options.IntegrationKey = paynowIntegrationKey;
+                    if (options.IntegrationId <= 0)
+                        options.IntegrationId = paynowIntegrationId;
+                })
+                .ValidateDataAnnotations()
+                .Validate(
+                    o => !string.IsNullOrWhiteSpace(o.ReturnUrlTemplate)
+                        && o.ReturnUrlTemplate.Contains("{0}", StringComparison.Ordinal),
+                    "Paynow:ReturnUrlTemplate must contain '{0}' for the order id.")
+                .Validate(
+                    o => !string.IsNullOrWhiteSpace(o.ResultUrlTemplate)
+                        && o.ResultUrlTemplate.Contains("{0}", StringComparison.Ordinal),
+                    "Paynow:ResultUrlTemplate must contain '{0}' for the order id.")
+                .ValidateOnStart();
+
+            services.AddHttpClient("Paynow", client => client.Timeout = TimeSpan.FromSeconds(60));
+
+            services.AddSingleton<PaynowService>(sp => new PaynowService(
+                sp.GetRequiredService<IHttpClientFactory>().CreateClient("Paynow"),
+                sp.GetRequiredService<IOptions<PaynowOptions>>(),
+                sp.GetRequiredService<ILogger<PaynowService>>(),
+                sp.GetRequiredService<IHostEnvironment>()));
+
+            services.AddKeyedSingleton<IPaymentGateway>("paynow", (sp, _) => sp.GetRequiredService<PaynowService>());
         }
 
         return services;
