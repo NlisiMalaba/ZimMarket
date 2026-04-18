@@ -282,7 +282,7 @@
   - `SellerRejectedEventHandler` → send rejection email with reason
   - `DriverApprovedEventHandler` / `DriverRejectedEventHandler` — same pattern
 
-- [ ] 4.10 Configure ASP.NET Core Identity (custom user store backed by `AppDbContext` + EF Core); configure JWT bearer authentication; add role-based + policy-based authorisation; configure `ICurrentUser` via `HttpContextAccessor`
+- [x] 4.10 Configure ASP.NET Core Identity (custom user store backed by `AppDbContext` + EF Core); configure JWT bearer authentication; add role-based + policy-based authorisation; configure `ICurrentUser` via `HttpContextAccessor`
 
 - [ ] 4.11 Create `AuthController` (`/api/v1/auth`):
   - `POST /register/customer` → `RegisterCustomerCommand`

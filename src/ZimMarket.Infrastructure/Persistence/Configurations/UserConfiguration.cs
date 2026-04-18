@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using ZimMarket.Domain.Entities.Users;
 using ZimMarket.Domain.Enums;
+using ZimMarket.Infrastructure.Identity;
 
 namespace ZimMarket.Infrastructure.Persistence.Configurations;
 
@@ -54,5 +55,9 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
             .HasValue<Driver>(UserRole.Driver)
             .HasValue<AdminUser>(UserRole.Admin)
             .HasValue<SuperAdminUser>(UserRole.SuperAdmin);
+
+        builder.Property<string>(ZimMarketUserStore.SecurityStampShadowProperty)
+            .HasColumnName("security_stamp")
+            .HasMaxLength(40);
     }
 }

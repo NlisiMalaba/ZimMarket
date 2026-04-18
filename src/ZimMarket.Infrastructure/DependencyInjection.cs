@@ -15,6 +15,7 @@ using ZimMarket.Infrastructure.BackgroundJobs;
 using ZimMarket.Infrastructure.Caching;
 using ZimMarket.Infrastructure.Configuration;
 using ZimMarket.Infrastructure.ExchangeRates;
+using ZimMarket.Infrastructure.Identity;
 using ZimMarket.Infrastructure.Notifications;
 using ZimMarket.Infrastructure.Payments;
 using ZimMarket.Infrastructure.Persistence;
@@ -85,6 +86,16 @@ public static class DependencyInjection
         services.AddScoped<IUserLoginRepository, UserLoginRepository>();
         services.AddScoped<IExchangeRateService, ExchangeRateService>();
         services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
+
+        services.AddIdentityCore<IdentityUser<Guid>>(identityOptions =>
+            {
+                identityOptions.User.RequireUniqueEmail = true;
+                identityOptions.Password.RequiredLength = 8;
+                identityOptions.Password.RequireDigit = true;
+                identityOptions.Password.RequireUppercase = true;
+                identityOptions.Lockout.AllowedForNewUsers = false;
+            })
+            .AddUserStore<ZimMarketUserStore>();
     }
 
     private static void RegisterRedis(IServiceCollection services, IConfiguration configuration)
