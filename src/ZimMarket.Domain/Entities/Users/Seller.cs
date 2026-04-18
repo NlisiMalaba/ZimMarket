@@ -14,6 +14,7 @@ public sealed class Seller : User
     public Seller(
         Guid id,
         string email,
+        string fullName,
         PhoneNumber phoneNumber,
         string passwordHash,
         KycStatus kycStatus,
@@ -30,6 +31,7 @@ public sealed class Seller : User
         : base(
             id,
             email,
+            fullName,
             phoneNumber,
             passwordHash,
             UserRole.Seller,

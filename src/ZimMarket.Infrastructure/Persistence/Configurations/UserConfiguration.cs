@@ -17,6 +17,10 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
             .HasMaxLength(MappingConstants.EmailMaxLength)
             .IsRequired();
 
+        builder.Property(x => x.FullName)
+            .HasMaxLength(MappingConstants.FullNameMaxLength)
+            .IsRequired();
+
         builder.Property(x => x.PasswordHash)
             .HasMaxLength(MappingConstants.PasswordHashMaxLength)
             .IsRequired();

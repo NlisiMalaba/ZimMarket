@@ -82,6 +82,9 @@ public sealed class JwtService : IJwtService
         return Convert.ToBase64String(buffer);
     }
 
+    public DateTimeOffset GetRefreshTokenExpiresAtUtc() =>
+        DateTimeOffset.UtcNow.AddDays(_options.RefreshTokenLifetimeDays);
+
     public string HashRefreshTokenForStorage(string refreshToken)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(refreshToken);

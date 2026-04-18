@@ -238,7 +238,7 @@
 
 ## Module 4 — Auth & Identity Features
 
-- [ ] 4.1 Create `RegisterCustomerCommand(Email, Phone, Password, FullName, PushToken?)` with handler:
+- [x] 4.1 Create `RegisterCustomerCommand(Email, Phone, Password, FullName, PushToken?)` with handler:
   - Validate: email unique, phone unique, password meets policy (min 8 chars, 1 uppercase, 1 number)
   - Hash password via `IPasswordHasher<User>`
   - Create `Customer` entity; add to repo; save via `IUnitOfWork`

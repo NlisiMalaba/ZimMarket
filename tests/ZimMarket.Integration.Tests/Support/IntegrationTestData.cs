@@ -27,6 +27,7 @@ internal static class IntegrationTestData
         var seller = new Seller(
             sellerId,
             email,
+            fullName: "Integration Seller",
             phoneResult.Value!,
             passwordHash: "integration-test-hash",
             KycStatus.Approved,

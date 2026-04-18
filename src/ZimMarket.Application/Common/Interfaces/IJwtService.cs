@@ -14,6 +14,9 @@ public interface IJwtService
     /// <summary>64 random bytes, base64-encoded (used as the refresh token sent to the client).</summary>
     string GenerateRefreshToken();
 
+    /// <summary>UTC expiry instant for a newly issued refresh token, derived from configured lifetime.</summary>
+    DateTimeOffset GetRefreshTokenExpiresAtUtc();
+
     /// <summary>PBKDF2-SHA256 hash suitable for persisting on <see cref="ZimMarket.Domain.Entities.Users.User.RefreshTokenHash"/>.</summary>
     string HashRefreshTokenForStorage(string refreshToken);
 

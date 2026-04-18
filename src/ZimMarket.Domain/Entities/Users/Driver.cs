@@ -14,6 +14,7 @@ public sealed class Driver : User
     public Driver(
         Guid id,
         string email,
+        string fullName,
         PhoneNumber phoneNumber,
         string passwordHash,
         KycStatus kycStatus,
@@ -33,6 +34,7 @@ public sealed class Driver : User
         : base(
             id,
             email,
+            fullName,
             phoneNumber,
             passwordHash,
             UserRole.Driver,

@@ -1,4 +1,5 @@
 using Azure.Storage.Blobs;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -7,7 +8,9 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using StackExchange.Redis;
 using ZimMarket.Application.Common.Interfaces;
+using ZimMarket.Domain.Entities.Users;
 using ZimMarket.Domain.Interfaces;
+using ZimMarket.Domain.Interfaces.Repositories;
 using ZimMarket.Infrastructure.BackgroundJobs;
 using ZimMarket.Infrastructure.Caching;
 using ZimMarket.Infrastructure.Configuration;
@@ -15,6 +18,7 @@ using ZimMarket.Infrastructure.ExchangeRates;
 using ZimMarket.Infrastructure.Notifications;
 using ZimMarket.Infrastructure.Payments;
 using ZimMarket.Infrastructure.Persistence;
+using ZimMarket.Infrastructure.Persistence.Repositories;
 using ZimMarket.Infrastructure.Security;
 using ZimMarket.Infrastructure.Storage;
 
@@ -77,7 +81,9 @@ public static class DependencyInjection
                 }));
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<IUserIdentityReadRepository, UserIdentityReadRepository>();
         services.AddScoped<IExchangeRateService, ExchangeRateService>();
+        services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
     }
 
     private static void RegisterRedis(IServiceCollection services, IConfiguration configuration)

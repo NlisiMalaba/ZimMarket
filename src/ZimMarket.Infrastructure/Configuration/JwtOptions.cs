@@ -19,6 +19,9 @@ public sealed class JwtOptions
     [Range(1, 120)]
     public int AccessTokenLifetimeMinutes { get; set; } = 15;
 
+    [Range(1, 365)]
+    public int RefreshTokenLifetimeDays { get; set; } = 30;
+
     [Range(10_000, 500_000)]
     public int RefreshTokenPbkdf2Iterations { get; set; } = 100_000;
 }
