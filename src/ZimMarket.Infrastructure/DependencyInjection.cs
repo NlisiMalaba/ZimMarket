@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using StackExchange.Redis;
 using ZimMarket.Application.Common.Interfaces;
+using ZimMarket.Infrastructure.BackgroundJobs;
 using ZimMarket.Infrastructure.Caching;
 using ZimMarket.Infrastructure.Configuration;
 using ZimMarket.Infrastructure.Notifications;
@@ -175,6 +176,8 @@ public static class DependencyInjection
 
             services.AddSingleton<IPushNotificationService, FcmPushNotificationService>();
         }
+
+        services.AddZimMarketHangfire(configuration);
 
         return services;
     }

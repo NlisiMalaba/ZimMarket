@@ -220,7 +220,7 @@
 
 - [x] 3.13 Create `FcmPushNotificationService` implementing `IPushNotificationService` using Firebase Admin SDK
 
-- [ ] 3.14 Create `HangfireJobSetup.cs`: configure Hangfire with PostgreSQL storage; register all recurring jobs with `AddOrUpdate`; create `HangfireAuthFilter` (admin-only access to Hangfire dashboard)
+- [x] 3.14 Create `HangfireJobSetup.cs`: configure Hangfire with PostgreSQL storage; register all recurring jobs with `AddOrUpdate`; create `HangfireAuthFilter` (admin-only access to Hangfire dashboard)
 
 - [ ] 3.15 Create `ExchangeRateService` implementing `IExchangeRateService`: fetch from Redis first (key: `exchange-rate:usd-zwl`); if miss, read from DB `exchange_rates` table; return last known rate (never fail on stale rate)
 
