@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using ZimMarket.Application.Common.Models;
 using ZimMarket.Domain.Enums;
 
 namespace ZimMarket.Application.Common.Interfaces;
@@ -14,6 +15,9 @@ public interface IJwtService
     /// <summary>64 random bytes, base64-encoded (used as the refresh token sent to the client).</summary>
     string GenerateRefreshToken();
 
+    /// <summary>UTC expiry instant for a newly issued refresh token, derived from configured lifetime.</summary>
+    DateTimeOffset GetRefreshTokenExpiresAtUtc();
+
     /// <summary>PBKDF2-SHA256 hash suitable for persisting on <see cref="ZimMarket.Domain.Entities.Users.User.RefreshTokenHash"/>.</summary>
     string HashRefreshTokenForStorage(string refreshToken);
 
@@ -22,4 +26,10 @@ public interface IJwtService
 
     /// <summary>Validates signature, issuer, audience, lifetime, and algorithm (RS256). Returns null if invalid.</summary>
     ClaimsPrincipal? ValidateAccessToken(string accessToken);
+
+    /// <summary>
+    /// Validates signature, issuer, audience, and algorithm (RS256) while ignoring lifetime.
+    /// Returns null if the token is malformed or fails cryptographic or issuer checks (including expired signing keys).
+    /// </summary>
+    AccessTokenForRefreshPrincipal? TryValidateAccessTokenForRefresh(string accessToken);
 }

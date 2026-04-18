@@ -12,6 +12,7 @@ public abstract class User : BaseEntity
     protected User(
         Guid id,
         string email,
+        string fullName,
         PhoneNumber phoneNumber,
         string passwordHash,
         UserRole role,
@@ -24,6 +25,7 @@ public abstract class User : BaseEntity
     {
         Id = id;
         Email = email;
+        FullName = fullName;
         PhoneNumber = phoneNumber;
         PasswordHash = passwordHash;
         Role = role;
@@ -36,6 +38,8 @@ public abstract class User : BaseEntity
     }
 
     public string Email { get; private set; } = null!;
+
+    public string FullName { get; private set; } = null!;
 
     public PhoneNumber PhoneNumber { get; private set; } = null!;
 

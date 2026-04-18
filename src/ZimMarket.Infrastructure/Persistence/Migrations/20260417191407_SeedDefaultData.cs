@@ -92,6 +92,7 @@ public partial class SeedDefaultData : Migration
         var superAdminStub = new SuperAdminUser(
             SuperAdminUserId,
             superAdminEmail,
+            fullName: "Super Admin",
             phoneResult.Value!,
             passwordHash: "TEMP",
             KycStatus.Approved,

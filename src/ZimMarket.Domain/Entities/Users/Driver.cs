@@ -11,9 +11,49 @@ public sealed class Driver : User
     {
     }
 
+    /// <summary>
+    /// Creates a new driver account at self-service registration, queues <see cref="DriverRegisteredEvent"/>,
+    /// and uses placeholder license/vehicle values until KYC is submitted (required for unique indexes).
+    /// </summary>
+    public static Driver CreateNewRegistration(
+        Guid id,
+        string email,
+        string fullName,
+        PhoneNumber phoneNumber,
+        string passwordHash,
+        DateTimeOffset createdAt,
+        DateTimeOffset updatedAt)
+    {
+        string pendingMarker = id.ToString("N");
+        var driver = new Driver(
+            id,
+            email,
+            fullName,
+            phoneNumber,
+            passwordHash,
+            KycStatus.NotSubmitted,
+            isActive: true,
+            refreshTokenHash: null,
+            refreshTokenExpiry: null,
+            createdAt,
+            updatedAt,
+            licenseNumber: $"pending-lic-{pendingMarker}",
+            licenseDocumentKey: string.Empty,
+            vehicleRegistration: $"pending-veh-{pendingMarker}",
+            vehicleDocumentKey: string.Empty,
+            DriverStatus.Offline,
+            lastKnownLocation: null,
+            isApproved: false,
+            rejectionReason: null);
+
+        driver.AddDomainEvent(new DriverRegisteredEvent(driver.Id));
+        return driver;
+    }
+
     public Driver(
         Guid id,
         string email,
+        string fullName,
         PhoneNumber phoneNumber,
         string passwordHash,
         KycStatus kycStatus,
@@ -33,6 +73,7 @@ public sealed class Driver : User
         : base(
             id,
             email,
+            fullName,
             phoneNumber,
             passwordHash,
             UserRole.Driver,

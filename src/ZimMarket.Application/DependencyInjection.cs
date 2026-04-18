@@ -42,6 +42,12 @@ public static class DependencyInjection
         if (services.All(d => d.ServiceType != typeof(ICurrentUser)))
             services.AddScoped<ICurrentUser, AnonymousCurrentUser>();
 
+        if (services.All(d => d.ServiceType != typeof(IEmailService)))
+            services.AddSingleton<IEmailService, NullEmailService>();
+
+        if (services.All(d => d.ServiceType != typeof(ISmsService)))
+            services.AddSingleton<ISmsService, NullSmsService>();
+
         return services;
     }
 }

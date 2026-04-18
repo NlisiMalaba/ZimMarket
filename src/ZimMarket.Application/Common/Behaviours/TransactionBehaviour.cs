@@ -38,17 +38,6 @@ public sealed class TransactionBehaviour<TRequest, TResponse> : IPipelineBehavio
             return await next();
         }
 
-        await unitOfWork.BeginTransactionAsync(cancellationToken);
-        try
-        {
-            var response = await next();
-            await unitOfWork.CommitAsync(cancellationToken);
-            return response;
-        }
-        catch
-        {
-            await unitOfWork.RollbackAsync(cancellationToken);
-            throw;
-        }
+        return await unitOfWork.RunInTransactionAsync(() => next(), cancellationToken).ConfigureAwait(false);
     }
 }

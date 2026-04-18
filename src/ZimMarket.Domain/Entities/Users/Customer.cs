@@ -17,6 +17,7 @@ public sealed class Customer : User
     public Customer(
         Guid id,
         string email,
+        string fullName,
         PhoneNumber phoneNumber,
         string passwordHash,
         KycStatus kycStatus,
@@ -29,6 +30,7 @@ public sealed class Customer : User
         : base(
             id,
             email,
+            fullName,
             phoneNumber,
             passwordHash,
             UserRole.Customer,

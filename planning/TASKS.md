@@ -238,53 +238,53 @@
 
 ## Module 4 — Auth & Identity Features
 
-- [ ] 4.1 Create `RegisterCustomerCommand(Email, Phone, Password, FullName, PushToken?)` with handler:
+- [x] 4.1 Create `RegisterCustomerCommand(Email, Phone, Password, FullName, PushToken?)` with handler:
   - Validate: email unique, phone unique, password meets policy (min 8 chars, 1 uppercase, 1 number)
   - Hash password via `IPasswordHasher<User>`
   - Create `Customer` entity; add to repo; save via `IUnitOfWork`
   - Return `Result<AuthTokensDto>` (access token + refresh token)
   - _No domain events needed for customer registration_
 
-- [ ] 4.2 Create `RegisterSellerCommand(Email, Phone, Password, FullName, BusinessName)` with handler:
+- [x] 4.2 Create `RegisterSellerCommand(Email, Phone, Password, FullName, BusinessName)` with handler:
   - Similar to customer registration
   - Set `KycStatus = NotSubmitted`
   - Raise `SellerRegisteredEvent` (handler sends welcome email with KYC instructions)
   - Return `Result<AuthTokensDto>`
 
-- [ ] 4.3 Create `RegisterDriverCommand(Email, Phone, Password, FullName)` with handler:
+- [x] 4.3 Create `RegisterDriverCommand(Email, Phone, Password, FullName)` with handler:
   - Set `KycStatus = NotSubmitted`
   - Raise `DriverRegisteredEvent`
   - Return `Result<AuthTokensDto>`
 
-- [ ] 4.4 Create `LoginQuery(Email, Password, DeviceInfo?)` with handler:
+- [x] 4.4 Create `LoginQuery(Email, Password, DeviceInfo?)` with handler:
   - Validate credentials; check `IsActive`; check `KycStatus` where relevant
   - Issue access + refresh token pair
   - Return `Result<AuthTokensDto>` with `KycStatus` included so client can redirect to KYC upload screen
 
-- [ ] 4.5 Create `RefreshTokenCommand(AccessToken, RefreshToken)` with handler:
+- [x] 4.5 Create `RefreshTokenCommand(AccessToken, RefreshToken)` with handler:
   - Validate access token is expired (not invalid sig); validate refresh token hash matches; check not expired
   - Rotate: generate new pair, invalidate old refresh token
   - Return `Result<AuthTokensDto>`
 
-- [ ] 4.6 Create `LogoutCommand(RefreshToken)`: clear refresh token hash from user record
+- [x] 4.6 Create `LogoutCommand(RefreshToken)`: clear refresh token hash from user record
 
-- [ ] 4.7 Create `SubmitSellerKycCommand(NationalIdKey, ProofOfResidenceKey)` with handler:
+- [x] 4.7 Create `SubmitSellerKycCommand(NationalIdKey, ProofOfResidenceKey)` with handler:
   - Verify caller is a `Seller` (via `ICurrentUser`)
   - Validate file keys exist in blob storage (call `IFileStorage.ExistsAsync`)
   - Call `seller.SubmitKyc(...)` domain method
   - Save, return `Result`
 
-- [ ] 4.8 Create `SubmitDriverKycCommand(LicenseDocKey, VehicleDocKey, LicenseNumber, VehicleRegistration)` — same pattern
+- [x] 4.8 Create `SubmitDriverKycCommand(LicenseDocKey, VehicleDocKey, LicenseNumber, VehicleRegistration)` — same pattern
 
-- [ ] 4.9 Create domain event handlers (MediatR `INotificationHandler<T>`):
+- [x] 4.9 Create domain event handlers (MediatR `INotificationHandler<T>`):
   - `SellerRegisteredEventHandler` → send welcome email via `IEmailService`
   - `SellerApprovedEventHandler` → send approval SMS + email; update `KycStatus` claim
   - `SellerRejectedEventHandler` → send rejection email with reason
   - `DriverApprovedEventHandler` / `DriverRejectedEventHandler` — same pattern
 
-- [ ] 4.10 Configure ASP.NET Core Identity (custom user store backed by `AppDbContext` + EF Core); configure JWT bearer authentication; add role-based + policy-based authorisation; configure `ICurrentUser` via `HttpContextAccessor`
+- [x] 4.10 Configure ASP.NET Core Identity (custom user store backed by `AppDbContext` + EF Core); configure JWT bearer authentication; add role-based + policy-based authorisation; configure `ICurrentUser` via `HttpContextAccessor`
 
-- [ ] 4.11 Create `AuthController` (`/api/v1/auth`):
+- [x] 4.11 Create `AuthController` (`/api/v1/auth`):
   - `POST /register/customer` → `RegisterCustomerCommand`
   - `POST /register/seller` → `RegisterSellerCommand`
   - `POST /register/driver` → `RegisterDriverCommand`
@@ -295,17 +295,17 @@
   - `POST /kyc/driver` → `SubmitDriverKycCommand` [Authorize(Driver)]
   - All endpoints return consistent JSON envelope; map `Result` to status codes
 
-- [ ]* 4.12 Write unit tests for auth handlers:
+- [x]* 4.12 Write unit tests for auth handlers:
   - **RegisterCustomer**: duplicate email returns `USER_ALREADY_EXISTS`; duplicate phone returns conflict; successful registration returns tokens
   - **Login**: wrong password returns `AUTH_INVALID_CREDENTIALS`; deactivated account returns forbidden
   - **RefreshToken**: expired refresh token returns `AUTH_REFRESH_INVALID`; valid rotation returns new pair and invalidates old
   - **SubmitSellerKyc**: non-seller caller returns forbidden; already submitted returns conflict
 
-- [ ]* 4.13 Write integration tests for auth endpoints (using `WebApplicationFactory` + Testcontainers):
+- [x]* 4.13 Write integration tests for auth endpoints (using `WebApplicationFactory` + Testcontainers):
   - Full registration → login → refresh → logout flow
   - Concurrent registration with same email returns 409 on second request
 
-- [ ] **Checkpoint 4** — Auth endpoints working end-to-end; JWT validated on protected routes; KYC submission persisted; all auth tests pass
+- [x] **Checkpoint 4** — Auth endpoints working end-to-end; JWT validated on protected routes; KYC submission persisted; all auth tests pass
 
 ---
 

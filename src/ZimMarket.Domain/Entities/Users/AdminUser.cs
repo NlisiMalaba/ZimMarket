@@ -15,6 +15,7 @@ public sealed class AdminUser : User
     public AdminUser(
         Guid id,
         string email,
+        string fullName,
         PhoneNumber phoneNumber,
         string passwordHash,
         KycStatus kycStatus,
@@ -26,6 +27,7 @@ public sealed class AdminUser : User
         : base(
             id,
             email,
+            fullName,
             phoneNumber,
             passwordHash,
             UserRole.Admin,

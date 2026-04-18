@@ -1,4 +1,5 @@
 using Azure.Storage.Blobs;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -7,14 +8,18 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using StackExchange.Redis;
 using ZimMarket.Application.Common.Interfaces;
+using ZimMarket.Domain.Entities.Users;
 using ZimMarket.Domain.Interfaces;
+using ZimMarket.Domain.Interfaces.Repositories;
 using ZimMarket.Infrastructure.BackgroundJobs;
 using ZimMarket.Infrastructure.Caching;
 using ZimMarket.Infrastructure.Configuration;
 using ZimMarket.Infrastructure.ExchangeRates;
+using ZimMarket.Infrastructure.Identity;
 using ZimMarket.Infrastructure.Notifications;
 using ZimMarket.Infrastructure.Payments;
 using ZimMarket.Infrastructure.Persistence;
+using ZimMarket.Infrastructure.Persistence.Repositories;
 using ZimMarket.Infrastructure.Security;
 using ZimMarket.Infrastructure.Storage;
 
@@ -77,7 +82,20 @@ public static class DependencyInjection
                 }));
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<IUserIdentityReadRepository, UserIdentityReadRepository>();
+        services.AddScoped<IUserLoginRepository, UserLoginRepository>();
         services.AddScoped<IExchangeRateService, ExchangeRateService>();
+        services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
+
+        services.AddIdentityCore<IdentityUser<Guid>>(identityOptions =>
+            {
+                identityOptions.User.RequireUniqueEmail = true;
+                identityOptions.Password.RequiredLength = 8;
+                identityOptions.Password.RequireDigit = true;
+                identityOptions.Password.RequireUppercase = true;
+                identityOptions.Lockout.AllowedForNewUsers = false;
+            })
+            .AddUserStore<ZimMarketUserStore>();
     }
 
     private static void RegisterRedis(IServiceCollection services, IConfiguration configuration)

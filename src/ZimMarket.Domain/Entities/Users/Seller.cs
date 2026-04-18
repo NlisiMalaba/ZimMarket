@@ -11,9 +11,45 @@ public sealed class Seller : User
     {
     }
 
+    /// <summary>
+    /// Creates a new seller account at self-service registration, queues <see cref="SellerRegisteredEvent"/>, and leaves KYC documents empty until submitted.
+    /// </summary>
+    public static Seller CreateNewRegistration(
+        Guid id,
+        string email,
+        string fullName,
+        PhoneNumber phoneNumber,
+        string passwordHash,
+        DateTimeOffset createdAt,
+        DateTimeOffset updatedAt,
+        string businessName)
+    {
+        var seller = new Seller(
+            id,
+            email,
+            fullName,
+            phoneNumber,
+            passwordHash,
+            KycStatus.NotSubmitted,
+            isActive: true,
+            refreshTokenHash: null,
+            refreshTokenExpiry: null,
+            createdAt,
+            updatedAt,
+            businessName,
+            nationalIdDocumentKey: string.Empty,
+            proofOfResidenceDocumentKey: string.Empty,
+            isApproved: false,
+            rejectionReason: null);
+
+        seller.AddDomainEvent(new SellerRegisteredEvent(seller.Id));
+        return seller;
+    }
+
     public Seller(
         Guid id,
         string email,
+        string fullName,
         PhoneNumber phoneNumber,
         string passwordHash,
         KycStatus kycStatus,
@@ -30,6 +66,7 @@ public sealed class Seller : User
         : base(
             id,
             email,
+            fullName,
             phoneNumber,
             passwordHash,
             UserRole.Seller,

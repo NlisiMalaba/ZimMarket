@@ -19,6 +19,7 @@ internal static class DomainTestHelpers
         new(
             Guid.NewGuid(),
             "seller@test.com",
+            fullName: "Test Seller",
             ValidPhone,
             "hash",
             kyc,
