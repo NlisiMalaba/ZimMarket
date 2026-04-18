@@ -16,6 +16,7 @@ public sealed class UnitOfWork : IUnitOfWork
     private IUserRepository<Seller>? _sellers;
     private IUserRepository<Driver>? _drivers;
     private IProductRepository? _products;
+    private ICategoryRepository? _categories;
     private IOrderRepository? _orders;
     private IDeliveryBatchRepository? _deliveryBatches;
     private IWarehouseItemRepository? _warehouseItems;
@@ -32,6 +33,8 @@ public sealed class UnitOfWork : IUnitOfWork
     public IUserRepository<Driver> Drivers => _drivers ??= new UserRepository<Driver>(_dbContext);
 
     public IProductRepository Products => _products ??= new ProductRepository(_dbContext);
+
+    public ICategoryRepository Categories => _categories ??= new CategoryRepository(_dbContext);
 
     public IOrderRepository Orders => _orders ??= new OrderRepository(_dbContext);
 

@@ -13,6 +13,8 @@ public interface IUnitOfWork
 
     IProductRepository Products { get; }
 
+    ICategoryRepository Categories { get; }
+
     IOrderRepository Orders { get; }
 
     IDeliveryBatchRepository DeliveryBatches { get; }
