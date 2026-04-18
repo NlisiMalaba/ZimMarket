@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using StackExchange.Redis;
 using ZimMarket.Application.Common.Interfaces;
+using ZimMarket.Domain.Interfaces;
 using ZimMarket.Infrastructure.BackgroundJobs;
 using ZimMarket.Infrastructure.Caching;
 using ZimMarket.Infrastructure.Configuration;
@@ -21,41 +22,30 @@ namespace ZimMarket.Infrastructure;
 
 public static class DependencyInjection
 {
+    private const int DbTransientRetryCount = 5;
+    private static readonly TimeSpan DbTransientRetryMaxDelay = TimeSpan.FromSeconds(10);
+
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         ArgumentNullException.ThrowIfNull(configuration);
 
-        string? defaultConnection =
-            configuration.GetConnectionString("DefaultConnection")
-            ?? configuration["ConnectionStrings:DefaultConnection"];
+        services.AddSignalR();
 
-        if (!string.IsNullOrWhiteSpace(defaultConnection))
-        {
-            services.AddDbContext<AppDbContext>(options => options.UseNpgsql(defaultConnection));
-            services.AddScoped<IExchangeRateService, ExchangeRateService>();
-        }
+        RegisterJwt(services, configuration);
+        RegisterEntityFramework(services, configuration);
+        RegisterRedis(services, configuration);
+        RegisterAzureBlobStorage(services, configuration);
+        RegisterPaymentGateways(services, configuration);
+        RegisterTwilio(services, configuration);
+        RegisterSendGrid(services, configuration);
+        RegisterFirebase(services, configuration);
+        services.AddZimMarketHangfire(configuration);
 
-        string? redisConnectionString =
-            configuration["Redis:ConnectionString"]
-            ?? configuration.GetConnectionString("Redis");
+        return services;
+    }
 
-        if (!string.IsNullOrWhiteSpace(redisConnectionString))
-        {
-            services.AddOptions<RedisOptions>()
-                .Bind(configuration.GetSection(RedisOptions.SectionName))
-                .PostConfigure(options =>
-                {
-                    if (string.IsNullOrWhiteSpace(options.ConnectionString))
-                        options.ConnectionString = redisConnectionString;
-                })
-                .Validate(o => !string.IsNullOrWhiteSpace(o.ConnectionString), "Redis connection string is missing.");
-
-            services.AddSingleton<IConnectionMultiplexer>(sp =>
-                ConnectionMultiplexer.Connect(sp.GetRequiredService<IOptions<RedisOptions>>().Value.ConnectionString));
-
-            services.AddSingleton<ICacheService, RedisCacheService>();
-        }
-
+    private static void RegisterJwt(IServiceCollection services, IConfiguration configuration)
+    {
         services.AddOptions<JwtOptions>()
             .Bind(configuration.GetSection(JwtOptions.SectionName))
             .ValidateDataAnnotations()
@@ -64,35 +54,90 @@ public static class DependencyInjection
                 "Jwt:PrivateKeyPem and Jwt:PublicKeyPem must both be set or both be empty (empty disables token operations until configured).");
 
         services.AddSingleton<IJwtService, JwtService>();
+    }
 
+    private static void RegisterEntityFramework(IServiceCollection services, IConfiguration configuration)
+    {
+        string? connectionString =
+            configuration.GetConnectionString("DefaultConnection")
+            ?? configuration["ConnectionStrings:DefaultConnection"];
+
+        if (string.IsNullOrWhiteSpace(connectionString))
+            return;
+
+        services.AddDbContext<AppDbContext>(options =>
+            options.UseNpgsql(
+                connectionString,
+                npgsql =>
+                {
+                    npgsql.EnableRetryOnFailure(
+                        maxRetryCount: DbTransientRetryCount,
+                        maxRetryDelay: DbTransientRetryMaxDelay,
+                        errorCodesToAdd: null);
+                }));
+
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<IExchangeRateService, ExchangeRateService>();
+    }
+
+    private static void RegisterRedis(IServiceCollection services, IConfiguration configuration)
+    {
+        string? redisConnectionString =
+            configuration["Redis:ConnectionString"]
+            ?? configuration.GetConnectionString("Redis");
+
+        if (string.IsNullOrWhiteSpace(redisConnectionString))
+            return;
+
+        services.AddOptions<RedisOptions>()
+            .Bind(configuration.GetSection(RedisOptions.SectionName))
+            .PostConfigure(options =>
+            {
+                if (string.IsNullOrWhiteSpace(options.ConnectionString))
+                    options.ConnectionString = redisConnectionString;
+            })
+            .Validate(o => !string.IsNullOrWhiteSpace(o.ConnectionString), "Redis connection string is missing.");
+
+        services.AddSingleton<IConnectionMultiplexer>(sp =>
+            ConnectionMultiplexer.Connect(
+                sp.GetRequiredService<IOptions<RedisOptions>>().Value.ConnectionString));
+
+        services.AddSingleton<ICacheService, RedisCacheService>();
+    }
+
+    private static void RegisterAzureBlobStorage(IServiceCollection services, IConfiguration configuration)
+    {
         string? azureBlobConnectionString =
             configuration["AzureBlob:ConnectionString"]
             ?? configuration.GetConnectionString("AzureBlob");
 
-        if (!string.IsNullOrWhiteSpace(azureBlobConnectionString))
-        {
-            services.AddOptions<AzureBlobStorageOptions>()
-                .Bind(configuration.GetSection(AzureBlobStorageOptions.SectionName))
-                .PostConfigure(options =>
-                {
-                    if (string.IsNullOrWhiteSpace(options.ConnectionString))
-                        options.ConnectionString = azureBlobConnectionString;
-                })
-                .ValidateDataAnnotations()
-                .Validate(
-                    o => o.ReadSasTtlKyc > TimeSpan.Zero && o.ReadSasTtlDefault > TimeSpan.Zero && o.WriteSasTtl > TimeSpan.Zero,
-                    "AzureBlob read/write SAS TTL values must be positive.")
-                .ValidateOnStart();
+        if (string.IsNullOrWhiteSpace(azureBlobConnectionString))
+            return;
 
-            services.AddSingleton<BlobServiceClient>(sp =>
+        services.AddOptions<AzureBlobStorageOptions>()
+            .Bind(configuration.GetSection(AzureBlobStorageOptions.SectionName))
+            .PostConfigure(options =>
             {
-                AzureBlobStorageOptions options = sp.GetRequiredService<IOptions<AzureBlobStorageOptions>>().Value;
-                return new BlobServiceClient(options.ConnectionString);
-            });
+                if (string.IsNullOrWhiteSpace(options.ConnectionString))
+                    options.ConnectionString = azureBlobConnectionString;
+            })
+            .ValidateDataAnnotations()
+            .Validate(
+                o => o.ReadSasTtlKyc > TimeSpan.Zero && o.ReadSasTtlDefault > TimeSpan.Zero && o.WriteSasTtl > TimeSpan.Zero,
+                "AzureBlob read/write SAS TTL values must be positive.")
+            .ValidateOnStart();
 
-            services.AddSingleton<IFileStorage, AzureBlobStorageService>();
-        }
+        services.AddSingleton<BlobServiceClient>(sp =>
+        {
+            AzureBlobStorageOptions options = sp.GetRequiredService<IOptions<AzureBlobStorageOptions>>().Value;
+            return new BlobServiceClient(options.ConnectionString);
+        });
 
+        services.AddSingleton<IFileStorage, AzureBlobStorageService>();
+    }
+
+    private static void RegisterPaymentGateways(IServiceCollection services, IConfiguration configuration)
+    {
         int paynowIntegrationId = configuration.GetValue<int>("Paynow:IntegrationId");
         string? paynowIntegrationKey = configuration["Paynow:IntegrationKey"];
         if (paynowIntegrationId > 0 && !string.IsNullOrWhiteSpace(paynowIntegrationKey))
@@ -129,7 +174,10 @@ public static class DependencyInjection
         }
 
         services.AddSingleton<IPaymentGatewayFactory, PaymentGatewayFactory>();
+    }
 
+    private static void RegisterTwilio(IServiceCollection services, IConfiguration configuration)
+    {
         string? twilioAccountSid = configuration["Twilio:AccountSid"];
         string? twilioAuthToken = configuration["Twilio:AuthToken"];
         string? twilioFrom = configuration["Twilio:FromPhoneNumber"];
@@ -153,7 +201,10 @@ public static class DependencyInjection
 
             services.AddSingleton<ISmsService, TwilioSmsService>();
         }
+    }
 
+    private static void RegisterSendGrid(IServiceCollection services, IConfiguration configuration)
+    {
         string? sendGridApiKey = configuration["SendGrid:ApiKey"];
         if (!string.IsNullOrWhiteSpace(sendGridApiKey))
         {
@@ -172,7 +223,10 @@ public static class DependencyInjection
 
             services.AddSingleton<IEmailService, SendGridEmailService>();
         }
+    }
 
+    private static void RegisterFirebase(IServiceCollection services, IConfiguration configuration)
+    {
         bool firebaseAdc = configuration.GetValue("Firebase:UseApplicationDefaultCredentials", false);
         bool firebaseHasJson = !string.IsNullOrWhiteSpace(configuration["Firebase:CredentialsJson"]);
         bool firebaseHasPath = !string.IsNullOrWhiteSpace(configuration["Firebase:CredentialsPath"]);
@@ -189,9 +243,5 @@ public static class DependencyInjection
 
             services.AddSingleton<IPushNotificationService, FcmPushNotificationService>();
         }
-
-        services.AddZimMarketHangfire(configuration);
-
-        return services;
     }
 }
