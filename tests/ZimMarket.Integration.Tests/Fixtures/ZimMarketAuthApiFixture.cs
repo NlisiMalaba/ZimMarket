@@ -27,6 +27,8 @@ public sealed class ZimMarketAuthApiFixture : IAsyncLifetime
     private string? _priorJwtAccessSeconds;
     private string? _priorJwtRefreshIterations;
     private string? _priorTestRefreshBypass;
+    private string? _priorRedisConnectionString;
+    private string? _priorAzureBlobConnectionString;
 
     public HttpClient CreateClient()
     {
@@ -58,6 +60,8 @@ public sealed class ZimMarketAuthApiFixture : IAsyncLifetime
         StashAndSet("Jwt__AccessTokenLifetimeSeconds", "120");
         StashAndSet("Jwt__RefreshTokenPbkdf2Iterations", "50000");
         StashAndSet("ZIMMARKET_TEST_ALLOW_REFRESH_WHILE_ACCESS_VALID", "1");
+        StashAndSet("Redis__ConnectionString", "localhost:6379");
+        StashAndSet("AzureBlob__ConnectionString", "UseDevelopmentStorage=true");
 
         _factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
         {
@@ -89,6 +93,8 @@ public sealed class ZimMarketAuthApiFixture : IAsyncLifetime
         RestoreEnv("Jwt__AccessTokenLifetimeSeconds", _priorJwtAccessSeconds);
         RestoreEnv("Jwt__RefreshTokenPbkdf2Iterations", _priorJwtRefreshIterations);
         RestoreEnv("ZIMMARKET_TEST_ALLOW_REFRESH_WHILE_ACCESS_VALID", _priorTestRefreshBypass);
+        RestoreEnv("Redis__ConnectionString", _priorRedisConnectionString);
+        RestoreEnv("AzureBlob__ConnectionString", _priorAzureBlobConnectionString);
     }
 
     private void StashAndSet(string name, string value)
@@ -118,6 +124,12 @@ public sealed class ZimMarketAuthApiFixture : IAsyncLifetime
                 break;
             case "ZIMMARKET_TEST_ALLOW_REFRESH_WHILE_ACCESS_VALID":
                 _priorTestRefreshBypass = Environment.GetEnvironmentVariable(name);
+                break;
+            case "Redis__ConnectionString":
+                _priorRedisConnectionString = Environment.GetEnvironmentVariable(name);
+                break;
+            case "AzureBlob__ConnectionString":
+                _priorAzureBlobConnectionString = Environment.GetEnvironmentVariable(name);
                 break;
         }
 

@@ -1,8 +1,10 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Logging;
 using ZimMarket.API.Http;
+using ZimMarket.API.RateLimiting;
 using ZimMarket.Application.Auth;
 using ZimMarket.Application.Common.Interfaces;
 using ZimMarket.Application.Common.Models;
@@ -30,6 +32,7 @@ public sealed class FilesController : ControllerBase
 
     [HttpPost("presigned-url")]
     [Authorize]
+    [EnableRateLimiting(ZimMarketRateLimitPolicies.PresignByUser)]
     public async Task<IActionResult> GetPresignedUploadUrl(
         [FromBody] GetPresignedUploadUrlRequest request,
         CancellationToken cancellationToken)

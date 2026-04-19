@@ -47,6 +47,7 @@ public static class DependencyInjection
         RegisterRedis(services, configuration);
         RegisterAzureBlobStorage(services, configuration);
         RegisterPaymentGateways(services, configuration);
+        RegisterExchangeRates(services, configuration);
         RegisterTwilio(services, configuration);
         RegisterSendGrid(services, configuration);
         RegisterFirebase(services, configuration);
@@ -55,6 +56,20 @@ public static class DependencyInjection
             services.AddTransient<INotificationJobScheduler, HangfireNotificationJobScheduler>();
 
         return services;
+    }
+
+    private static void RegisterExchangeRates(IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddOptions<ExchangeRateProviderOptions>()
+            .Bind(configuration.GetSection(ExchangeRateProviderOptions.SectionName))
+            .Validate(
+                options => options.FallbackUsdToZwlRate > 0,
+                "ExchangeRate:FallbackUsdToZwlRate must be greater than zero.");
+
+        services.AddHttpClient<IUsdZwlRateProvider, RbzUsdZwlRateProvider>(client =>
+        {
+            client.Timeout = TimeSpan.FromSeconds(20);
+        });
     }
 
     private static void RegisterJwt(IServiceCollection services, IConfiguration configuration)

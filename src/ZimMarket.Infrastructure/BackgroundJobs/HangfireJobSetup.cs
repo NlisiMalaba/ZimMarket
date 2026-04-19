@@ -63,6 +63,7 @@ public static class HangfireJobSetup
         services.AddTransient<CleanExpiredTokensJob>();
         services.AddTransient<BatchStaleOrdersJob>();
         services.AddTransient<ArchiveOldDeliveryDataJob>();
+        services.AddTransient<SendNotificationJob>();
 
         return services;
     }
@@ -76,17 +77,17 @@ public static class HangfireJobSetup
 
         recurringJobs.AddOrUpdate<UpdateExchangeRateJob>(
             RecurringJobUpdateExchangeRate,
-            job => job.Execute(),
+            job => job.ExecuteAsync(),
             Cron.Daily(hour: 6, minute: 0));
 
         recurringJobs.AddOrUpdate<CleanExpiredTokensJob>(
             RecurringJobCleanExpiredTokens,
-            job => job.Execute(),
-            Cron.Daily(hour: 3, minute: 0));
+            job => job.ExecuteAsync(),
+            Cron.Daily(hour: 2, minute: 0));
 
         recurringJobs.AddOrUpdate<BatchStaleOrdersJob>(
             RecurringJobBatchStaleOrders,
-            job => job.Execute(),
+            job => job.ExecuteAsync(),
             Cron.MinuteInterval(interval: 30));
 
         recurringJobs.AddOrUpdate<ArchiveOldDeliveryDataJob>(
