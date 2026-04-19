@@ -29,6 +29,10 @@ public sealed class DriverConfiguration : IEntityTypeConfiguration<Driver>
         builder.Property(x => x.IsApproved).IsRequired();
         builder.Property(x => x.DriverStatus).IsRequired();
 
+        builder.Property(x => x.DeliveryPushNotificationToken)
+            .HasMaxLength(512)
+            .HasColumnName("driver_push_notification_token");
+
         builder.OwnsOne(
             x => x.LastKnownLocation,
             location =>

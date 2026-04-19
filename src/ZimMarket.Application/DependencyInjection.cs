@@ -54,6 +54,9 @@ public static class DependencyInjection
         if (services.All(d => d.ServiceType != typeof(INotificationJobScheduler)))
             services.AddSingleton<INotificationJobScheduler, InlineNotificationJobScheduler>();
 
+        if (services.All(d => d.ServiceType != typeof(IDriverTrackingBroadcaster)))
+            services.AddSingleton<IDriverTrackingBroadcaster, NullDriverTrackingBroadcaster>();
+
         return services;
     }
 }

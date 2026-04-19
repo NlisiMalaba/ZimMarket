@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using ZimMarket.Domain.Entities.Logistics;
 using ZimMarket.Domain.Enums;
 using ZimMarket.Domain.Interfaces.Repositories;
+using ZimMarket.Shared;
 
 namespace ZimMarket.Infrastructure.Persistence.Repositories;
 
@@ -18,6 +19,9 @@ internal sealed class DeliveryBatchRepository : IDeliveryBatchRepository
         _dbContext.DeliveryBatches
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+
+    public Task<DeliveryBatch?> GetByIdForUpdateAsync(Guid id, CancellationToken cancellationToken = default) =>
+        _dbContext.DeliveryBatches.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
     public async Task<DeliveryBatch?> GetByOrderIdAsync(Guid orderId, CancellationToken cancellationToken = default)
     {
@@ -45,6 +49,29 @@ internal sealed class DeliveryBatchRepository : IDeliveryBatchRepository
             .Where(x => x.Status == DeliveryBatchStatus.Created)
             .OrderByDescending(x => x.CreatedAt)
             .ToListAsync(cancellationToken);
+
+    public async Task<PagedList<DeliveryBatch>> GetPagedAsync(
+        DeliveryBatchStatus? statusFilter,
+        PaginationParams pagination,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(pagination);
+
+        IQueryable<DeliveryBatch> query = _dbContext.DeliveryBatches.AsNoTracking();
+        if (statusFilter.HasValue)
+            query = query.Where(x => x.Status == statusFilter.Value);
+
+        long totalCount = await query.LongCountAsync(cancellationToken).ConfigureAwait(false);
+
+        List<DeliveryBatch> page = await query
+            .OrderByDescending(x => x.CreatedAt)
+            .Skip((pagination.Page - 1) * pagination.PageSize)
+            .Take(pagination.PageSize)
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        return new PagedList<DeliveryBatch>(page, pagination.Page, pagination.PageSize, totalCount);
+    }
 
     public async Task AddAsync(DeliveryBatch batch, CancellationToken cancellationToken = default)
     {

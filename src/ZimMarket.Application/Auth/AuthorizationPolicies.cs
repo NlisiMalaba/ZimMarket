@@ -18,10 +18,18 @@ public static class AuthorizationPolicies
     /// <summary>Requires <see cref="UserRole.Admin"/> or <see cref="UserRole.SuperAdmin"/>.</summary>
     public const string AdminOrAbove = nameof(AdminOrAbove);
 
+    /// <summary>Requires any authenticated user (SignalR hubs enforce finer rules per hub method).</summary>
+    public const string TrackingHub = nameof(TrackingHub);
+
     /// <summary>Requires JWT <see cref="AuthClaimTypes.KycStatus"/> claim <c>Approved</c>.</summary>
     public const string KycApproved = "KycApproved";
 
     public const string SellerKycApproved = "SellerKycApproved";
 
     public const string DriverKycApproved = "DriverKycApproved";
+
+    /// <summary>
+    /// Authenticated driver with approved KYC (same checks as <see cref="DriverKycApproved"/>; used by driver-facing APIs).
+    /// </summary>
+    public const string DriverActive = nameof(DriverActive);
 }

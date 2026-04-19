@@ -2,6 +2,8 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using ZimMarket.Application.Common;
 using ZimMarket.Application.Common.Models;
+using ZimMarket.Application.Drivers;
+using ZimMarket.Application.Logistics;
 
 namespace ZimMarket.API.Http;
 
@@ -74,6 +76,25 @@ public static class ResultHttpMapper
             WarehouseErrorCodes.WarehouseQcInvalid => StatusCodes.Status409Conflict,
             WarehouseErrorCodes.WarehouseForbidden => StatusCodes.Status403Forbidden,
             WarehouseErrorCodes.OrderInvalidStatusForQc => StatusCodes.Status409Conflict,
+            LogisticsErrorCodes.LogisticsForbidden => StatusCodes.Status403Forbidden,
+            LogisticsErrorCodes.DriverNotFound => StatusCodes.Status404NotFound,
+            LogisticsErrorCodes.DriverNotEligible => StatusCodes.Status409Conflict,
+            LogisticsErrorCodes.DriverHasActiveBatch => StatusCodes.Status409Conflict,
+            LogisticsErrorCodes.OrderNotEligibleForBatch => StatusCodes.Status409Conflict,
+            LogisticsErrorCodes.OrderAlreadyBatched => StatusCodes.Status409Conflict,
+            LogisticsErrorCodes.BatchCreateFailed => StatusCodes.Status400BadRequest,
+            LogisticsErrorCodes.DeliveryBatchNotFound => StatusCodes.Status404NotFound,
+            LogisticsErrorCodes.DeliveryBatchForbidden => StatusCodes.Status403Forbidden,
+            LogisticsErrorCodes.DeliveryBatchInvalidState => StatusCodes.Status409Conflict,
+            LogisticsErrorCodes.OrderNotBatchedForCollection => StatusCodes.Status409Conflict,
+            LogisticsErrorCodes.OrderNotInDeliveryBatch => StatusCodes.Status400BadRequest,
+            LogisticsErrorCodes.BatchNotReadyForDelivery => StatusCodes.Status409Conflict,
+            LogisticsErrorCodes.OrderNotOutForDelivery => StatusCodes.Status409Conflict,
+            LogisticsErrorCodes.OrderAlreadyDelivered => StatusCodes.Status409Conflict,
+            DriverLocationErrorCodes.DriverLocationForbidden => StatusCodes.Status403Forbidden,
+            DriverDeliveryErrorCodes.DriverForbidden => StatusCodes.Status403Forbidden,
+            DriverLocationErrorCodes.DriverNotOnDelivery => StatusCodes.Status409Conflict,
+            DriverLocationErrorCodes.DriverLocationInvalidCoordinates => StatusCodes.Status422UnprocessableEntity,
             OrderErrorCodes.ProductNotFound => StatusCodes.Status404NotFound,
             OrderErrorCodes.ProductInactive => StatusCodes.Status409Conflict,
             OrderErrorCodes.ProductOutOfStock => StatusCodes.Status409Conflict,

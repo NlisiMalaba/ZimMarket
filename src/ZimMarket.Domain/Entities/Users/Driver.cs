@@ -44,7 +44,8 @@ public sealed class Driver : User
             DriverStatus.Offline,
             lastKnownLocation: null,
             isApproved: false,
-            rejectionReason: null);
+            rejectionReason: null,
+            deliveryPushNotificationToken: null);
 
         driver.AddDomainEvent(new DriverRegisteredEvent(driver.Id));
         return driver;
@@ -69,7 +70,8 @@ public sealed class Driver : User
         DriverStatus driverStatus,
         GeoCoordinate? lastKnownLocation,
         bool isApproved,
-        string? rejectionReason)
+        string? rejectionReason,
+        string? deliveryPushNotificationToken = null)
         : base(
             id,
             email,
@@ -92,6 +94,9 @@ public sealed class Driver : User
         LastKnownLocation = lastKnownLocation;
         IsApproved = isApproved;
         RejectionReason = rejectionReason;
+        DeliveryPushNotificationToken = string.IsNullOrWhiteSpace(deliveryPushNotificationToken)
+            ? null
+            : deliveryPushNotificationToken.Trim();
     }
 
     public string LicenseNumber { get; private set; } = string.Empty;
@@ -109,6 +114,9 @@ public sealed class Driver : User
     public bool IsApproved { get; private set; }
 
     public string? RejectionReason { get; private set; }
+
+    /// <summary>FCM device token for delivery dispatch notifications (optional).</summary>
+    public string? DeliveryPushNotificationToken { get; private set; }
 
     public void Approve()
     {
@@ -180,6 +188,12 @@ public sealed class Driver : User
     public void SetStatus(DriverStatus status)
     {
         DriverStatus = status;
+        UpdatedAt = DateTimeOffset.UtcNow;
+    }
+
+    public void UpdateDeliveryPushToken(string? token)
+    {
+        DeliveryPushNotificationToken = string.IsNullOrWhiteSpace(token) ? null : token.Trim();
         UpdatedAt = DateTimeOffset.UtcNow;
     }
 }
