@@ -189,6 +189,22 @@ public sealed class Order : BaseEntity
         UpdatedAt = DateTimeOffset.UtcNow;
     }
 
+    /// <summary>
+    /// Records that goods for this order arrived at the warehouse while <see cref="OrderStatus.Paid"/>; moves to <see cref="OrderStatus.AtWarehouse"/> and raises <see cref="ItemArrivedAtWarehouseEvent"/>.
+    /// </summary>
+    /// <param name="representativeWarehouseItemId">One of the created <c>WarehouseItem</c> ids (used in the domain event payload).</param>
+    public void MarkArrivedAtWarehouse(Guid representativeWarehouseItemId)
+    {
+        if (Status != OrderStatus.Paid)
+            throw new DomainException($"Order must be paid before arrival can be recorded. Current status: {Status}.");
+
+        if (representativeWarehouseItemId == Guid.Empty)
+            throw new DomainException("Warehouse item id is required.");
+
+        UpdateStatus(OrderStatus.AtWarehouse);
+        AddDomainEvent(new ItemArrivedAtWarehouseEvent(Id, representativeWarehouseItemId));
+    }
+
     private static Money SumItems(IReadOnlyList<OrderItem> items)
     {
         var currency = items[0].UnitPrice.Currency;

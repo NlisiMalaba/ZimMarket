@@ -1,4 +1,5 @@
 using ZimMarket.Domain.Enums;
+using ZimMarket.Domain.Exceptions;
 using ZimMarket.Shared;
 
 namespace ZimMarket.Domain.Entities.Warehouse;
@@ -29,13 +30,16 @@ public sealed class WarehouseItem : BaseEntity
         Guid productId,
         DateTimeOffset arrivedAt,
         DateTimeOffset createdAt,
-        DateTimeOffset updatedAt)
+        DateTimeOffset updatedAt,
+        string? receivingNotes = null)
     {
         if (orderId == Guid.Empty)
             return Result<WarehouseItem>.Failure("Order id is required.");
 
         if (productId == Guid.Empty)
             return Result<WarehouseItem>.Failure("Product id is required.");
+
+        string? notes = string.IsNullOrWhiteSpace(receivingNotes) ? null : receivingNotes.Trim();
 
         var item = new WarehouseItem
         {
@@ -44,7 +48,7 @@ public sealed class WarehouseItem : BaseEntity
             ProductId = productId,
             ArrivedAt = arrivedAt,
             QcStatus = WarehouseQcStatus.Pending,
-            QcNotes = null,
+            QcNotes = notes,
             PackagedAt = null,
             BatchId = null,
             CreatedAt = createdAt,
@@ -52,5 +56,36 @@ public sealed class WarehouseItem : BaseEntity
         };
 
         return Result<WarehouseItem>.Success(item);
+    }
+
+    /// <summary>
+    /// Records QC as <see cref="WarehouseQcStatus.Passed"/> or <see cref="WarehouseQcStatus.Failed"/>.
+    /// When <paramref name="replaceNotes"/> is true, <see cref="QcNotes"/> is set from <paramref name="notes"/> (trimmed; empty becomes null).
+    /// </summary>
+    public void ApplyQcOutcome(WarehouseQcStatus outcome, bool replaceNotes, string? notes)
+    {
+        if (outcome is not (WarehouseQcStatus.Passed or WarehouseQcStatus.Failed))
+            throw new DomainException("QC outcome must be Passed or Failed.");
+
+        if (QcStatus == WarehouseQcStatus.Passed)
+            throw new DomainException("Cannot change QC after the item has already passed.");
+
+        if (outcome == WarehouseQcStatus.Passed)
+        {
+            if (QcStatus is not (WarehouseQcStatus.Pending or WarehouseQcStatus.Failed))
+                throw new DomainException($"Cannot mark item as passed from QC status {QcStatus}.");
+            QcStatus = WarehouseQcStatus.Passed;
+        }
+        else
+        {
+            if (QcStatus is not (WarehouseQcStatus.Pending or WarehouseQcStatus.Failed))
+                throw new DomainException($"Cannot mark item as failed from QC status {QcStatus}.");
+            QcStatus = WarehouseQcStatus.Failed;
+        }
+
+        if (replaceNotes)
+            QcNotes = string.IsNullOrWhiteSpace(notes) ? null : notes.Trim();
+
+        UpdatedAt = DateTimeOffset.UtcNow;
     }
 }

@@ -39,6 +39,18 @@ public static class WebAuthenticationServiceCollectionExtensions
                 p => p.RequireAuthenticatedUser().RequireClaim(AuthClaimTypes.Role, UserRole.SuperAdmin.ToString()));
 
             options.AddPolicy(
+                AuthorizationPolicies.AdminOrAbove,
+                p =>
+                {
+                    p.RequireAuthenticatedUser();
+                    p.RequireAssertion(ctx =>
+                    {
+                        string? role = ctx.User.FindFirst(AuthClaimTypes.Role)?.Value;
+                        return role == UserRole.Admin.ToString() || role == UserRole.SuperAdmin.ToString();
+                    });
+                });
+
+            options.AddPolicy(
                 AuthorizationPolicies.KycApproved,
                 p => p.RequireAuthenticatedUser()
                     .RequireClaim(AuthClaimTypes.KycStatus, KycStatus.Approved.ToString()));

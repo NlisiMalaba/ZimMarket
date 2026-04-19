@@ -11,4 +11,6 @@ public static class OrderErrorCodes
     public const string ProductUnsupportedCurrency = "PRODUCT_UNSUPPORTED_CURRENCY";
     public const string OrderInvalidAddress = "ORDER_INVALID_ADDRESS";
     public const string OrderCreateFailed = "ORDER_CREATE_FAILED";
+    public const string OrderInvalidStatusForArrival = "ORDER_INVALID_STATUS_FOR_ARRIVAL";
+    public const string OrderArrivalAlreadyRecorded = "ORDER_ARRIVAL_ALREADY_RECORDED";
 }
