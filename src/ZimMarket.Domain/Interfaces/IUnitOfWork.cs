@@ -23,6 +23,8 @@ public interface IUnitOfWork
 
     IWarehouseItemRepository WarehouseItems { get; }
 
+    IDriverLocationRepository DriverLocations { get; }
+
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 
     Task BeginTransactionAsync(CancellationToken cancellationToken = default);

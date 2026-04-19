@@ -7,6 +7,7 @@ using ZimMarket.Application.Common.Services;
 using ZimMarket.Infrastructure;
 using ZimMarket.Infrastructure.Authentication;
 using ZimMarket.Infrastructure.BackgroundJobs;
+using ZimMarket.Infrastructure.RealTime;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -49,6 +50,7 @@ if (HangfireJobSetup.IsHangfireStorageConfigured(app.Configuration))
 
 app.MapHealthChecks("/health");
 app.MapControllers();
+app.MapHub<TrackingHub>("/hubs/tracking");
 
 app.Run();
 

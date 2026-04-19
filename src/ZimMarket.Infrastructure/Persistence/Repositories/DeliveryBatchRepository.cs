@@ -19,6 +19,9 @@ internal sealed class DeliveryBatchRepository : IDeliveryBatchRepository
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
+    public Task<DeliveryBatch?> GetByIdForUpdateAsync(Guid id, CancellationToken cancellationToken = default) =>
+        _dbContext.DeliveryBatches.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+
     public async Task<DeliveryBatch?> GetByOrderIdAsync(Guid orderId, CancellationToken cancellationToken = default)
     {
         if (orderId == Guid.Empty)

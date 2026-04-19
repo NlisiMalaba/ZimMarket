@@ -88,4 +88,22 @@ public sealed class WarehouseItem : BaseEntity
 
         UpdatedAt = DateTimeOffset.UtcNow;
     }
+
+    /// <summary>
+    /// Associates this line with a delivery batch after the order is batched for pickup.
+    /// </summary>
+    public void AssignToDeliveryBatch(Guid deliveryBatchId)
+    {
+        if (deliveryBatchId == Guid.Empty)
+            throw new DomainException("Delivery batch id is required.");
+
+        if (QcStatus != WarehouseQcStatus.Passed)
+            throw new DomainException("Only QC-passed warehouse lines can be assigned to a delivery batch.");
+
+        if (BatchId.HasValue)
+            throw new DomainException("This warehouse line is already assigned to a delivery batch.");
+
+        BatchId = deliveryBatchId;
+        UpdatedAt = DateTimeOffset.UtcNow;
+    }
 }

@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using StackExchange.Redis;
 using ZimMarket.Application.Common.Interfaces;
+using ZimMarket.Application.Logistics;
 using ZimMarket.Domain.Entities.Users;
 using ZimMarket.Domain.Interfaces;
 using ZimMarket.Domain.Interfaces.Repositories;
@@ -20,6 +21,7 @@ using ZimMarket.Infrastructure.Notifications;
 using ZimMarket.Infrastructure.Payments;
 using ZimMarket.Infrastructure.Persistence;
 using ZimMarket.Infrastructure.Persistence.Repositories;
+using ZimMarket.Infrastructure.RealTime;
 using ZimMarket.Infrastructure.Security;
 using ZimMarket.Infrastructure.Storage;
 
@@ -35,8 +37,11 @@ public static class DependencyInjection
         ArgumentNullException.ThrowIfNull(configuration);
 
         services.AddSignalR();
+        services.AddScoped<IDriverTrackingBroadcaster, DriverTrackingSignalRBroadcaster>();
 
         RegisterJwt(services, configuration);
+        services.AddOptions<LogisticsOptions>()
+            .Bind(configuration.GetSection(LogisticsOptions.SectionName));
         RegisterEntityFramework(services, configuration);
         RegisterRedis(services, configuration);
         RegisterAzureBlobStorage(services, configuration);

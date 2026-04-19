@@ -21,6 +21,7 @@ public sealed class UnitOfWork : IUnitOfWork
     private IPaymentIdempotencyRepository? _paymentIdempotency;
     private IDeliveryBatchRepository? _deliveryBatches;
     private IWarehouseItemRepository? _warehouseItems;
+    private IDriverLocationRepository? _driverLocations;
 
     public UnitOfWork(AppDbContext dbContext)
     {
@@ -45,6 +46,9 @@ public sealed class UnitOfWork : IUnitOfWork
     public IDeliveryBatchRepository DeliveryBatches => _deliveryBatches ??= new DeliveryBatchRepository(_dbContext);
 
     public IWarehouseItemRepository WarehouseItems => _warehouseItems ??= new WarehouseItemRepository(_dbContext);
+
+    public IDriverLocationRepository DriverLocations =>
+        _driverLocations ??= new DriverLocationRepository(_dbContext);
 
     public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) =>
         _dbContext.SaveChangesAsync(cancellationToken);

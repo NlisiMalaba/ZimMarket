@@ -61,7 +61,7 @@ public sealed class DeliveryBatch : BaseEntity
         };
 
         batch._orderIds.AddRange(orderIds);
-        batch.AddDomainEvent(new BatchCreatedEvent(id, driverId));
+        batch.AddDomainEvent(new BatchCreatedEvent(id, driverId, warehouseId, [.. orderIds]));
 
         return Result<DeliveryBatch>.Success(batch);
     }

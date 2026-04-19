@@ -40,6 +40,9 @@ public sealed class Order : BaseEntity
 
     public string? CancellationReason { get; private set; }
 
+    /// <summary>Blob storage key for proof-of-delivery image (e.g. <c>delivery-photos/…</c>).</summary>
+    public string? DeliveryPhotoKey { get; private set; }
+
     public static Result<Order> Create(
         Guid id,
         Guid customerId,
@@ -203,6 +206,22 @@ public sealed class Order : BaseEntity
 
         UpdateStatus(OrderStatus.AtWarehouse);
         AddDomainEvent(new ItemArrivedAtWarehouseEvent(Id, representativeWarehouseItemId));
+    }
+
+    /// <summary>
+    /// Confirms final delivery with a stored delivery photo key; moves <see cref="OrderStatus.OutForDelivery"/> → <see cref="OrderStatus.Delivered"/>.
+    /// </summary>
+    public void ConfirmDelivered(string deliveryPhotoKey)
+    {
+        if (Status != OrderStatus.OutForDelivery)
+            throw new DomainException($"Order must be out for delivery to confirm delivery. Current status: {Status}.");
+
+        if (string.IsNullOrWhiteSpace(deliveryPhotoKey))
+            throw new DomainException("Delivery photo key is required.");
+
+        DeliveryPhotoKey = deliveryPhotoKey.Trim();
+        UpdateStatus(OrderStatus.Delivered);
+        AddDomainEvent(new OrderDeliveredEvent(Id, CustomerId, DeliveryPhotoKey, TotalAmount.Amount, TotalAmount.Currency));
     }
 
     private static Money SumItems(IReadOnlyList<OrderItem> items)

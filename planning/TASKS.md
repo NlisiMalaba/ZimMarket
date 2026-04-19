@@ -475,26 +475,26 @@
 
 ## Module 10 — Logistics & Driver GPS
 
-- [ ] 10.1 Create `CreateDeliveryBatchCommand(OrderIds: List<Guid>, DriverId)` with handler [Authorize(Admin)]:
+- [x] 10.1 Create `CreateDeliveryBatchCommand(OrderIds: List<Guid>, DriverId)` with handler [Authorize(Admin)]:
   - Verify all orders are `QcPassed` and unbatched
   - Verify driver is `Approved` and `Available`
   - Create `DeliveryBatch` aggregate; transition each order to `Batched`; set driver status to `OnDelivery`
   - Raise `BatchCreatedEvent` → notify driver (push with pickup instructions)
   - Save; return `Result<Guid>` (batch id)
 
-- [ ] 10.2 Create `UpdateDriverLocationCommand(Latitude, Longitude)` with handler [Authorize(Driver)]:
+- [x] 10.2 Create `UpdateDriverLocationCommand(Latitude, Longitude)` with handler [Authorize(Driver)]:
   - Validate driver is `OnDelivery` (ignore if offline)
   - Upsert `driver_locations` table (one row per driver)
   - Cache location in Redis (key: `driver-location:{driverId}`, TTL: 90 seconds)
   - Raise `DriverLocationUpdatedEvent`
   - Event handler broadcasts via `IHubContext<TrackingHub>` to groups: `order:{orderId}` for each active order in batch; `admin:drivers` group
 
-- [ ] 10.3 Create `ConfirmBatchCollectedCommand(BatchId)` with handler [Authorize(Driver)]:
+- [x] 10.3 Create `ConfirmBatchCollectedCommand(BatchId)` with handler [Authorize(Driver)]:
   - Verify driver owns batch; call `batch.MarkCollected()`; transition orders to `OutForDelivery`
   - Notify customers (push: "Your order is on the way!")
   - Save
 
-- [ ] 10.4 Create `ConfirmDeliveryCommand(BatchId, OrderId, DeliveryPhotoKey)` with handler [Authorize(Driver)]:
+- [x] 10.4 Create `ConfirmDeliveryCommand(BatchId, OrderId, DeliveryPhotoKey)` with handler [Authorize(Driver)]:
   - Validate photo key exists in blob
   - Transition specific `Order` to `Delivered`
   - If all orders in batch delivered: call `batch.Complete()`; set driver `Available`; raise `DeliveryCompletedEvent`
