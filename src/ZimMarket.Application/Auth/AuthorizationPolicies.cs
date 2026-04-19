@@ -15,6 +15,9 @@ public static class AuthorizationPolicies
 
     public const string SuperAdmin = nameof(UserRole.SuperAdmin);
 
+    /// <summary>Requires <see cref="UserRole.Admin"/> or <see cref="UserRole.SuperAdmin"/>.</summary>
+    public const string AdminOrAbove = nameof(AdminOrAbove);
+
     /// <summary>Requires JWT <see cref="AuthClaimTypes.KycStatus"/> claim <c>Approved</c>.</summary>
     public const string KycApproved = "KycApproved";
 

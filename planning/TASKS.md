@@ -447,23 +447,23 @@
 
 ## Module 9 — Warehouse Management
 
-- [ ] 9.1 Create `RecordItemArrivalCommand(OrderId, Notes?)` with handler [Authorize(Admin)]:
+- [x] 9.1 Create `RecordItemArrivalCommand(OrderId, Notes?)` with handler [Authorize(Admin)]:
   - Verify order is in `Paid` status
   - Create `WarehouseItem` with `QcStatus = Pending`
   - Transition order to `AtWarehouse`; raise `ItemArrivedAtWarehouseEvent`
   - Save; notify customer (push)
 
-- [ ] 9.2 Create `UpdateQcStatusCommand(WarehouseItemId, QcStatus, Notes?)` with handler [Authorize(Admin)]:
+- [x] 9.2 Create `UpdateQcStatusCommand(WarehouseItemId, QcStatus, Notes?)` with handler [Authorize(Admin)]:
   - `QcStatus`: `Passed` or `Failed`
   - On `Passed`: transition order to `QcPassed`
   - On `Failed`: flag for admin review (do not auto-cancel — admin decides)
   - Save
 
-- [ ] 9.3 Create `GetWarehouseItemsQuery(QcStatus?, Page, PageSize)` [Authorize(Admin)]: returns paginated list of items at warehouse with order details
+- [x] 9.3 Create `GetWarehouseItemsQuery(QcStatus?, Page, PageSize)` [Authorize(Admin)]: returns paginated list of items at warehouse with order details
 
-- [ ] 9.4 Create `GetUnbatchedItemsQuery` [Authorize(Admin)]: returns `QcPassed` items not yet assigned to a batch; used for batch creation UI
+- [x] 9.4 Create `GetUnbatchedItemsQuery` [Authorize(Admin)]: returns `QcPassed` items not yet assigned to a batch; used for batch creation UI
 
-- [ ] 9.5 Create `WarehouseController` (`/api/v1/warehouse`) [Authorize(AdminOrAbove)]:
+- [x] 9.5 Create `WarehouseController` (`/api/v1/warehouse`) [Authorize(AdminOrAbove)]:
   - `POST /arrivals` → `RecordItemArrivalCommand`
   - `PATCH /items/{id}/qc` → `UpdateQcStatusCommand`
   - `GET /items` → `GetWarehouseItemsQuery`
