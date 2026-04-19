@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using ZimMarket.Application.Admin;
 using ZimMarket.Application.Common;
 using ZimMarket.Application.Common.Models;
 using ZimMarket.Application.Drivers;
@@ -76,6 +77,22 @@ public static class ResultHttpMapper
             WarehouseErrorCodes.WarehouseQcInvalid => StatusCodes.Status409Conflict,
             WarehouseErrorCodes.WarehouseForbidden => StatusCodes.Status403Forbidden,
             WarehouseErrorCodes.OrderInvalidStatusForQc => StatusCodes.Status409Conflict,
+            AdminKycErrorCodes.Forbidden => StatusCodes.Status403Forbidden,
+            AdminKycErrorCodes.SasGenerationFailed => StatusCodes.Status502BadGateway,
+            AdminKycErrorCodes.CannotApprove => StatusCodes.Status409Conflict,
+            AdminKycErrorCodes.CannotReject => StatusCodes.Status409Conflict,
+            AdminProductErrorCodes.Forbidden => StatusCodes.Status403Forbidden,
+            AdminProductErrorCodes.CannotSuspend => StatusCodes.Status409Conflict,
+            AdminOrderErrorCodes.Forbidden => StatusCodes.Status403Forbidden,
+            AdminOrderErrorCodes.CannotOverride => StatusCodes.Status409Conflict,
+            AdminDashboardErrorCodes.Forbidden => StatusCodes.Status403Forbidden,
+            AdminDashboardErrorCodes.RevenueAggregationFailed => StatusCodes.Status502BadGateway,
+            CreateAdminErrorCodes.Forbidden => StatusCodes.Status403Forbidden,
+            CreateAdminErrorCodes.PhoneAllocationFailed => StatusCodes.Status503ServiceUnavailable,
+            UserLifecycleErrorCodes.Forbidden => StatusCodes.Status403Forbidden,
+            UserLifecycleErrorCodes.UserNotFound => StatusCodes.Status404NotFound,
+            UserLifecycleErrorCodes.CannotActOnSelf => StatusCodes.Status403Forbidden,
+            UserLifecycleErrorCodes.InsufficientPrivilegeForTarget => StatusCodes.Status403Forbidden,
             LogisticsErrorCodes.LogisticsForbidden => StatusCodes.Status403Forbidden,
             LogisticsErrorCodes.DriverNotFound => StatusCodes.Status404NotFound,
             LogisticsErrorCodes.DriverNotEligible => StatusCodes.Status409Conflict,

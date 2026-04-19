@@ -62,6 +62,28 @@ public sealed class GetProductByIdQueryTests
         result.Value.ImageUrls.Should().Contain(url => url.Contains("image-1.jpg", StringComparison.Ordinal));
     }
 
+    [Fact]
+    public async Task Handler_returns_not_found_when_product_suspended()
+    {
+        Guid sellerId = Guid.NewGuid();
+        Guid productId = Guid.NewGuid();
+        Guid categoryId = Guid.NewGuid();
+
+        var unitOfWork = Substitute.For<IUnitOfWork>();
+        var products = Substitute.For<IProductRepository>();
+        unitOfWork.Products.Returns(products);
+
+        Product product = CreateProduct(sellerId, productId, categoryId);
+        product.Suspend("Policy violation");
+        products.GetByIdAsync(productId, Arg.Any<CancellationToken>()).Returns(product);
+
+        var handler = new GetProductByIdQueryHandler(unitOfWork, Substitute.For<IFileStorage>());
+        var result = await handler.Handle(new GetProductByIdQuery(productId), CancellationToken.None);
+
+        result.IsSuccess.Should().BeFalse();
+        result.ErrorCode.Should().Be("Products.NotFound");
+    }
+
     private static Product CreateProduct(Guid sellerId, Guid productId, Guid categoryId)
     {
         var price = Money.Create(5m, Currency.USD).Value!;

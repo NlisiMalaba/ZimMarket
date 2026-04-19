@@ -63,6 +63,8 @@ internal sealed class ProductRepository : IProductRepository
 
         if (filter.SellerId.HasValue)
             specifications.Add(new SellerProductSpecification(filter.SellerId.Value));
+        else
+            specifications.Add(new ActiveProductSpecification());
 
         return new CompositeSpecification<Product>(specifications);
     }

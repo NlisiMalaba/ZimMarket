@@ -3,6 +3,7 @@ using ZimMarket.Application.Common.Interfaces;
 using ZimMarket.Application.Common.Models;
 using ZimMarket.Domain.Entities.Catalogue;
 using ZimMarket.Domain.Entities.Users;
+using ZimMarket.Domain.Enums;
 using ZimMarket.Domain.Interfaces;
 
 namespace ZimMarket.Application.Catalogue;
@@ -26,6 +27,9 @@ public sealed class GetProductByIdQueryHandler : IRequestHandler<GetProductByIdQ
     {
         Product? product = await _unitOfWork.Products.GetByIdAsync(request.ProductId, cancellationToken).ConfigureAwait(false);
         if (product is null)
+            return Result<ProductDetailDto>.Failure("Products.NotFound", "Product was not found.");
+
+        if (product.Status != ProductStatus.Active)
             return Result<ProductDetailDto>.Failure("Products.NotFound", "Product was not found.");
 
         Seller? seller = await _unitOfWork.Sellers.GetByIdAsync(product.SellerId, cancellationToken).ConfigureAwait(false);

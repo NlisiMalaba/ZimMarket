@@ -12,6 +12,8 @@ public sealed class Product : BaseEntity
     public const int MaxTitleLength = 300;
     public const int MaxDescriptionLength = 8000;
 
+    public const int MaxSuspensionReasonLength = 2000;
+
     private readonly List<string> _imageKeys = [];
 
     private Product()
@@ -33,6 +35,9 @@ public sealed class Product : BaseEntity
     public IReadOnlyList<string> ImageKeys => _imageKeys;
 
     public ProductStatus Status { get; private set; }
+
+    /// <summary>When <see cref="Status"/> is <see cref="ProductStatus.Suspended"/>, stores the admin policy reason.</summary>
+    public string? SuspensionReason { get; private set; }
 
     public Address PickupAddress { get; private set; } = null!;
 
@@ -77,6 +82,7 @@ public sealed class Product : BaseEntity
             CategoryId = categoryId,
             StockQuantity = stockQuantity,
             Status = ProductStatus.Active,
+            SuspensionReason = null,
             PickupAddress = pickupAddress,
             CreatedAt = createdAt,
             UpdatedAt = updatedAt
@@ -138,15 +144,27 @@ public sealed class Product : BaseEntity
             AddDomainEvent(new StockDepletedEvent(Id));
     }
 
-    public void Suspend()
+    public void Suspend(string reason)
     {
         if (Status == ProductStatus.Deleted)
             throw new DomainException("Cannot suspend a deleted product.");
 
+        if (string.IsNullOrWhiteSpace(reason))
+            throw new DomainException("Suspension reason is required.");
+
+        string trimmed = reason.Trim();
+        if (trimmed.Length > MaxSuspensionReasonLength)
+            throw new DomainException($"Suspension reason cannot exceed {MaxSuspensionReasonLength} characters.");
+
         if (Status == ProductStatus.Suspended)
+        {
+            SuspensionReason = trimmed;
+            Touch();
             return;
+        }
 
         Status = ProductStatus.Suspended;
+        SuspensionReason = trimmed;
         Touch();
     }
 
@@ -159,6 +177,7 @@ public sealed class Product : BaseEntity
             return;
 
         Status = ProductStatus.Active;
+        SuspensionReason = null;
         Touch();
     }
 
@@ -168,6 +187,7 @@ public sealed class Product : BaseEntity
             return;
 
         Status = ProductStatus.Deleted;
+        SuspensionReason = null;
         Touch();
     }
 

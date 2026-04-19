@@ -9,21 +9,24 @@ using ZimMarket.Domain.Interfaces;
 namespace ZimMarket.Application.Auth;
 
 /// <summary>
-/// Sends the driver a KYC rejection email including the admin reason.
+/// Sends the driver a KYC rejection email and SMS including the admin reason.
 /// </summary>
 public sealed class DriverRejectedEventHandler : INotificationHandler<DriverRejectedEvent>
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IEmailService _emailService;
+    private readonly ISmsService _smsService;
     private readonly ILogger<DriverRejectedEventHandler> _logger;
 
     public DriverRejectedEventHandler(
         IUnitOfWork unitOfWork,
         IEmailService emailService,
+        ISmsService smsService,
         ILogger<DriverRejectedEventHandler> logger)
     {
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
+        _smsService = smsService ?? throw new ArgumentNullException(nameof(smsService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
@@ -73,12 +76,18 @@ public sealed class DriverRejectedEventHandler : INotificationHandler<DriverReje
                     },
                     cancellationToken)
                 .ConfigureAwait(false);
+
+            const string sms = "ZimMarket: Your driver verification was not approved. Check your email for details.";
+
+            await _smsService
+                .SendAsync(driver.PhoneNumber.Value, sms, cancellationToken)
+                .ConfigureAwait(false);
         }
         catch (Exception ex)
         {
             _logger.LogError(
                 ex,
-                "Failed to send driver KYC rejection email for {DriverId}. Rejection remains committed.",
+                "Failed to send driver KYC rejection notifications for {DriverId}. Rejection remains committed.",
                 notification.DriverId);
         }
     }

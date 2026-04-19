@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using ZimMarket.Domain.Entities.Orders;
 using ZimMarket.Domain.Enums;
 using ZimMarket.Domain.Interfaces.Repositories;
+using ZimMarket.Domain.ReadModels;
 using ZimMarket.Shared;
 
 namespace ZimMarket.Infrastructure.Persistence.Repositories;
@@ -64,6 +65,48 @@ internal sealed class OrderRepository : IOrderRepository
             .ConfigureAwait(false);
 
         return new PagedList<Order>(items, pagination.Page, pagination.PageSize, totalCount);
+    }
+
+    public async Task<PagedList<OrderListAdminRow>> GetAllPagedForAdminAsync(
+        OrderStatus? status,
+        DateTimeOffset? dateFromInclusive,
+        DateTimeOffset? dateToInclusive,
+        PaginationParams pagination,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(pagination);
+
+        IQueryable<Order> query = _dbContext.Orders.AsNoTracking();
+
+        if (status.HasValue)
+            query = query.Where(o => o.Status == status.Value);
+
+        if (dateFromInclusive.HasValue)
+            query = query.Where(o => o.CreatedAt >= dateFromInclusive.Value);
+
+        if (dateToInclusive.HasValue)
+            query = query.Where(o => o.CreatedAt <= dateToInclusive.Value);
+
+        query = query.OrderByDescending(o => o.CreatedAt);
+
+        long totalCount = await query.LongCountAsync(cancellationToken).ConfigureAwait(false);
+
+        List<OrderListAdminRow> items = await query
+            .Skip((pagination.Page - 1) * pagination.PageSize)
+            .Take(pagination.PageSize)
+            .Select(o => new OrderListAdminRow(
+                o.Id,
+                o.CustomerId,
+                o.Status,
+                o.PaymentStatus,
+                o.TotalAmount.Amount,
+                o.TotalAmount.Currency,
+                o.Items.Count,
+                o.CreatedAt))
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        return new PagedList<OrderListAdminRow>(items, pagination.Page, pagination.PageSize, totalCount);
     }
 
     public async Task<IReadOnlyList<Order>> GetByStatusAsync(OrderStatus status, CancellationToken cancellationToken = default) =>

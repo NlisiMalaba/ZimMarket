@@ -9,21 +9,24 @@ using ZimMarket.Domain.Interfaces;
 namespace ZimMarket.Application.Auth;
 
 /// <summary>
-/// Sends the seller a KYC rejection email including the admin reason.
+/// Sends the seller a KYC rejection email and SMS including the admin reason.
 /// </summary>
 public sealed class SellerRejectedEventHandler : INotificationHandler<SellerRejectedEvent>
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IEmailService _emailService;
+    private readonly ISmsService _smsService;
     private readonly ILogger<SellerRejectedEventHandler> _logger;
 
     public SellerRejectedEventHandler(
         IUnitOfWork unitOfWork,
         IEmailService emailService,
+        ISmsService smsService,
         ILogger<SellerRejectedEventHandler> logger)
     {
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
+        _smsService = smsService ?? throw new ArgumentNullException(nameof(smsService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
@@ -73,12 +76,19 @@ public sealed class SellerRejectedEventHandler : INotificationHandler<SellerReje
                     },
                     cancellationToken)
                 .ConfigureAwait(false);
+
+            string sms =
+                $"ZimMarket: Your seller verification ({seller.BusinessName}) was not approved. Check your email for details.";
+
+            await _smsService
+                .SendAsync(seller.PhoneNumber.Value, sms, cancellationToken)
+                .ConfigureAwait(false);
         }
         catch (Exception ex)
         {
             _logger.LogError(
                 ex,
-                "Failed to send seller KYC rejection email for {SellerId}. Rejection remains committed.",
+                "Failed to send seller KYC rejection notifications for {SellerId}. Rejection remains committed.",
                 notification.SellerId);
         }
     }

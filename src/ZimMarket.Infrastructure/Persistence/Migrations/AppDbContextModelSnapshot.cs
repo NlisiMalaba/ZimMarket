@@ -88,6 +88,11 @@ namespace ZimMarket.Infrastructure.Persistence.Migrations
                     b.Property<int>("StockQuantity")
                         .HasColumnType("integer");
 
+                    b.Property<string>("SuspensionReason")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("suspension_reason");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(300)

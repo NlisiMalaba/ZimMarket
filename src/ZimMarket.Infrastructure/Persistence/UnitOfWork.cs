@@ -15,6 +15,7 @@ public sealed class UnitOfWork : IUnitOfWork
     private IUserRepository<Customer>? _customers;
     private IUserRepository<Seller>? _sellers;
     private IUserRepository<Driver>? _drivers;
+    private IUserRepository<AdminUser>? _admins;
     private IDriverReadRepository? _driverRead;
     private IProductRepository? _products;
     private ICategoryRepository? _categories;
@@ -22,6 +23,8 @@ public sealed class UnitOfWork : IUnitOfWork
     private IPaymentIdempotencyRepository? _paymentIdempotency;
     private IDeliveryBatchRepository? _deliveryBatches;
     private IWarehouseItemRepository? _warehouseItems;
+    private IPendingKycReadRepository? _pendingKyc;
+    private IDashboardStatsReadRepository? _dashboardStats;
     private IDriverLocationRepository? _driverLocations;
 
     public UnitOfWork(AppDbContext dbContext)
@@ -34,6 +37,8 @@ public sealed class UnitOfWork : IUnitOfWork
     public IUserRepository<Seller> Sellers => _sellers ??= new UserRepository<Seller>(_dbContext);
 
     public IUserRepository<Driver> Drivers => _drivers ??= new UserRepository<Driver>(_dbContext);
+
+    public IUserRepository<AdminUser> Admins => _admins ??= new UserRepository<AdminUser>(_dbContext);
 
     public IDriverReadRepository DriverRead => _driverRead ??= new DriverReadRepository(_dbContext);
 
@@ -49,6 +54,11 @@ public sealed class UnitOfWork : IUnitOfWork
     public IDeliveryBatchRepository DeliveryBatches => _deliveryBatches ??= new DeliveryBatchRepository(_dbContext);
 
     public IWarehouseItemRepository WarehouseItems => _warehouseItems ??= new WarehouseItemRepository(_dbContext);
+
+    public IPendingKycReadRepository PendingKyc => _pendingKyc ??= new PendingKycReadRepository(_dbContext);
+
+    public IDashboardStatsReadRepository DashboardStats =>
+        _dashboardStats ??= new DashboardStatsReadRepository(_dbContext);
 
     public IDriverLocationRepository DriverLocations =>
         _driverLocations ??= new DriverLocationRepository(_dbContext);

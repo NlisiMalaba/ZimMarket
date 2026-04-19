@@ -60,6 +60,7 @@ public sealed class GetSellerProductsQueryHandler : IRequestHandler<GetSellerPro
             summaries.Add(new ProductSummaryDto
             {
                 ProductId = product.Id,
+                Status = product.Status,
                 Title = product.Title,
                 PriceAmount = product.Price.Amount,
                 PriceCurrency = product.Price.Currency.ToString(),

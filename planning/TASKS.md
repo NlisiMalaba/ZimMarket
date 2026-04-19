@@ -533,27 +533,27 @@
 
 ## Module 11 — Admin Features
 
-- [ ] 11.1 Create `GetPendingKycQuery(Role: Seller|Driver, Page, PageSize)` [Authorize(Admin)]: returns paginated list of users with `KycStatus = PendingReview` with document SAS URLs
+- [x] 11.1 Create `GetPendingKycQuery(Role: Seller|Driver, Page, PageSize)` [Authorize(Admin)]: returns paginated list of users with `KycStatus = PendingReview` with document SAS URLs
 
-- [ ] 11.2 Create `ApproveKycCommand(UserId, Role)` with handler [Authorize(Admin)]:
+- [x] 11.2 Create `ApproveKycCommand(UserId, Role)` with handler [Authorize(Admin)]:
   - Load entity; call `Approve()` domain method; save; domain event fires notification
 
-- [ ] 11.3 Create `RejectKycCommand(UserId, Role, Reason)` with handler [Authorize(Admin)]:
+- [x] 11.3 Create `RejectKycCommand(UserId, Role, Reason)` with handler [Authorize(Admin)]:
   - Call `Reject(reason)` domain method; save; domain event fires rejection email/SMS
 
-- [ ] 11.4 Create `SuspendProductCommand(ProductId, Reason)` [Authorize(Admin)]: for admin to take down listings that violate policies
+- [x] 11.4 Create `SuspendProductCommand(ProductId, Reason)` [Authorize(Admin)]: for admin to take down listings that violate policies
 
-- [ ] 11.5 Create `GetAllOrdersQuery(Status?, DateFrom?, DateTo?, Page, PageSize)` [Authorize(Admin)]: full order management view
+- [x] 11.5 Create `GetAllOrdersQuery(Status?, DateFrom?, DateTo?, Page, PageSize)` [Authorize(Admin)]: full order management view
 
-- [ ] 11.6 Create `OverrideOrderStatusCommand(OrderId, NewStatus, Reason)` [Authorize(Admin)]: for manual intervention; skips `CanTransitionTo` validation (admin override); logs reason
+- [x] 11.6 Create `OverrideOrderStatusCommand(OrderId, NewStatus, Reason)` [Authorize(Admin)]: for manual intervention; skips `CanTransitionTo` validation (admin override); logs reason
 
-- [ ] 11.7 Create `GetDashboardStatsQuery` [Authorize(Admin)]: returns aggregate stats — orders today, revenue today (USD), active drivers, pending KYC count, low stock products; cache 5 minutes
+- [x] 11.7 Create `GetDashboardStatsQuery` [Authorize(Admin)]: returns aggregate stats — orders today, revenue today (USD), active drivers, pending KYC count, low stock products; cache 5 minutes
 
-- [ ] 11.8 Create `CreateAdminCommand(Email, Password, FullName)` [Authorize(SuperAdmin)]: creates an Admin-role user; sends credentials email
+- [x] 11.8 Create `CreateAdminCommand(Email, Password, FullName)` [Authorize(SuperAdmin)]: creates an Admin-role user; sends credentials email
 
-- [ ] 11.9 Create `DeactivateUserCommand(UserId)` [Authorize(AdminOrAbove)]: sets `IsActive = false`; invalidates all refresh tokens; can reactivate via `ActivateUserCommand`
+- [x] 11.9 Create `DeactivateUserCommand(UserId)` [Authorize(AdminOrAbove)]: sets `IsActive = false`; invalidates all refresh tokens; can reactivate via `ActivateUserCommand`
 
-- [ ] 11.10 Create `AdminController` (`/api/v1/admin`) [Authorize(AdminOrAbove)]:
+- [x] 11.10 Create `AdminController` (`/api/v1/admin`) [Authorize(AdminOrAbove)]:
   - `GET /kyc` → `GetPendingKycQuery`
   - `POST /kyc/{userId}/approve` → `ApproveKycCommand`
   - `POST /kyc/{userId}/reject` → `RejectKycCommand`
@@ -564,7 +564,7 @@
   - `POST /admins` → `CreateAdminCommand` [Authorize(SuperAdmin)]
   - `POST /users/{id}/deactivate` → `DeactivateUserCommand`
 
-- [ ] **Checkpoint 11** — Admin can review KYC, manage orders, view dashboard; super admin can create admins
+- [x] **Checkpoint 11** — Admin can review KYC, manage orders, view dashboard; super admin can create admins
 
 ---
 

@@ -1,5 +1,6 @@
 using ZimMarket.Domain.Entities.Orders;
 using ZimMarket.Domain.Enums;
+using ZimMarket.Domain.ReadModels;
 using ZimMarket.Shared;
 
 namespace ZimMarket.Domain.Interfaces.Repositories;
@@ -18,6 +19,14 @@ public interface IOrderRepository
         Guid customerId,
         PaginationParams pagination,
         OrderStatus? statusFilter,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>All orders for admin consoles, optionally filtered by status and creation date range (inclusive).</summary>
+    Task<PagedList<OrderListAdminRow>> GetAllPagedForAdminAsync(
+        OrderStatus? status,
+        DateTimeOffset? dateFromInclusive,
+        DateTimeOffset? dateToInclusive,
+        PaginationParams pagination,
         CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<Order>> GetByStatusAsync(OrderStatus status, CancellationToken cancellationToken = default);

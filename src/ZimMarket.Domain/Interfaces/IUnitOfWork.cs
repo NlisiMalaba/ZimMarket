@@ -11,6 +11,8 @@ public interface IUnitOfWork
 
     IUserRepository<Driver> Drivers { get; }
 
+    IUserRepository<AdminUser> Admins { get; }
+
     IDriverReadRepository DriverRead { get; }
 
     IProductRepository Products { get; }
@@ -24,6 +26,10 @@ public interface IUnitOfWork
     IDeliveryBatchRepository DeliveryBatches { get; }
 
     IWarehouseItemRepository WarehouseItems { get; }
+
+    IPendingKycReadRepository PendingKyc { get; }
+
+    IDashboardStatsReadRepository DashboardStats { get; }
 
     IDriverLocationRepository DriverLocations { get; }
 
