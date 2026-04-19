@@ -623,46 +623,46 @@
 
 ## Module 14 — Admin Panel (Next.js)
 
-- [ ] 14.1 Scaffold Next.js 14 app in `apps/admin/` with TypeScript, Tailwind CSS, shadcn/ui; configure `NEXT_PUBLIC_API_URL` env var; set up path aliases
+- [x] 14.1 Scaffold Next.js 14 app in `apps/admin/` with TypeScript, Tailwind CSS, shadcn/ui; configure `NEXT_PUBLIC_API_URL` env var; set up path aliases
 
-- [ ] 14.2 Create typed API client in `lib/api.ts`: all requests include `Authorization: Bearer {token}` header; handle `401` globally (redirect to login, clear session); handle `429` with user-visible "Too many requests" toast
+- [x] 14.2 Create typed API client in `lib/api.ts`: all requests include `Authorization: Bearer {token}` header; handle `401` globally (redirect to login, clear session); handle `429` with user-visible "Too many requests" toast
 
-- [ ] 14.3 Implement login page (`/login`): email + password form; call `POST /api/v1/auth/login`; store access token in memory (not localStorage); store refresh token in httpOnly cookie; redirect to `/dashboard`
+- [x] 14.3 Implement login page (`/login`): email + password form; call `POST /api/v1/auth/login`; store access token in memory (not localStorage); store refresh token in httpOnly cookie; redirect to `/dashboard`
 
-- [ ] 14.4 Create authenticated layout with sidebar navigation: Dashboard, Orders, Sellers (KYC), Drivers (KYC + Map), Warehouse, Settings (SuperAdmin only); role-based menu items
+- [x] 14.4 Create authenticated layout with sidebar navigation: Dashboard, Orders, Sellers (KYC), Drivers (KYC + Map), Warehouse, Settings (SuperAdmin only); role-based menu items
 
-- [ ] 14.5 Implement Dashboard page (`/dashboard`):
+- [x] 14.5 Implement Dashboard page (`/dashboard`):
   - Fetch `GET /api/v1/admin/dashboard` stats every 30 seconds
   - Stat cards: orders today, revenue (USD), active drivers, pending KYC, low stock
   - Recent orders table (last 10)
 
-- [ ] 14.6 Implement KYC Review pages (`/sellers` and `/drivers`):
+- [x] 14.6 Implement KYC Review pages (`/sellers` and `/drivers`):
   - Paginated table of pending KYC submissions with status badges
   - Click row to open side panel: user details, document preview (fetch SAS URL from API, render in iframe)
   - Approve button → `POST /api/v1/admin/kyc/{id}/approve`
   - Reject button → opens modal with reason text field → `POST /api/v1/admin/kyc/{id}/reject`
   - Optimistic UI update on approval/rejection
 
-- [ ] 14.7 Implement Order Management page (`/orders`):
+- [x] 14.7 Implement Order Management page (`/orders`):
   - Filterable, sortable, paginated table: status, date range, customer name
   - Order detail side panel: items, payment info, delivery batch, timeline
   - Status override button (admin) with confirmation modal
 
-- [ ] 14.8 Implement Warehouse page (`/warehouse`):
+- [x] 14.8 Implement Warehouse page (`/warehouse`):
   - Tab 1: Record Arrival — order id input, notes, submit
   - Tab 2: QC Queue — list of arrived items, pass/fail buttons with notes
   - Tab 3: Unbatched items — ready to be batched, multi-select → "Create Batch" with driver assignment dropdown
 
-- [ ] 14.9 Implement Driver Live Map page (`/drivers/map`):
+- [x] 14.9 Implement Driver Live Map page (`/drivers/map`):
   - Google Maps component; connect to SignalR `TrackingHub`; call `SubscribeToAdminMap()`
   - Render driver markers; update position on `LocationUpdated` event
   - Click marker → show driver info panel (name, current batch, orders count)
 
-- [ ] 14.10 Implement Settings page (`/settings`) [SuperAdmin only]:
+- [x] 14.10 Implement Settings page (`/settings`) [SuperAdmin only]:
   - Create Admin form: email, name, temporary password
   - List existing admins with deactivate button
 
-- [ ] **Checkpoint 14** — Admin panel fully functional; KYC review workflow end-to-end; live driver map updates via SignalR
+- [x] **Checkpoint 14** — Admin panel fully functional; KYC review workflow end-to-end; live driver map updates via SignalR
 
 ---
 
