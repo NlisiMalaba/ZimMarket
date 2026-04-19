@@ -18,7 +18,7 @@ export default function RootIndexScreen() {
   }
 
   if (!isAuthenticated) {
-    return <Redirect href="/(auth)/login" />;
+    return <Redirect href="/(auth)/splash" />;
   }
 
   const role = normalizeRole(typeof user?.role === 'string' ? user.role : undefined);

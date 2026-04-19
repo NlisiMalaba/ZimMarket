@@ -680,27 +680,27 @@
 
 ### Customer App
 
-- [ ] 15.5 Customer onboarding: splash → register screen (email, phone, password, name) → OTP verification screen → home
+- [x] 15.5 Customer onboarding: splash → register screen (email, phone, password, name) → OTP verification screen → home
 
-- [ ] 15.6 Home / Browse screen: category grid at top; product search bar; paginated product list with infinite scroll (`useInfiniteQuery`); product card (image, title, price USD + ZWL equivalent)
+- [x] 15.6 Home / Browse screen: category grid at top; product search bar; paginated product list with infinite scroll (`useInfiniteQuery`); product card (image, title, price USD + ZWL equivalent)
 
-- [ ] 15.7 Product Detail screen: image carousel (max 5); title, description, seller name, price; "Add to Cart" button; stock badge
+- [x] 15.7 Product Detail screen: image carousel (max 5); title, description, seller name, price; "Add to Cart" button; stock badge
 
-- [ ] 15.8 Cart screen: list of items with quantity controls; remove item; subtotal in USD and ZWL; "Proceed to Checkout" button
+- [x] 15.8 Cart screen: list of items with quantity controls; remove item; subtotal in USD and ZWL; "Proceed to Checkout" button
 
-- [ ] 15.9 Checkout screen: delivery address selector / add new address; payment method selector (Paynow / Ecocash); order summary; "Place Order" → calls `POST /api/v1/orders` → on success navigate to payment screen with redirect URL
+- [x] 15.9 Checkout screen: delivery address selector / add new address; payment method selector (Paynow / Ecocash); order summary; "Place Order" → calls `POST /api/v1/orders` → on success navigate to payment screen with redirect URL
 
-- [ ] 15.10 Payment screen: WebView loading Paynow/Ecocash URL; listen for redirect back to app deep link; on success navigate to "Order Confirmed" screen
+- [x] 15.10 Payment screen: WebView loading Paynow/Ecocash URL; listen for redirect back to app deep link; on success navigate to "Order Confirmed" screen
 
-- [ ] 15.11 Orders list screen: tabbed by status (Active, Completed, Cancelled); order row with status badge and timestamp
+- [x] 15.11 Orders list screen: tabbed by status (Active, Completed, Cancelled); order row with status badge and timestamp
 
-- [ ] 15.12 Order tracking screen:
+- [x] 15.12 Order tracking screen:
   - Connect to SignalR hub on mount; subscribe to `order:{orderId}`
   - Google Maps showing driver marker; animate marker movement on `LocationUpdated` event
   - Order status timeline (step indicator)
   - Disconnect hub on unmount
 
-- [ ] 15.13 Profile screen: edit name, phone; manage delivery addresses; push notification preferences; logout
+- [x] 15.13 Profile screen: edit name, phone; manage delivery addresses; push notification preferences; logout
 
 ### Seller App
 

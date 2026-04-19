@@ -1,4 +1,5 @@
-import { StyleSheet } from 'react-native';
+import { Pressable, StyleSheet } from 'react-native';
+import { router } from 'expo-router';
 
 import { Text, View } from '@/components/Themed';
 
@@ -7,8 +8,11 @@ export default function LoginScreen() {
     <View style={styles.container}>
       <Text style={styles.title}>Login</Text>
       <Text style={styles.description}>
-        Authentication screens will be expanded in the next tasks.
+        Login form will be finalized in the next task.
       </Text>
+      <Pressable onPress={() => router.push('/(auth)/register')}>
+        <Text style={styles.action}>New here? Create an account</Text>
+      </Pressable>
     </View>
   );
 }
@@ -27,5 +31,9 @@ const styles = StyleSheet.create({
   },
   description: {
     textAlign: 'center',
+  },
+  action: {
+    color: '#0f766e',
+    fontWeight: '600',
   },
 });

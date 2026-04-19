@@ -5,6 +5,7 @@ export type AuthUser = {
   email: string;
   role: UserRole;
   name?: string;
+  phone?: string;
   [key: string]: unknown;
 };
 
@@ -20,6 +21,7 @@ export type LoginRequest = {
 
 export type RegisterRequest = {
   email: string;
+  phone?: string;
   password: string;
   name?: string;
   role?: UserRole;

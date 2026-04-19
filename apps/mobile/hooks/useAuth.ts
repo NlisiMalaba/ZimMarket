@@ -12,6 +12,7 @@ type UseAuthResult = {
   isLoading: boolean;
   error: string | null;
   clearError: () => void;
+  updateProfile: (payload: { name?: string; phone?: string }) => void;
   user: ReturnType<typeof useAuthStore.getState>['user'];
 };
 
@@ -25,6 +26,7 @@ export const useAuth = (): UseAuthResult => {
     login,
     logout,
     register,
+    updateProfile,
     clearAuthError,
   } = useAuthStore((state) => ({
     accessToken: state.accessToken,
@@ -35,6 +37,7 @@ export const useAuth = (): UseAuthResult => {
     login: state.login,
     logout: state.logout,
     register: state.register,
+    updateProfile: state.updateProfile,
     clearAuthError: state.clearAuthError,
   }));
 
@@ -43,6 +46,7 @@ export const useAuth = (): UseAuthResult => {
       login,
       logout,
       register,
+      updateProfile,
       isAuthenticated: Boolean(accessToken),
       isHydrated,
       isLoading: isAuthLoading,
@@ -54,6 +58,7 @@ export const useAuth = (): UseAuthResult => {
       login,
       logout,
       register,
+      updateProfile,
       accessToken,
       isHydrated,
       isAuthLoading,

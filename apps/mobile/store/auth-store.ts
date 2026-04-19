@@ -17,6 +17,7 @@ type AuthState = {
   clearAuth: () => void;
   setHydrated: (hydrated: boolean) => void;
   clearAuthError: () => void;
+  updateProfile: (payload: Partial<Pick<AuthUser, 'name' | 'phone'>>) => void;
   login: (payload: LoginRequest) => Promise<void>;
   register: (payload: RegisterRequest) => Promise<void>;
   logout: () => Promise<void>;
@@ -61,6 +62,22 @@ export const useAuthStore = create<AuthState>()(
       setHydrated: (hydrated) => set({ isHydrated: hydrated }),
 
       clearAuthError: () => set({ authError: null }),
+
+      updateProfile: ({ name, phone }) => {
+        set((state) => {
+          if (!state.user) {
+            return state;
+          }
+
+          return {
+            user: {
+              ...state.user,
+              name: name ?? state.user.name,
+              phone: phone ?? state.user.phone,
+            },
+          };
+        });
+      },
 
       login: async (payload) => {
         set({ isAuthLoading: true, authError: null });
