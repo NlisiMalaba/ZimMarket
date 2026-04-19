@@ -1,10 +1,5 @@
-import { PageHeader } from "@/components/page-header";
+import { DriversLiveMap } from "@/components/drivers-live-map";
 
 export default function DriversMapPage() {
-  return (
-    <PageHeader
-      title="Drivers Map"
-      description="Real-time driver tracking map will be implemented in the live map task."
-    />
-  );
+  return <DriversLiveMap />;
 }

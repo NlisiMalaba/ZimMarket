@@ -1,10 +1,11 @@
-import { PageHeader } from "@/components/page-header";
+import { KycReviewPage } from "@/components/kyc-review-page";
 
 export default function DriversPage() {
   return (
-    <PageHeader
+    <KycReviewPage
+      role="Driver"
       title="Drivers (KYC)"
-      description="Driver KYC review tools and assignment insights will be available here."
+      description="Review and action driver KYC submissions."
     />
   );
 }

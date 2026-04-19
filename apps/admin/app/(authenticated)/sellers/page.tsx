@@ -1,10 +1,11 @@
-import { PageHeader } from "@/components/page-header";
+import { KycReviewPage } from "@/components/kyc-review-page";
 
 export default function SellersPage() {
   return (
-    <PageHeader
+    <KycReviewPage
+      role="Seller"
       title="Sellers (KYC)"
-      description="Seller KYC review queue and approval workflow will be added in upcoming tasks."
+      description="Review and action seller KYC submissions."
     />
   );
 }
