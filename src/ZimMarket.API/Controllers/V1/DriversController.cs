@@ -10,7 +10,7 @@ namespace ZimMarket.API.Controllers.V1;
 
 [ApiController]
 [Route("api/v1/drivers")]
-[Authorize(Policy = AuthorizationPolicies.Driver)]
+[Authorize(Policy = AuthorizationPolicies.DriverActive)]
 public sealed class DriversController : ControllerBase
 {
     private readonly ISender _sender;
@@ -20,10 +20,10 @@ public sealed class DriversController : ControllerBase
         _sender = sender ?? throw new ArgumentNullException(nameof(sender));
     }
 
-    [HttpGet("batches/{batchId:guid}")]
-    public async Task<IActionResult> GetBatchDetails(Guid batchId, CancellationToken cancellationToken)
+    [HttpGet("batches/{id:guid}")]
+    public async Task<IActionResult> GetBatchDetails(Guid id, CancellationToken cancellationToken)
     {
-        var query = new GetBatchDetailsQuery(batchId);
+        var query = new GetBatchDetailsQuery(id);
         return (await _sender.Send(query, cancellationToken).ConfigureAwait(false))
             .ToOkActionResult(HttpContext);
     }
@@ -38,24 +38,22 @@ public sealed class DriversController : ControllerBase
             .ToOkActionResult(HttpContext);
     }
 
-    [HttpPost("batches/{batchId:guid}/confirm-collected")]
-    public async Task<IActionResult> ConfirmBatchCollected(
-        Guid batchId,
-        CancellationToken cancellationToken)
+    [HttpPost("batches/{id:guid}/collected")]
+    public async Task<IActionResult> ConfirmBatchCollected(Guid id, CancellationToken cancellationToken)
     {
-        var command = new ConfirmBatchCollectedCommand(batchId);
+        var command = new ConfirmBatchCollectedCommand(id);
         return (await _sender.Send(command, cancellationToken).ConfigureAwait(false))
             .ToOkActionResult(HttpContext);
     }
 
-    [HttpPost("batches/{batchId:guid}/orders/{orderId:guid}/confirm-delivery")]
+    [HttpPost("batches/{id:guid}/orders/{orderId:guid}/delivered")]
     public async Task<IActionResult> ConfirmDelivery(
-        Guid batchId,
+        Guid id,
         Guid orderId,
         [FromBody] ConfirmDeliveryRequest request,
         CancellationToken cancellationToken)
     {
-        var command = new ConfirmDeliveryCommand(batchId, orderId, request.DeliveryPhotoKey);
+        var command = new ConfirmDeliveryCommand(id, orderId, request.DeliveryPhotoKey);
         return (await _sender.Send(command, cancellationToken).ConfigureAwait(false))
             .ToOkActionResult(HttpContext);
     }

@@ -510,13 +510,13 @@
   - `UnsubscribeFromOrder(orderId)` — remove from group on order delivered or customer navigates away
   - Broadcast method: `LocationUpdated(lat, lng, timestamp)` — called from `DriverLocationUpdatedEvent` handler via `IHubContext`
 
-- [ ] 10.8 Create `DriversController` (`/api/v1/drivers`):
+- [x] 10.8 Create `DriversController` (`/api/v1/drivers`):
   - `POST /location` → `UpdateDriverLocationCommand` [Authorize(DriverActive)]
   - `GET /batches/{id}` → `GetBatchDetailsQuery` [Authorize(DriverActive)]
   - `POST /batches/{id}/collected` → `ConfirmBatchCollectedCommand` [Authorize(DriverActive)]
   - `POST /batches/{id}/orders/{orderId}/delivered` → `ConfirmDeliveryCommand` [Authorize(DriverActive)]
 
-- [ ] 10.9 Create `BatchesController` (`/api/v1/batches`) [Authorize(AdminOrAbove)]:
+- [x] 10.9 Create `BatchesController` (`/api/v1/batches`) [Authorize(AdminOrAbove)]:
   - `POST /` → `CreateDeliveryBatchCommand`
   - `GET /` → `GetBatchesQuery(Status?, Page, PageSize)`
   - `GET /{id}` → `GetBatchDetailsQuery`

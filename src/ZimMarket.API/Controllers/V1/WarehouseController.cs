@@ -3,8 +3,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ZimMarket.API.Http;
 using ZimMarket.Application.Auth;
-using ZimMarket.Application.Drivers;
-using ZimMarket.Application.Logistics;
 using ZimMarket.Application.Warehouse;
 using ZimMarket.Domain.Enums;
 
@@ -63,35 +61,7 @@ public sealed class WarehouseController : ControllerBase
             .ToOkActionResult(HttpContext);
     }
 
-    [HttpGet("drivers/active-locations")]
-    public async Task<IActionResult> GetActiveDriverLocations(CancellationToken cancellationToken)
-    {
-        var query = new GetActiveDriverLocationsQuery();
-        return (await _sender.Send(query, cancellationToken).ConfigureAwait(false))
-            .ToOkActionResult(HttpContext);
-    }
-
-    [HttpGet("delivery-batches/{batchId:guid}")]
-    public async Task<IActionResult> GetDeliveryBatchDetails(Guid batchId, CancellationToken cancellationToken)
-    {
-        var query = new GetBatchDetailsQuery(batchId);
-        return (await _sender.Send(query, cancellationToken).ConfigureAwait(false))
-            .ToOkActionResult(HttpContext);
-    }
-
-    [HttpPost("delivery-batches")]
-    public async Task<IActionResult> CreateDeliveryBatch(
-        [FromBody] CreateDeliveryBatchRequest request,
-        CancellationToken cancellationToken)
-    {
-        var command = new CreateDeliveryBatchCommand(request.OrderIds, request.DriverId);
-        return (await _sender.Send(command, cancellationToken).ConfigureAwait(false))
-            .ToCreatedActionResult(HttpContext);
-    }
-
     public sealed record RecordItemArrivalRequest(Guid OrderId, string? Notes);
 
     public sealed record UpdateWarehouseItemQcRequest(WarehouseQcStatus QcStatus, string? Notes);
-
-    public sealed record CreateDeliveryBatchRequest(IReadOnlyList<Guid> OrderIds, Guid DriverId);
 }

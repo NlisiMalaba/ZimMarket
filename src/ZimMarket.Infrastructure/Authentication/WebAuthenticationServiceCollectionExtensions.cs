@@ -76,6 +76,15 @@ public static class WebAuthenticationServiceCollectionExtensions
                     p.RequireClaim(AuthClaimTypes.Role, UserRole.Driver.ToString());
                     p.RequireClaim(AuthClaimTypes.KycStatus, KycStatus.Approved.ToString());
                 });
+
+            options.AddPolicy(
+                AuthorizationPolicies.DriverActive,
+                p =>
+                {
+                    p.RequireAuthenticatedUser();
+                    p.RequireClaim(AuthClaimTypes.Role, UserRole.Driver.ToString());
+                    p.RequireClaim(AuthClaimTypes.KycStatus, KycStatus.Approved.ToString());
+                });
         });
 
         return services;

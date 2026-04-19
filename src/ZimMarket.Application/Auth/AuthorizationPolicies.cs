@@ -27,4 +27,9 @@ public static class AuthorizationPolicies
     public const string SellerKycApproved = "SellerKycApproved";
 
     public const string DriverKycApproved = "DriverKycApproved";
+
+    /// <summary>
+    /// Authenticated driver with approved KYC (same checks as <see cref="DriverKycApproved"/>; used by driver-facing APIs).
+    /// </summary>
+    public const string DriverActive = nameof(DriverActive);
 }
