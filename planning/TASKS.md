@@ -500,11 +500,11 @@
   - If all orders in batch delivered: call `batch.Complete()`; set driver `Available`; raise `DeliveryCompletedEvent`
   - Notify customer (push + email receipt)
 
-- [ ] 10.5 Create `GetActiveDriverLocationsQuery` [Authorize(Admin)]: returns latest GPS coordinates for all `OnDelivery` drivers from Redis; fallback to DB if Redis miss
+- [x] 10.5 Create `GetActiveDriverLocationsQuery` [Authorize(Admin)]: returns latest GPS coordinates for all `OnDelivery` drivers from Redis; fallback to DB if Redis miss
 
-- [ ] 10.6 Create `GetBatchDetailsQuery(BatchId)` [Authorize]: driver sees their own batches; admin sees all
+- [x] 10.6 Create `GetBatchDetailsQuery(BatchId)` [Authorize]: driver sees their own batches; admin sees all
 
-- [ ] 10.7 Create `TrackingHub` (SignalR):
+- [x] 10.7 Create `TrackingHub` (SignalR):
   - `SubscribeToOrder(orderId)` — add caller to `order:{orderId}` group; validate caller owns the order
   - `SubscribeToAdminMap()` — add caller to `admin:drivers` group; validate admin role
   - `UnsubscribeFromOrder(orderId)` — remove from group on order delivered or customer navigates away

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using ZimMarket.API.Http;
 using ZimMarket.Application.Auth;
 using ZimMarket.Application.Drivers;
+using ZimMarket.Application.Logistics;
 
 namespace ZimMarket.API.Controllers.V1;
 
@@ -17,6 +18,14 @@ public sealed class DriversController : ControllerBase
     public DriversController(ISender sender)
     {
         _sender = sender ?? throw new ArgumentNullException(nameof(sender));
+    }
+
+    [HttpGet("batches/{batchId:guid}")]
+    public async Task<IActionResult> GetBatchDetails(Guid batchId, CancellationToken cancellationToken)
+    {
+        var query = new GetBatchDetailsQuery(batchId);
+        return (await _sender.Send(query, cancellationToken).ConfigureAwait(false))
+            .ToOkActionResult(HttpContext);
     }
 
     [HttpPost("location")]

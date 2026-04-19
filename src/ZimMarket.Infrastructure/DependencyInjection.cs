@@ -37,6 +37,7 @@ public static class DependencyInjection
         ArgumentNullException.ThrowIfNull(configuration);
 
         services.AddSignalR();
+        services.AddScoped<ITrackingHubSubscriptionService, TrackingHubSubscriptionService>();
         services.AddScoped<IDriverTrackingBroadcaster, DriverTrackingSignalRBroadcaster>();
 
         RegisterJwt(services, configuration);

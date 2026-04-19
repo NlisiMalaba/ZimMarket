@@ -1,13 +1,12 @@
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
+using ZimMarket.Application.Common;
 using ZimMarket.Application.Common.Interfaces;
 
 namespace ZimMarket.Infrastructure.RealTime;
 
 public sealed class DriverTrackingSignalRBroadcaster : IDriverTrackingBroadcaster
 {
-    public const string DriverLocationUpdatedMethod = "driverLocationUpdated";
-
     private readonly IHubContext<TrackingHub> _hubContext;
     private readonly ILogger<DriverTrackingSignalRBroadcaster> _logger;
 
@@ -28,25 +27,31 @@ public sealed class DriverTrackingSignalRBroadcaster : IDriverTrackingBroadcaste
     {
         try
         {
-            var payload = new
-            {
-                driverId,
-                latitude,
-                longitude,
-                activeOrderIds
-            };
+            DateTimeOffset timestampUtc = DateTimeOffset.UtcNow;
 
             foreach (Guid orderId in activeOrderIds)
             {
                 await _hubContext.Clients
-                    .Group($"order:{orderId:D}")
-                    .SendAsync(DriverLocationUpdatedMethod, payload, cancellationToken)
+                    .Group(TrackingRealtimeConstants.OrderGroupName(orderId))
+                    .SendAsync(
+                        TrackingRealtimeConstants.LocationUpdatedMethod,
+                        driverId,
+                        latitude,
+                        longitude,
+                        timestampUtc,
+                        cancellationToken)
                     .ConfigureAwait(false);
             }
 
             await _hubContext.Clients
-                .Group("admin:drivers")
-                .SendAsync(DriverLocationUpdatedMethod, payload, cancellationToken)
+                .Group(TrackingRealtimeConstants.AdminDriversGroupName)
+                .SendAsync(
+                    TrackingRealtimeConstants.LocationUpdatedMethod,
+                    driverId,
+                    latitude,
+                    longitude,
+                    timestampUtc,
+                    cancellationToken)
                 .ConfigureAwait(false);
         }
         catch (Exception ex)

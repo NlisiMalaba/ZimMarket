@@ -11,6 +11,8 @@ public interface IUnitOfWork
 
     IUserRepository<Driver> Drivers { get; }
 
+    IDriverReadRepository DriverRead { get; }
+
     IProductRepository Products { get; }
 
     ICategoryRepository Categories { get; }

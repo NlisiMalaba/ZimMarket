@@ -33,4 +33,21 @@ internal sealed class DriverLocationRepository : IDriverLocationRepository
 
         existing.SetPosition(latitude, longitude);
     }
+
+    public async Task<IReadOnlyDictionary<Guid, DriverLocation>> GetPositionsByDriverIdsAsync(
+        IReadOnlyCollection<Guid> driverIds,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(driverIds);
+        if (driverIds.Count == 0)
+            return new Dictionary<Guid, DriverLocation>();
+
+        List<DriverLocation> rows = await _dbContext.DriverLocations
+            .AsNoTracking()
+            .Where(x => driverIds.Contains(x.Id))
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        return rows.ToDictionary(x => x.Id);
+    }
 }
