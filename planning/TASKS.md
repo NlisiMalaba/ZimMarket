@@ -670,13 +670,13 @@
 
 ### Setup
 
-- [ ] 15.1 Scaffold Expo app in `apps/mobile/` with TypeScript, Expo Router; install: `react-native-maps`, `@tanstack/react-query`, `zustand`, `axios`, `react-hook-form`, `zod`, `@gorhom/bottom-sheet`, `expo-location`, `expo-image-picker`, `expo-notifications`
+- [x] 15.1 Scaffold Expo app in `apps/mobile/` with TypeScript, Expo Router; install: `react-native-maps`, `@tanstack/react-query`, `zustand`, `axios`, `react-hook-form`, `zod`, `@gorhom/bottom-sheet`, `expo-location`, `expo-image-picker`, `expo-notifications`
 
-- [ ] 15.2 Create API client with Axios: base URL from env; request interceptor adds auth token from Zustand store; response interceptor handles `401` (try refresh → if fails, clear auth and redirect to login)
+- [x] 15.2 Create API client with Axios: base URL from env; request interceptor adds auth token from Zustand store; response interceptor handles `401` (try refresh → if fails, clear auth and redirect to login)
 
-- [ ] 15.3 Create `useAuth` hook and Zustand auth store: persist tokens securely with `expo-secure-store` (never AsyncStorage for tokens); expose `login`, `logout`, `register`, `isAuthenticated`, `user`
+- [x] 15.3 Create `useAuth` hook and Zustand auth store: persist tokens securely with `expo-secure-store` (never AsyncStorage for tokens); expose `login`, `logout`, `register`, `isAuthenticated`, `user`
 
-- [ ] 15.4 Create Expo Router layout with role-based root: unauthenticated → `(auth)` stack; Customer → `(customer)` tab layout; Seller → `(seller)` tab layout; Driver → `(driver)` tab layout
+- [x] 15.4 Create Expo Router layout with role-based root: unauthenticated → `(auth)` stack; Customer → `(customer)` tab layout; Seller → `(seller)` tab layout; Driver → `(driver)` tab layout
 
 ### Customer App
 
