@@ -2,6 +2,7 @@ using Hangfire;
 using Microsoft.Extensions.Logging;
 using ZimMarket.Application.Common.Interfaces;
 using ZimMarket.Application.Common.Models;
+using ZimMarket.Infrastructure.BackgroundJobs.Jobs;
 
 namespace ZimMarket.Infrastructure.BackgroundJobs;
 
@@ -11,99 +12,99 @@ namespace ZimMarket.Infrastructure.BackgroundJobs;
 public sealed class HangfireNotificationJobScheduler : INotificationJobScheduler
 {
     private readonly IBackgroundJobClient _backgroundJobs;
-    private readonly IEmailService _emailService;
-    private readonly ISmsService _smsService;
-    private readonly IPushNotificationService _pushService;
-    private readonly ILogger<HangfireNotificationJobScheduler> _logger;
 
     public HangfireNotificationJobScheduler(
-        IBackgroundJobClient backgroundJobs,
-        IEmailService emailService,
-        ISmsService smsService,
-        IPushNotificationService pushService,
-        ILogger<HangfireNotificationJobScheduler> logger)
+        IBackgroundJobClient backgroundJobs)
     {
         _backgroundJobs = backgroundJobs ?? throw new ArgumentNullException(nameof(backgroundJobs));
-        _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
-        _smsService = smsService ?? throw new ArgumentNullException(nameof(smsService));
-        _pushService = pushService ?? throw new ArgumentNullException(nameof(pushService));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     public void EnqueueEmail(EmailMessage message)
     {
         ArgumentNullException.ThrowIfNull(message);
-        _backgroundJobs.Enqueue<HangfireNotificationJobScheduler>(x => x.ProcessEmailAsync(message));
+        var payload = new SendNotificationJobPayload
+        {
+            UserId = Guid.Empty,
+            Channel = NotificationChannel.Email,
+            TemplateId = SendNotificationJob.EmailDirectTemplate,
+            Parameters = new Dictionary<string, string>
+            {
+                ["to"] = message.To,
+                ["subject"] = message.Subject,
+                ["body"] = message.Body,
+                ["isHtml"] = message.IsHtml.ToString()
+            }
+        };
+
+        _backgroundJobs.Enqueue<SendNotificationJob>(x => x.ExecuteAsync(payload));
     }
 
     public void EnqueueSms(string to, string message)
     {
-        _backgroundJobs.Enqueue<HangfireNotificationJobScheduler>(x => x.ProcessSmsAsync(to, message));
+        var payload = new SendNotificationJobPayload
+        {
+            UserId = Guid.Empty,
+            Channel = NotificationChannel.Sms,
+            TemplateId = SendNotificationJob.SmsDirectTemplate,
+            Parameters = new Dictionary<string, string>
+            {
+                ["to"] = to,
+                ["message"] = message
+            }
+        };
+
+        _backgroundJobs.Enqueue<SendNotificationJob>(x => x.ExecuteAsync(payload));
     }
 
     public void EnqueuePushToToken(string token, string title, string body, IReadOnlyDictionary<string, string>? data = null)
     {
-        _backgroundJobs.Enqueue<HangfireNotificationJobScheduler>(x => x.ProcessPushToTokenAsync(token, title, body, data));
+        var parameters = new Dictionary<string, string>
+        {
+            ["token"] = token,
+            ["title"] = title,
+            ["body"] = body
+        };
+
+        if (data is not null)
+        {
+            foreach (var pair in data)
+                parameters[$"data:{pair.Key}"] = pair.Value;
+        }
+
+        var payload = new SendNotificationJobPayload
+        {
+            UserId = Guid.Empty,
+            Channel = NotificationChannel.Push,
+            TemplateId = SendNotificationJob.PushTokenDirectTemplate,
+            Parameters = parameters
+        };
+
+        _backgroundJobs.Enqueue<SendNotificationJob>(x => x.ExecuteAsync(payload));
     }
 
     public void EnqueuePushToTopic(string topic, string title, string body, IReadOnlyDictionary<string, string>? data = null)
     {
-        _backgroundJobs.Enqueue<HangfireNotificationJobScheduler>(x => x.ProcessPushToTopicAsync(topic, title, body, data));
-    }
+        var parameters = new Dictionary<string, string>
+        {
+            ["topic"] = topic,
+            ["title"] = title,
+            ["body"] = body
+        };
 
-    public async Task ProcessEmailAsync(EmailMessage message)
-    {
-        try
+        if (data is not null)
         {
-            await _emailService.SendAsync(message).ConfigureAwait(false);
+            foreach (var pair in data)
+                parameters[$"data:{pair.Key}"] = pair.Value;
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Hangfire email dispatch failed for {To}.", message.To);
-        }
-    }
 
-    public async Task ProcessSmsAsync(string to, string message)
-    {
-        try
+        var payload = new SendNotificationJobPayload
         {
-            await _smsService.SendAsync(to, message).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Hangfire SMS dispatch failed for {To}.", to);
-        }
-    }
+            UserId = Guid.Empty,
+            Channel = NotificationChannel.Push,
+            TemplateId = SendNotificationJob.PushTopicDirectTemplate,
+            Parameters = parameters
+        };
 
-    public async Task ProcessPushToTokenAsync(
-        string token,
-        string title,
-        string body,
-        IReadOnlyDictionary<string, string>? data)
-    {
-        try
-        {
-            await _pushService.SendAsync(token, title, body, data).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Hangfire token push dispatch failed.");
-        }
-    }
-
-    public async Task ProcessPushToTopicAsync(
-        string topic,
-        string title,
-        string body,
-        IReadOnlyDictionary<string, string>? data)
-    {
-        try
-        {
-            await _pushService.SendToTopicAsync(topic, title, body, data).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Hangfire topic push dispatch failed for {Topic}.", topic);
-        }
+        _backgroundJobs.Enqueue<SendNotificationJob>(x => x.ExecuteAsync(payload));
     }
 }

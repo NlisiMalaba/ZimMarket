@@ -596,28 +596,28 @@
 
 ## Module 13 — Background Jobs
 
-- [ ] 13.1 Implement `UpdateExchangeRateJob`:
+- [x] 13.1 Implement `UpdateExchangeRateJob`:
   - Fetch USD/ZWL rate from RBZ API (or fallback provider)
   - Upsert `exchange_rates` table; update Redis cache key
   - Log old rate vs new rate for auditing
   - Schedule: daily at 06:00 UTC
 
-- [ ] 13.2 Implement `CleanExpiredRefreshTokensJob`:
+- [x] 13.2 Implement `CleanExpiredRefreshTokensJob`:
   - Delete `User` rows where `RefreshTokenExpiry < now` and `RefreshTokenHash IS NOT NULL`
   - Only nullifies the hash — does not delete the user
   - Schedule: nightly at 02:00 UTC
 
-- [ ] 13.3 Implement `CancelStaleOrdersJob`:
+- [x] 13.3 Implement `CancelStaleOrdersJob`:
   - Find `Orders` with `Status = Pending` and `CreatedAt < now - 2 hours` (unpaid)
   - Call `order.Cancel("Payment not completed within 2 hours")`; restore stock; notify customer
   - Schedule: every 30 minutes
 
-- [ ] 13.4 Implement `SendNotificationJob` (fire-and-forget, not scheduled):
+- [x] 13.4 Implement `SendNotificationJob` (fire-and-forget, not scheduled):
   - Dispatched by domain event handlers via `IBackgroundJobClient.Enqueue`
   - Retry up to 3 times with exponential backoff on failure
   - Job payload: `{ UserId, Channel (Push|SMS|Email), TemplateId, Parameters }`
 
-- [ ] **Checkpoint 13** — Jobs registered and running; exchange rate updated; stale orders cancelled automatically
+- [x] **Checkpoint 13** — Jobs registered and running; exchange rate updated; stale orders cancelled automatically
 
 ---
 
