@@ -51,6 +51,10 @@ public static class WebAuthenticationServiceCollectionExtensions
                 });
 
             options.AddPolicy(
+                AuthorizationPolicies.TrackingHub,
+                p => p.RequireAuthenticatedUser());
+
+            options.AddPolicy(
                 AuthorizationPolicies.KycApproved,
                 p => p.RequireAuthenticatedUser()
                     .RequireClaim(AuthClaimTypes.KycStatus, KycStatus.Approved.ToString()));
@@ -66,6 +70,15 @@ public static class WebAuthenticationServiceCollectionExtensions
 
             options.AddPolicy(
                 AuthorizationPolicies.DriverKycApproved,
+                p =>
+                {
+                    p.RequireAuthenticatedUser();
+                    p.RequireClaim(AuthClaimTypes.Role, UserRole.Driver.ToString());
+                    p.RequireClaim(AuthClaimTypes.KycStatus, KycStatus.Approved.ToString());
+                });
+
+            options.AddPolicy(
+                AuthorizationPolicies.DriverActive,
                 p =>
                 {
                     p.RequireAuthenticatedUser();
@@ -118,6 +131,22 @@ public static class WebAuthenticationServiceCollectionExtensions
                     ValidAlgorithms = [SecurityAlgorithms.RsaSha256],
                     NameClaimType = "sub",
                     RoleClaimType = AuthClaimTypes.Role
+                };
+
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        string? accessToken = context.Request.Query["access_token"];
+                        string path = context.HttpContext.Request.Path.Value ?? string.Empty;
+                        if (!string.IsNullOrEmpty(accessToken)
+                            && path.StartsWith("/hubs", StringComparison.OrdinalIgnoreCase))
+                        {
+                            context.Token = accessToken;
+                        }
+
+                        return Task.CompletedTask;
+                    }
                 };
             });
 

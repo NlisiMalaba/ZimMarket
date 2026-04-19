@@ -43,6 +43,8 @@ public sealed class AppDbContext : DbContext
 
     public DbSet<DeliveryBatch> DeliveryBatches => Set<DeliveryBatch>();
 
+    public DbSet<DriverLocation> DriverLocations => Set<DriverLocation>();
+
     public DbSet<WarehouseItem> WarehouseItems => Set<WarehouseItem>();
 
     public DbSet<ExchangeRate> ExchangeRates => Set<ExchangeRate>();

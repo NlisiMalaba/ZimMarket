@@ -13,6 +13,8 @@ public interface IUnitOfWork
 
     IUserRepository<AdminUser> Admins { get; }
 
+    IDriverReadRepository DriverRead { get; }
+
     IProductRepository Products { get; }
 
     ICategoryRepository Categories { get; }
@@ -28,6 +30,8 @@ public interface IUnitOfWork
     IPendingKycReadRepository PendingKyc { get; }
 
     IDashboardStatsReadRepository DashboardStats { get; }
+
+    IDriverLocationRepository DriverLocations { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 

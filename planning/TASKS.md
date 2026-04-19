@@ -475,59 +475,59 @@
 
 ## Module 10 — Logistics & Driver GPS
 
-- [ ] 10.1 Create `CreateDeliveryBatchCommand(OrderIds: List<Guid>, DriverId)` with handler [Authorize(Admin)]:
+- [x] 10.1 Create `CreateDeliveryBatchCommand(OrderIds: List<Guid>, DriverId)` with handler [Authorize(Admin)]:
   - Verify all orders are `QcPassed` and unbatched
   - Verify driver is `Approved` and `Available`
   - Create `DeliveryBatch` aggregate; transition each order to `Batched`; set driver status to `OnDelivery`
   - Raise `BatchCreatedEvent` → notify driver (push with pickup instructions)
   - Save; return `Result<Guid>` (batch id)
 
-- [ ] 10.2 Create `UpdateDriverLocationCommand(Latitude, Longitude)` with handler [Authorize(Driver)]:
+- [x] 10.2 Create `UpdateDriverLocationCommand(Latitude, Longitude)` with handler [Authorize(Driver)]:
   - Validate driver is `OnDelivery` (ignore if offline)
   - Upsert `driver_locations` table (one row per driver)
   - Cache location in Redis (key: `driver-location:{driverId}`, TTL: 90 seconds)
   - Raise `DriverLocationUpdatedEvent`
   - Event handler broadcasts via `IHubContext<TrackingHub>` to groups: `order:{orderId}` for each active order in batch; `admin:drivers` group
 
-- [ ] 10.3 Create `ConfirmBatchCollectedCommand(BatchId)` with handler [Authorize(Driver)]:
+- [x] 10.3 Create `ConfirmBatchCollectedCommand(BatchId)` with handler [Authorize(Driver)]:
   - Verify driver owns batch; call `batch.MarkCollected()`; transition orders to `OutForDelivery`
   - Notify customers (push: "Your order is on the way!")
   - Save
 
-- [ ] 10.4 Create `ConfirmDeliveryCommand(BatchId, OrderId, DeliveryPhotoKey)` with handler [Authorize(Driver)]:
+- [x] 10.4 Create `ConfirmDeliveryCommand(BatchId, OrderId, DeliveryPhotoKey)` with handler [Authorize(Driver)]:
   - Validate photo key exists in blob
   - Transition specific `Order` to `Delivered`
   - If all orders in batch delivered: call `batch.Complete()`; set driver `Available`; raise `DeliveryCompletedEvent`
   - Notify customer (push + email receipt)
 
-- [ ] 10.5 Create `GetActiveDriverLocationsQuery` [Authorize(Admin)]: returns latest GPS coordinates for all `OnDelivery` drivers from Redis; fallback to DB if Redis miss
+- [x] 10.5 Create `GetActiveDriverLocationsQuery` [Authorize(Admin)]: returns latest GPS coordinates for all `OnDelivery` drivers from Redis; fallback to DB if Redis miss
 
-- [ ] 10.6 Create `GetBatchDetailsQuery(BatchId)` [Authorize]: driver sees their own batches; admin sees all
+- [x] 10.6 Create `GetBatchDetailsQuery(BatchId)` [Authorize]: driver sees their own batches; admin sees all
 
-- [ ] 10.7 Create `TrackingHub` (SignalR):
+- [x] 10.7 Create `TrackingHub` (SignalR):
   - `SubscribeToOrder(orderId)` — add caller to `order:{orderId}` group; validate caller owns the order
   - `SubscribeToAdminMap()` — add caller to `admin:drivers` group; validate admin role
   - `UnsubscribeFromOrder(orderId)` — remove from group on order delivered or customer navigates away
   - Broadcast method: `LocationUpdated(lat, lng, timestamp)` — called from `DriverLocationUpdatedEvent` handler via `IHubContext`
 
-- [ ] 10.8 Create `DriversController` (`/api/v1/drivers`):
+- [x] 10.8 Create `DriversController` (`/api/v1/drivers`):
   - `POST /location` → `UpdateDriverLocationCommand` [Authorize(DriverActive)]
   - `GET /batches/{id}` → `GetBatchDetailsQuery` [Authorize(DriverActive)]
   - `POST /batches/{id}/collected` → `ConfirmBatchCollectedCommand` [Authorize(DriverActive)]
   - `POST /batches/{id}/orders/{orderId}/delivered` → `ConfirmDeliveryCommand` [Authorize(DriverActive)]
 
-- [ ] 10.9 Create `BatchesController` (`/api/v1/batches`) [Authorize(AdminOrAbove)]:
+- [x] 10.9 Create `BatchesController` (`/api/v1/batches`) [Authorize(AdminOrAbove)]:
   - `POST /` → `CreateDeliveryBatchCommand`
   - `GET /` → `GetBatchesQuery(Status?, Page, PageSize)`
   - `GET /{id}` → `GetBatchDetailsQuery`
   - `GET /drivers/locations` → `GetActiveDriverLocationsQuery`
 
-- [ ]* 10.10 Write unit tests:
+- [x]* 10.10 Write unit tests:
   - **CreateBatch**: order not in `QcPassed` state returns error; driver not available returns error; batch created transitions orders to `Batched`
   - **UpdateDriverLocation**: `DriverLocationUpdatedEvent` raised with correct coordinates; non-OnDelivery driver is ignored
   - **ConfirmDelivery**: all orders delivered → batch completes → driver set to `Available`
 
-- [ ] **Checkpoint 10** — Driver can update GPS; customers receive real-time updates via SignalR; delivery lifecycle complete
+- [x] **Checkpoint 10** — Driver can update GPS; customers receive real-time updates via SignalR; delivery lifecycle complete
 
 ---
 

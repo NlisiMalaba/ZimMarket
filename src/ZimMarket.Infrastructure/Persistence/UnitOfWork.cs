@@ -16,6 +16,7 @@ public sealed class UnitOfWork : IUnitOfWork
     private IUserRepository<Seller>? _sellers;
     private IUserRepository<Driver>? _drivers;
     private IUserRepository<AdminUser>? _admins;
+    private IDriverReadRepository? _driverRead;
     private IProductRepository? _products;
     private ICategoryRepository? _categories;
     private IOrderRepository? _orders;
@@ -24,6 +25,7 @@ public sealed class UnitOfWork : IUnitOfWork
     private IWarehouseItemRepository? _warehouseItems;
     private IPendingKycReadRepository? _pendingKyc;
     private IDashboardStatsReadRepository? _dashboardStats;
+    private IDriverLocationRepository? _driverLocations;
 
     public UnitOfWork(AppDbContext dbContext)
     {
@@ -37,6 +39,8 @@ public sealed class UnitOfWork : IUnitOfWork
     public IUserRepository<Driver> Drivers => _drivers ??= new UserRepository<Driver>(_dbContext);
 
     public IUserRepository<AdminUser> Admins => _admins ??= new UserRepository<AdminUser>(_dbContext);
+
+    public IDriverReadRepository DriverRead => _driverRead ??= new DriverReadRepository(_dbContext);
 
     public IProductRepository Products => _products ??= new ProductRepository(_dbContext);
 
@@ -55,6 +59,9 @@ public sealed class UnitOfWork : IUnitOfWork
 
     public IDashboardStatsReadRepository DashboardStats =>
         _dashboardStats ??= new DashboardStatsReadRepository(_dbContext);
+
+    public IDriverLocationRepository DriverLocations =>
+        _driverLocations ??= new DriverLocationRepository(_dbContext);
 
     public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) =>
         _dbContext.SaveChangesAsync(cancellationToken);

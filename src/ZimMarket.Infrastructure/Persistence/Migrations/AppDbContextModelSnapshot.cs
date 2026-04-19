@@ -194,6 +194,29 @@ namespace ZimMarket.Infrastructure.Persistence.Migrations
                     b.ToTable("delivery_batches", (string)null);
                 });
 
+            modelBuilder.Entity("ZimMarket.Domain.Entities.Logistics.DriverLocation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<double>("Latitude")
+                        .HasColumnType("double precision");
+
+                    b.Property<double>("Longitude")
+                        .HasColumnType("double precision");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("driver_locations", (string)null);
+                });
+
             modelBuilder.Entity("ZimMarket.Domain.Entities.Orders.Order", b =>
                 {
                     b.Property<Guid>("Id")
@@ -209,6 +232,10 @@ namespace ZimMarket.Infrastructure.Persistence.Migrations
 
                     b.Property<Guid>("CustomerId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("DeliveryPhotoKey")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
 
                     b.Property<string>("FailedGatewayPaymentReference")
                         .HasMaxLength(200)
@@ -445,6 +472,11 @@ namespace ZimMarket.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("ZimMarket.Domain.Entities.Users.Driver", b =>
                 {
                     b.HasBaseType("ZimMarket.Domain.Entities.Users.User");
+
+                    b.Property<string>("DeliveryPushNotificationToken")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)")
+                        .HasColumnName("driver_push_notification_token");
 
                     b.Property<int>("DriverStatus")
                         .HasColumnType("integer");

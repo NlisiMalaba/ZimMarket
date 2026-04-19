@@ -2,11 +2,13 @@ using Microsoft.AspNetCore.OpenApi;
 using Scalar.AspNetCore;
 using ZimMarket.API.OpenApi;
 using ZimMarket.Application;
+using ZimMarket.Application.Auth;
 using ZimMarket.Application.Common.Interfaces;
 using ZimMarket.Application.Common.Services;
 using ZimMarket.Infrastructure;
 using ZimMarket.Infrastructure.Authentication;
 using ZimMarket.Infrastructure.BackgroundJobs;
+using ZimMarket.Infrastructure.RealTime;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -49,6 +51,8 @@ if (HangfireJobSetup.IsHangfireStorageConfigured(app.Configuration))
 
 app.MapHealthChecks("/health");
 app.MapControllers();
+app.MapHub<TrackingHub>("/hubs/tracking")
+    .RequireAuthorization(AuthorizationPolicies.TrackingHub);
 
 app.Run();
 
