@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using ZimMarket.Application.Admin;
 using ZimMarket.Application.Common;
 using ZimMarket.Application.Common.Models;
 
@@ -81,6 +82,15 @@ public static class ResultHttpMapper
             AdminProductErrorCodes.Forbidden => StatusCodes.Status403Forbidden,
             AdminProductErrorCodes.CannotSuspend => StatusCodes.Status409Conflict,
             AdminOrderErrorCodes.Forbidden => StatusCodes.Status403Forbidden,
+            AdminOrderErrorCodes.CannotOverride => StatusCodes.Status409Conflict,
+            AdminDashboardErrorCodes.Forbidden => StatusCodes.Status403Forbidden,
+            AdminDashboardErrorCodes.RevenueAggregationFailed => StatusCodes.Status502BadGateway,
+            CreateAdminErrorCodes.Forbidden => StatusCodes.Status403Forbidden,
+            CreateAdminErrorCodes.PhoneAllocationFailed => StatusCodes.Status503ServiceUnavailable,
+            UserLifecycleErrorCodes.Forbidden => StatusCodes.Status403Forbidden,
+            UserLifecycleErrorCodes.UserNotFound => StatusCodes.Status404NotFound,
+            UserLifecycleErrorCodes.CannotActOnSelf => StatusCodes.Status403Forbidden,
+            UserLifecycleErrorCodes.InsufficientPrivilegeForTarget => StatusCodes.Status403Forbidden,
             OrderErrorCodes.ProductNotFound => StatusCodes.Status404NotFound,
             OrderErrorCodes.ProductInactive => StatusCodes.Status409Conflict,
             OrderErrorCodes.ProductOutOfStock => StatusCodes.Status409Conflict,

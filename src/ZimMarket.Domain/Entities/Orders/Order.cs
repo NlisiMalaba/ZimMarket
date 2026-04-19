@@ -9,6 +9,8 @@ namespace ZimMarket.Domain.Entities.Orders;
 
 public sealed class Order : BaseEntity
 {
+    public const int MaxAdminOverrideReasonLength = 2000;
+
     private readonly List<OrderItem> _items = [];
 
     private Order()
@@ -187,6 +189,27 @@ public sealed class Order : BaseEntity
 
         Status = next;
         UpdatedAt = DateTimeOffset.UtcNow;
+    }
+
+    /// <summary>
+    /// Forces <see cref="Status"/> to <paramref name="newStatus"/> without <see cref="OrderStatusExtensions.CanTransitionTo"/> checks (platform administrator intervention).
+    /// </summary>
+    public void OverrideStatusByAdmin(OrderStatus newStatus, string reason)
+    {
+        if (string.IsNullOrWhiteSpace(reason))
+            throw new DomainException("Override reason is required.");
+
+        string trimmed = reason.Trim();
+        if (trimmed.Length > MaxAdminOverrideReasonLength)
+            throw new DomainException($"Override reason cannot exceed {MaxAdminOverrideReasonLength} characters.");
+
+        if (Status == newStatus)
+            return;
+
+        OrderStatus previous = Status;
+        Status = newStatus;
+        UpdatedAt = DateTimeOffset.UtcNow;
+        AddDomainEvent(new OrderStatusAdminOverriddenEvent(Id, previous, newStatus, trimmed));
     }
 
     /// <summary>

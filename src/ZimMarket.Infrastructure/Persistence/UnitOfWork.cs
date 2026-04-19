@@ -15,6 +15,7 @@ public sealed class UnitOfWork : IUnitOfWork
     private IUserRepository<Customer>? _customers;
     private IUserRepository<Seller>? _sellers;
     private IUserRepository<Driver>? _drivers;
+    private IUserRepository<AdminUser>? _admins;
     private IProductRepository? _products;
     private ICategoryRepository? _categories;
     private IOrderRepository? _orders;
@@ -22,6 +23,7 @@ public sealed class UnitOfWork : IUnitOfWork
     private IDeliveryBatchRepository? _deliveryBatches;
     private IWarehouseItemRepository? _warehouseItems;
     private IPendingKycReadRepository? _pendingKyc;
+    private IDashboardStatsReadRepository? _dashboardStats;
 
     public UnitOfWork(AppDbContext dbContext)
     {
@@ -33,6 +35,8 @@ public sealed class UnitOfWork : IUnitOfWork
     public IUserRepository<Seller> Sellers => _sellers ??= new UserRepository<Seller>(_dbContext);
 
     public IUserRepository<Driver> Drivers => _drivers ??= new UserRepository<Driver>(_dbContext);
+
+    public IUserRepository<AdminUser> Admins => _admins ??= new UserRepository<AdminUser>(_dbContext);
 
     public IProductRepository Products => _products ??= new ProductRepository(_dbContext);
 
@@ -48,6 +52,9 @@ public sealed class UnitOfWork : IUnitOfWork
     public IWarehouseItemRepository WarehouseItems => _warehouseItems ??= new WarehouseItemRepository(_dbContext);
 
     public IPendingKycReadRepository PendingKyc => _pendingKyc ??= new PendingKycReadRepository(_dbContext);
+
+    public IDashboardStatsReadRepository DashboardStats =>
+        _dashboardStats ??= new DashboardStatsReadRepository(_dbContext);
 
     public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) =>
         _dbContext.SaveChangesAsync(cancellationToken);

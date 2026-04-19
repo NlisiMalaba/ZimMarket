@@ -11,6 +11,8 @@ public interface IUnitOfWork
 
     IUserRepository<Driver> Drivers { get; }
 
+    IUserRepository<AdminUser> Admins { get; }
+
     IProductRepository Products { get; }
 
     ICategoryRepository Categories { get; }
@@ -24,6 +26,8 @@ public interface IUnitOfWork
     IWarehouseItemRepository WarehouseItems { get; }
 
     IPendingKycReadRepository PendingKyc { get; }
+
+    IDashboardStatsReadRepository DashboardStats { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 

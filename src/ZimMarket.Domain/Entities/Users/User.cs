@@ -64,6 +64,15 @@ public abstract class User : BaseEntity
         UpdatedAt = DateTimeOffset.UtcNow;
     }
 
+    public void Activate()
+    {
+        if (IsActive)
+            return;
+
+        IsActive = true;
+        UpdatedAt = DateTimeOffset.UtcNow;
+    }
+
     /// <summary>
     /// Persists a PBKDF2 hash of the refresh token (never the raw token). Call <see cref="ClearRefreshToken"/> on logout or rotation.
     /// </summary>

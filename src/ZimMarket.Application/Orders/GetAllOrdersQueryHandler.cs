@@ -32,12 +32,12 @@ public sealed class GetAllOrdersQueryHandler
     {
         if (!_currentUser.IsAuthenticated
             || _currentUser.UserId == Guid.Empty
-            || _currentUser.Role != UserRole.Admin)
+            || (_currentUser.Role != UserRole.Admin && _currentUser.Role != UserRole.SuperAdmin))
         {
-            _logger.LogDebug("Get all orders rejected: caller is not an admin.");
+            _logger.LogDebug("Get all orders rejected: caller is not an admin or super admin.");
             return Result<ZimMarket.Shared.PagedList<AdminOrderListItemDto>>.Failure(
                 AdminOrderErrorCodes.Forbidden,
-                "Only administrators can list all orders.");
+                "Only administrators or super administrators can list all orders.");
         }
 
         var pagination = new ZimMarket.Shared.PaginationParams

@@ -37,12 +37,12 @@ public sealed class GetPendingKycQueryHandler
     {
         if (!_currentUser.IsAuthenticated
             || _currentUser.UserId == Guid.Empty
-            || _currentUser.Role != UserRole.Admin)
+            || (_currentUser.Role != UserRole.Admin && _currentUser.Role != UserRole.SuperAdmin))
         {
-            _logger.LogDebug("Get pending KYC rejected: caller is not an admin.");
+            _logger.LogDebug("Get pending KYC rejected: caller is not an admin or super admin.");
             return Result<ZimMarket.Shared.PagedList<PendingKycQueueItemDto>>.Failure(
                 AdminKycErrorCodes.Forbidden,
-                "Only administrators can list pending KYC submissions.");
+                "Only administrators or super administrators can list pending KYC submissions.");
         }
 
         var pagination = new ZimMarket.Shared.PaginationParams

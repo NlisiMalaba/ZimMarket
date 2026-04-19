@@ -33,12 +33,12 @@ public sealed class SuspendProductCommandHandler : IRequestHandler<SuspendProduc
     {
         if (!_currentUser.IsAuthenticated
             || _currentUser.UserId == Guid.Empty
-            || _currentUser.Role != UserRole.Admin)
+            || (_currentUser.Role != UserRole.Admin && _currentUser.Role != UserRole.SuperAdmin))
         {
-            _logger.LogDebug("Suspend product rejected: caller is not an admin.");
+            _logger.LogDebug("Suspend product rejected: caller is not an admin or super admin.");
             return Result.Failure(
                 AdminProductErrorCodes.Forbidden,
-                "Only administrators can suspend product listings.");
+                "Only administrators or super administrators can suspend product listings.");
         }
 
         Product? product = await _unitOfWork.Products

@@ -30,12 +30,12 @@ public sealed class ApproveKycCommandHandler : IRequestHandler<ApproveKycCommand
     {
         if (!_currentUser.IsAuthenticated
             || _currentUser.UserId == Guid.Empty
-            || _currentUser.Role != UserRole.Admin)
+            || (_currentUser.Role != UserRole.Admin && _currentUser.Role != UserRole.SuperAdmin))
         {
-            _logger.LogDebug("Approve KYC rejected: caller is not an admin.");
+            _logger.LogDebug("Approve KYC rejected: caller is not an admin or super admin.");
             return Result.Failure(
                 AdminKycErrorCodes.Forbidden,
-                "Only administrators can approve KYC submissions.");
+                "Only administrators or super administrators can approve KYC submissions.");
         }
 
         return request.Role switch
