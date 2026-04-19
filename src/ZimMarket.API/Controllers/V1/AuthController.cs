@@ -1,13 +1,16 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using ZimMarket.API.Http;
+using ZimMarket.API.RateLimiting;
 using ZimMarket.Application.Auth;
 
 namespace ZimMarket.API.Controllers.V1;
 
 [ApiController]
 [Route("api/v1/auth")]
+[EnableRateLimiting(ZimMarketRateLimitPolicies.AuthByIp)]
 public sealed class AuthController : ControllerBase
 {
     private readonly ISender _sender;

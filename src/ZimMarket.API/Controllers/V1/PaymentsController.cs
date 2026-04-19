@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ZimMarket.API.Http;
+using ZimMarket.API.Middleware;
 using ZimMarket.Application.Auth;
 using ZimMarket.Application.Payments;
 using ZimMarket.Domain.Enums;
@@ -28,7 +29,7 @@ public sealed class PaymentsController : ControllerBase
         [FromBody] InitiatePaymentRequest request,
         CancellationToken cancellationToken)
     {
-        string idempotencyKey = Request.Headers["Idempotency-Key"].ToString();
+        string idempotencyKey = Request.Headers[IdempotencyMiddleware.IdempotencyKeyHeaderName].ToString();
         var command = new InitiatePaymentCommand(
             request.OrderId,
             request.PaymentMethod,

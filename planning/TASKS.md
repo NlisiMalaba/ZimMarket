@@ -570,27 +570,27 @@
 
 ## Module 12 — API Hardening
 
-- [ ] 12.1 Add global `ExceptionHandlingMiddleware`: catch all unhandled exceptions; log with `traceId`; return standardised 500 response with `traceId` for client correlation; never expose stack traces in production
+- [x] 12.1 Add global `ExceptionHandlingMiddleware`: catch all unhandled exceptions; log with `traceId`; return standardised 500 response with `traceId` for client correlation; never expose stack traces in production
 
-- [ ] 12.2 Configure ASP.NET Core Rate Limiting middleware:
+- [x] 12.2 Configure ASP.NET Core Rate Limiting middleware:
   - Global: 200 req/min per IP
   - Auth endpoints (`/api/v1/auth`): 20 req/min per IP (prevent brute force)
   - File presign endpoint: 30 req/min per user
   - Return `429 Too Many Requests` with `Retry-After` header
 
-- [ ] 12.3 Configure Serilog with structured logging: console sink (dev), file sink (production with rolling), Seq sink if available; add request logging middleware; redact sensitive properties (Password, NationalIdNumber, CardNumber) via destructuring policy
+- [x] 12.3 Configure Serilog with structured logging: console sink (dev), file sink (production with rolling), Seq sink if available; add request logging middleware; redact sensitive properties (Password, NationalIdNumber, CardNumber) via destructuring policy
 
-- [ ] 12.4 Add health check endpoints: `GET /health` (liveness), `GET /health/ready` (readiness — checks DB + Redis connectivity); used by Docker health checks
+- [x] 12.4 Add health check endpoints: `GET /health` (liveness), `GET /health/ready` (readiness — checks DB + Redis connectivity); used by Docker health checks
 
-- [ ] 12.5 Configure Scalar (OpenAPI) for API documentation: group endpoints by tag; include example request/response bodies; JWT auth scheme configured so devs can test authenticated endpoints
+- [x] 12.5 Configure Scalar (OpenAPI) for API documentation: group endpoints by tag; include example request/response bodies; JWT auth scheme configured so devs can test authenticated endpoints
 
-- [ ] 12.6 Add `Idempotency-Key` middleware: for `POST /orders` and `POST /payments/initiate`; store key → response in Redis (TTL 24 hours); return cached response on duplicate key without re-processing
+- [x] 12.6 Add `Idempotency-Key` middleware: for `POST /orders` and `POST /payments/initiate`; store key → response in Redis (TTL 24 hours); return cached response on duplicate key without re-processing
 
-- [ ] 12.7 Add CORS policy: explicit allow-list (mobile app origins + admin panel origin from config); disallow `*`
+- [x] 12.7 Add CORS policy: explicit allow-list (mobile app origins + admin panel origin from config); disallow `*`
 
-- [ ] 12.8 Configure `appsettings.json` schema with all required configuration keys; add validation at startup via `IOptions<T>` with `ValidateOnStart` and `ValidateDataAnnotations` — application must fail-fast if required config is missing, not at runtime
+- [x] 12.8 Configure `appsettings.json` schema with all required configuration keys; add validation at startup via `IOptions<T>` with `ValidateOnStart` and `ValidateDataAnnotations` — application must fail-fast if required config is missing, not at runtime
 
-- [ ] **Checkpoint 12** — API is hardened; rate limiting prevents abuse; health checks pass; OpenAPI docs accessible; missing config causes immediate startup failure
+- [x] **Checkpoint 12** — API is hardened; rate limiting prevents abuse; health checks pass; OpenAPI docs accessible; missing config causes immediate startup failure
 
 ---
 

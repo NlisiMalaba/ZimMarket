@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using ZimMarket.Application.Admin;
 using ZimMarket.Application.Common;
@@ -48,12 +47,9 @@ public static class ResultHttpMapper
             ? validationErrors.Select(e => new ApiValidationErrorItem(e.Field, e.Message)).ToList()
             : null;
 
-        var body = new ApiErrorResponse(code, message, GetTraceId(httpContext), items);
+        var body = new ApiErrorResponse(code, message, HttpTraceId.Get(httpContext), items);
         return new ObjectResult(body) { StatusCode = statusCode };
     }
-
-    private static string GetTraceId(HttpContext httpContext) =>
-        Activity.Current?.Id ?? httpContext.TraceIdentifier;
 
     private static int MapStatusCode(string errorCode)
     {
