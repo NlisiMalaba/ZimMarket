@@ -623,13 +623,13 @@
 
 ## Module 14 — Admin Panel (Next.js)
 
-- [ ] 14.1 Scaffold Next.js 14 app in `apps/admin/` with TypeScript, Tailwind CSS, shadcn/ui; configure `NEXT_PUBLIC_API_URL` env var; set up path aliases
+- [x] 14.1 Scaffold Next.js 14 app in `apps/admin/` with TypeScript, Tailwind CSS, shadcn/ui; configure `NEXT_PUBLIC_API_URL` env var; set up path aliases
 
-- [ ] 14.2 Create typed API client in `lib/api.ts`: all requests include `Authorization: Bearer {token}` header; handle `401` globally (redirect to login, clear session); handle `429` with user-visible "Too many requests" toast
+- [x] 14.2 Create typed API client in `lib/api.ts`: all requests include `Authorization: Bearer {token}` header; handle `401` globally (redirect to login, clear session); handle `429` with user-visible "Too many requests" toast
 
-- [ ] 14.3 Implement login page (`/login`): email + password form; call `POST /api/v1/auth/login`; store access token in memory (not localStorage); store refresh token in httpOnly cookie; redirect to `/dashboard`
+- [x] 14.3 Implement login page (`/login`): email + password form; call `POST /api/v1/auth/login`; store access token in memory (not localStorage); store refresh token in httpOnly cookie; redirect to `/dashboard`
 
-- [ ] 14.4 Create authenticated layout with sidebar navigation: Dashboard, Orders, Sellers (KYC), Drivers (KYC + Map), Warehouse, Settings (SuperAdmin only); role-based menu items
+- [x] 14.4 Create authenticated layout with sidebar navigation: Dashboard, Orders, Sellers (KYC), Drivers (KYC + Map), Warehouse, Settings (SuperAdmin only); role-based menu items
 
 - [ ] 14.5 Implement Dashboard page (`/dashboard`):
   - Fetch `GET /api/v1/admin/dashboard` stats every 30 seconds
