@@ -104,6 +104,75 @@ public sealed class CreateDeliveryBatchCommandHandlerTests
     }
 
     [Fact]
+    public async Task CreateDeliveryBatch_order_not_qc_passed_returns_ORDER_NOT_ELIGIBLE_FOR_BATCH()
+    {
+        Guid orderId = Guid.NewGuid();
+        Guid driverId = Guid.NewGuid();
+        Order order = CreateSingleLineAtWarehouseOrder(orderId, Guid.NewGuid(), Guid.NewGuid());
+
+        var unitOfWork = Substitute.For<IUnitOfWork>();
+        var orders = Substitute.For<IOrderRepository>();
+        var deliveryBatches = Substitute.For<IDeliveryBatchRepository>();
+        unitOfWork.Orders.Returns(orders);
+        unitOfWork.DeliveryBatches.Returns(deliveryBatches);
+
+        orders.GetByIdForUpdateAsync(orderId, Arg.Any<CancellationToken>()).Returns(order);
+        deliveryBatches.GetByOrderIdAsync(orderId, Arg.Any<CancellationToken>()).Returns((DeliveryBatch?)null);
+
+        var handler = new CreateDeliveryBatchCommandHandler(
+            unitOfWork,
+            CreateAdminCurrentUser(),
+            Options.Create(new LogisticsOptions()),
+            NullLogger<CreateDeliveryBatchCommandHandler>.Instance);
+
+        var result = await handler.Handle(
+            new CreateDeliveryBatchCommand([orderId], driverId),
+            CancellationToken.None);
+
+        result.IsSuccess.Should().BeFalse();
+        result.ErrorCode.Should().Be(LogisticsErrorCodes.OrderNotEligibleForBatch);
+        order.Status.Should().Be(OrderStatus.AtWarehouse);
+        await unitOfWork.Drivers.DidNotReceive()
+            .GetByIdAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task CreateDeliveryBatch_driver_on_delivery_returns_DRIVER_NOT_ELIGIBLE()
+    {
+        Guid orderId = Guid.NewGuid();
+        Guid driverId = Guid.NewGuid();
+        Order order = CreateSingleLineQcPassedOrder(orderId, Guid.NewGuid(), Guid.NewGuid());
+        Driver driver = CreateEligibleDriver(driverId);
+        driver.SetStatus(DriverStatus.OnDelivery);
+
+        var unitOfWork = Substitute.For<IUnitOfWork>();
+        var orders = Substitute.For<IOrderRepository>();
+        var deliveryBatches = Substitute.For<IDeliveryBatchRepository>();
+        var drivers = Substitute.For<IUserRepository<Driver>>();
+        unitOfWork.Orders.Returns(orders);
+        unitOfWork.DeliveryBatches.Returns(deliveryBatches);
+        unitOfWork.Drivers.Returns(drivers);
+
+        orders.GetByIdForUpdateAsync(orderId, Arg.Any<CancellationToken>()).Returns(order);
+        deliveryBatches.GetByOrderIdAsync(orderId, Arg.Any<CancellationToken>()).Returns((DeliveryBatch?)null);
+        drivers.GetByIdAsync(driverId, Arg.Any<CancellationToken>()).Returns(driver);
+
+        var handler = new CreateDeliveryBatchCommandHandler(
+            unitOfWork,
+            CreateAdminCurrentUser(),
+            Options.Create(new LogisticsOptions()),
+            NullLogger<CreateDeliveryBatchCommandHandler>.Instance);
+
+        var result = await handler.Handle(
+            new CreateDeliveryBatchCommand([orderId], driverId),
+            CancellationToken.None);
+
+        result.IsSuccess.Should().BeFalse();
+        result.ErrorCode.Should().Be(LogisticsErrorCodes.DriverNotEligible);
+        await deliveryBatches.DidNotReceive().AddAsync(Arg.Any<DeliveryBatch>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
     public async Task CreateDeliveryBatch_driver_offline_returns_DRIVER_NOT_ELIGIBLE()
     {
         Guid orderId = Guid.NewGuid();
@@ -137,6 +206,24 @@ public sealed class CreateDeliveryBatchCommandHandlerTests
         result.IsSuccess.Should().BeFalse();
         result.ErrorCode.Should().Be(LogisticsErrorCodes.DriverNotEligible);
         await deliveryBatches.DidNotReceive().AddAsync(Arg.Any<DeliveryBatch>(), Arg.Any<CancellationToken>());
+    }
+
+    private static Order CreateSingleLineAtWarehouseOrder(Guid orderId, Guid productId, Guid customerId)
+    {
+        var price = Money.Create(10m, Currency.USD).Value!;
+        var orderItem = OrderItem.Create(productId, "Line", price, quantity: 1).Value!;
+        var order = Order.Create(
+            orderId,
+            customerId,
+            [orderItem],
+            TestDeliveryAddress,
+            Money.Create(10m, Currency.USD).Value!,
+            DateTimeOffset.UtcNow,
+            DateTimeOffset.UtcNow).Value!;
+        order.ConfirmPayment("ref");
+        order.MarkArrivedAtWarehouse(Guid.NewGuid());
+        order.PopDomainEvents();
+        return order;
     }
 
     private static Order CreateSingleLineQcPassedOrder(Guid orderId, Guid productId, Guid customerId)

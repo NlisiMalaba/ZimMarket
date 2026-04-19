@@ -8,6 +8,7 @@ using ZimMarket.Domain.Entities.Logistics;
 using ZimMarket.Domain.Entities.Orders;
 using ZimMarket.Domain.Entities.Users;
 using ZimMarket.Domain.Enums;
+using ZimMarket.Domain.Events;
 using ZimMarket.Domain.Interfaces;
 using ZimMarket.Domain.Interfaces.Repositories;
 using ZimMarket.Domain.ValueObjects;
@@ -93,8 +94,9 @@ public sealed class UpdateDriverLocationCommandHandlerTests
             DateTimeOffset.UtcNow).Value!;
         deliveryBatches.GetActiveByDriverAsync(driverId, Arg.Any<CancellationToken>()).Returns(batch);
 
+        Order trackedOrder = CreateOutForDeliveryOrder(orderId, Guid.NewGuid());
         orders.GetByIdAsync(orderId, Arg.Any<CancellationToken>())
-            .Returns((Order?)null);
+            .Returns(trackedOrder);
 
         var handler = new UpdateDriverLocationCommandHandler(
             unitOfWork,
@@ -119,6 +121,67 @@ public sealed class UpdateDriverLocationCommandHandlerTests
         await drivers.Received(1).UpdateAsync(driver, Arg.Any<CancellationToken>());
         driver.LastKnownLocation.Should().NotBeNull();
         driver.LastKnownLocation!.Latitude.Should().Be(-17.8259);
+
+        IReadOnlyList<IDomainEvent> events = driver.PopDomainEvents();
+        var locationEvent = events.OfType<DriverLocationUpdatedEvent>().Should().ContainSingle().Subject;
+        locationEvent.DriverId.Should().Be(driverId);
+        locationEvent.Lat.Should().Be(-17.8259);
+        locationEvent.Lng.Should().Be(31.0534);
+        locationEvent.ActiveOrderIds.Should().Equal([orderId]);
+    }
+
+    [Fact]
+    public async Task UpdateDriverLocation_available_returns_DriverNotOnDelivery_without_persisting_location()
+    {
+        Guid driverId = Guid.NewGuid();
+        var driver = CreateDriver(driverId, DriverStatus.Available);
+
+        var unitOfWork = Substitute.For<IUnitOfWork>();
+        var drivers = Substitute.For<IUserRepository<Driver>>();
+        var driverLocations = Substitute.For<IDriverLocationRepository>();
+        var cache = Substitute.For<ICacheService>();
+        unitOfWork.Drivers.Returns(drivers);
+        unitOfWork.DriverLocations.Returns(driverLocations);
+        drivers.GetByIdAsync(driverId, Arg.Any<CancellationToken>()).Returns(driver);
+
+        var handler = new UpdateDriverLocationCommandHandler(
+            unitOfWork,
+            CreateDriverCurrentUser(driverId),
+            cache,
+            NullLogger<UpdateDriverLocationCommandHandler>.Instance);
+
+        var result = await handler.Handle(new UpdateDriverLocationCommand(-17.8, 31.05), CancellationToken.None);
+
+        result.IsSuccess.Should().BeFalse();
+        result.ErrorCode.Should().Be(DriverLocationErrorCodes.DriverNotOnDelivery);
+        await driverLocations.DidNotReceive()
+            .UpsertPositionAsync(Arg.Any<Guid>(), Arg.Any<double>(), Arg.Any<double>(), Arg.Any<CancellationToken>());
+        await cache.DidNotReceive()
+            .SetAsync(Arg.Any<string>(), Arg.Any<object>(), Arg.Any<TimeSpan?>(), Arg.Any<CancellationToken>());
+        driver.PopDomainEvents().Should().BeEmpty();
+    }
+
+    private static readonly Address TestDeliveryAddress =
+        Address.Create("2 Delivery Rd", "Suburb", "Bulawayo", "Zimbabwe").Value!;
+
+    private static Order CreateOutForDeliveryOrder(Guid orderId, Guid customerId)
+    {
+        var price = Money.Create(10m, Currency.USD).Value!;
+        var orderItem = OrderItem.Create(Guid.NewGuid(), "Line", price, quantity: 1).Value!;
+        var order = Order.Create(
+            orderId,
+            customerId,
+            [orderItem],
+            TestDeliveryAddress,
+            Money.Create(10m, Currency.USD).Value!,
+            DateTimeOffset.UtcNow,
+            DateTimeOffset.UtcNow).Value!;
+        order.ConfirmPayment("ref");
+        order.UpdateStatus(OrderStatus.AtWarehouse);
+        order.UpdateStatus(OrderStatus.QcPassed);
+        order.UpdateStatus(OrderStatus.Batched);
+        order.UpdateStatus(OrderStatus.OutForDelivery);
+        return order;
     }
 
     private static Driver CreateDriver(Guid id, DriverStatus status)

@@ -522,12 +522,12 @@
   - `GET /{id}` → `GetBatchDetailsQuery`
   - `GET /drivers/locations` → `GetActiveDriverLocationsQuery`
 
-- [ ]* 10.10 Write unit tests:
+- [x]* 10.10 Write unit tests:
   - **CreateBatch**: order not in `QcPassed` state returns error; driver not available returns error; batch created transitions orders to `Batched`
   - **UpdateDriverLocation**: `DriverLocationUpdatedEvent` raised with correct coordinates; non-OnDelivery driver is ignored
   - **ConfirmDelivery**: all orders delivered → batch completes → driver set to `Available`
 
-- [ ] **Checkpoint 10** — Driver can update GPS; customers receive real-time updates via SignalR; delivery lifecycle complete
+- [x] **Checkpoint 10** — Driver can update GPS; customers receive real-time updates via SignalR; delivery lifecycle complete
 
 ---
 

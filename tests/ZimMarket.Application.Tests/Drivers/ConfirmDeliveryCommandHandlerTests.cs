@@ -138,6 +138,79 @@ public sealed class ConfirmDeliveryCommandHandlerTests
         await batches.Received(1).UpdateAsync(batch, Arg.Any<CancellationToken>());
     }
 
+    [Fact]
+    public async Task ConfirmDelivery_two_orders_second_delivery_completes_batch_and_sets_driver_available()
+    {
+        Guid driverId = Guid.NewGuid();
+        Guid batchId = Guid.NewGuid();
+        Guid orderId1 = Guid.NewGuid();
+        Guid orderId2 = Guid.NewGuid();
+        Guid customerId = Guid.NewGuid();
+        string key1 = "delivery-photos/a/1.jpg";
+        string key2 = "delivery-photos/a/2.jpg";
+
+        var batch = DeliveryBatch.Create(
+            batchId,
+            driverId,
+            Guid.NewGuid(),
+            [orderId1, orderId2],
+            DateTimeOffset.UtcNow,
+            DateTimeOffset.UtcNow).Value!;
+        batch.MarkCollected();
+
+        Order order1 = CreateOutForDeliveryOrder(orderId1, customerId);
+        Order order2 = CreateOutForDeliveryOrder(orderId2, customerId);
+        var driver = CreateDriver(driverId, DriverStatus.OnDelivery);
+
+        var unitOfWork = Substitute.For<IUnitOfWork>();
+        var batches = Substitute.For<IDeliveryBatchRepository>();
+        var orders = Substitute.For<IOrderRepository>();
+        var drivers = Substitute.For<IUserRepository<Domain.Entities.Users.Driver>>();
+        var fileStorage = Substitute.For<IFileStorage>();
+
+        unitOfWork.DeliveryBatches.Returns(batches);
+        unitOfWork.Orders.Returns(orders);
+        unitOfWork.Drivers.Returns(drivers);
+
+        batches.GetByIdForUpdateAsync(batchId, Arg.Any<CancellationToken>()).Returns(batch);
+        orders.GetByIdForUpdateAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>())
+            .Returns(callInfo =>
+            {
+                Guid id = callInfo.Arg<Guid>();
+                if (id == orderId1)
+                    return order1;
+                if (id == orderId2)
+                    return order2;
+                return null;
+            });
+        drivers.GetByIdAsync(driverId, Arg.Any<CancellationToken>()).Returns(driver);
+        fileStorage.ExistsAsync(Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(true);
+
+        var handler = new ConfirmDeliveryCommandHandler(
+            unitOfWork,
+            CreateDriverCurrentUser(driverId),
+            fileStorage,
+            NullLogger<ConfirmDeliveryCommandHandler>.Instance);
+
+        var first = await handler.Handle(
+            new ConfirmDeliveryCommand(batchId, orderId1, key1),
+            CancellationToken.None);
+        first.IsSuccess.Should().BeTrue();
+        batch.Status.Should().Be(DeliveryBatchStatus.InTransit);
+        order1.Status.Should().Be(OrderStatus.Delivered);
+        order2.Status.Should().Be(OrderStatus.OutForDelivery);
+        driver.DriverStatus.Should().Be(DriverStatus.OnDelivery);
+
+        var second = await handler.Handle(
+            new ConfirmDeliveryCommand(batchId, orderId2, key2),
+            CancellationToken.None);
+        second.IsSuccess.Should().BeTrue();
+        order2.Status.Should().Be(OrderStatus.Delivered);
+        batch.Status.Should().Be(DeliveryBatchStatus.Completed);
+        driver.DriverStatus.Should().Be(DriverStatus.Available);
+        await drivers.Received(1).UpdateAsync(driver, Arg.Any<CancellationToken>());
+    }
+
     private static Order CreateOutForDeliveryOrder(Guid orderId, Guid customerId)
     {
         var price = Money.Create(10m, Currency.USD).Value!;
