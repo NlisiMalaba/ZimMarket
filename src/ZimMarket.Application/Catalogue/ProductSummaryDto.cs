@@ -1,8 +1,12 @@
+using ZimMarket.Domain.Enums;
+
 namespace ZimMarket.Application.Catalogue;
 
 public sealed class ProductSummaryDto
 {
     public required Guid ProductId { get; init; }
+
+    public required ProductStatus Status { get; init; }
 
     public required string Title { get; init; }
 

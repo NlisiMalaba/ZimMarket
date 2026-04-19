@@ -533,17 +533,17 @@
 
 ## Module 11 — Admin Features
 
-- [ ] 11.1 Create `GetPendingKycQuery(Role: Seller|Driver, Page, PageSize)` [Authorize(Admin)]: returns paginated list of users with `KycStatus = PendingReview` with document SAS URLs
+- [x] 11.1 Create `GetPendingKycQuery(Role: Seller|Driver, Page, PageSize)` [Authorize(Admin)]: returns paginated list of users with `KycStatus = PendingReview` with document SAS URLs
 
-- [ ] 11.2 Create `ApproveKycCommand(UserId, Role)` with handler [Authorize(Admin)]:
+- [x] 11.2 Create `ApproveKycCommand(UserId, Role)` with handler [Authorize(Admin)]:
   - Load entity; call `Approve()` domain method; save; domain event fires notification
 
-- [ ] 11.3 Create `RejectKycCommand(UserId, Role, Reason)` with handler [Authorize(Admin)]:
+- [x] 11.3 Create `RejectKycCommand(UserId, Role, Reason)` with handler [Authorize(Admin)]:
   - Call `Reject(reason)` domain method; save; domain event fires rejection email/SMS
 
-- [ ] 11.4 Create `SuspendProductCommand(ProductId, Reason)` [Authorize(Admin)]: for admin to take down listings that violate policies
+- [x] 11.4 Create `SuspendProductCommand(ProductId, Reason)` [Authorize(Admin)]: for admin to take down listings that violate policies
 
-- [ ] 11.5 Create `GetAllOrdersQuery(Status?, DateFrom?, DateTo?, Page, PageSize)` [Authorize(Admin)]: full order management view
+- [x] 11.5 Create `GetAllOrdersQuery(Status?, DateFrom?, DateTo?, Page, PageSize)` [Authorize(Admin)]: full order management view
 
 - [ ] 11.6 Create `OverrideOrderStatusCommand(OrderId, NewStatus, Reason)` [Authorize(Admin)]: for manual intervention; skips `CanTransitionTo` validation (admin override); logs reason
 

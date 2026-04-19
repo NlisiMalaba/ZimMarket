@@ -82,6 +82,7 @@ public sealed class GetSellerProductsQueryTests
         result.Value.PageSize.Should().Be(10);
         result.Value.Items.Should().ContainSingle();
         result.Value.Items[0].SellerId.Should().Be(sellerId);
+        result.Value.Items[0].Status.Should().Be(ProductStatus.Suspended);
     }
 
     private static Product CreateProduct(Guid sellerId, Guid productId, Guid categoryId, ProductStatus status)
@@ -103,7 +104,7 @@ public sealed class GetSellerProductsQueryTests
             now).Value!;
 
         if (status == ProductStatus.Suspended)
-            product.Suspend();
+            product.Suspend("Policy test suspension");
 
         return product;
     }

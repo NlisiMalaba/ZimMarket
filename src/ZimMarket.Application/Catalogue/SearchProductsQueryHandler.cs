@@ -4,6 +4,7 @@ using ZimMarket.Application.Common.Models;
 using ZimMarket.Domain.Common;
 using ZimMarket.Domain.Entities.Catalogue;
 using ZimMarket.Domain.Entities.Users;
+using ZimMarket.Domain.Enums;
 using ZimMarket.Domain.Interfaces;
 
 namespace ZimMarket.Application.Catalogue;
@@ -56,6 +57,7 @@ public sealed class SearchProductsQueryHandler : IRequestHandler<SearchProductsQ
             summaries.Add(new ProductSummaryDto
             {
                 ProductId = product.Id,
+                Status = ProductStatus.Active,
                 Title = product.Title,
                 PriceAmount = product.Price.Amount,
                 PriceCurrency = product.Price.Currency.ToString(),

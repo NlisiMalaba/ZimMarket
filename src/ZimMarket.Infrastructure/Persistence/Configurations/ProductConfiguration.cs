@@ -30,6 +30,10 @@ public sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
 
         builder.Property(x => x.Status).IsRequired();
 
+        builder.Property(x => x.SuspensionReason)
+            .HasColumnName("suspension_reason")
+            .HasMaxLength(Product.MaxSuspensionReasonLength);
+
         builder.Property(x => x.CreatedAt).IsRequired();
         builder.Property(x => x.UpdatedAt).IsRequired();
 
