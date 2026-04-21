@@ -739,7 +739,7 @@
 
 ## Module 16 — Final Integration & Testing
 
-- [ ] 16.1 Write end-to-end integration test suite covering the full happy path:
+- [x] 16.1 Write end-to-end integration test suite covering the full happy path:
   - Register seller → submit KYC → admin approves → list product
   - Register customer → browse → place order → Paynow webhook fires → order paid
   - Admin records warehouse arrival → QC pass → create batch → assign driver
