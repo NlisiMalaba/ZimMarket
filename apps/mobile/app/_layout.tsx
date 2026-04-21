@@ -8,6 +8,7 @@ import 'react-native-reanimated';
 
 import { useColorScheme } from '@/components/useColorScheme';
 import { setUnauthorizedNavigationHandler } from '@/lib/navigation/auth-navigation';
+import '@/lib/services/driver-location-tracking-service';
 
 export {
   // Catch any errors thrown by the Layout component.

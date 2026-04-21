@@ -716,24 +716,24 @@
 
 ### Driver App
 
-- [ ] 15.19 Driver onboarding: register → document upload (license, vehicle registration) → "Under review" screen
+- [x] 15.19 Driver onboarding: register → document upload (license, vehicle registration) → "Under review" screen
 
-- [ ] 15.20 Driver home screen: current status toggle (Available / Offline); active batch card if `OnDelivery`; available batches list when `Available`
+- [x] 15.20 Driver home screen: current status toggle (Available / Offline); active batch card if `OnDelivery`; available batches list when `Available`
 
-- [ ] 15.21 Batch detail screen: pickup warehouse address (Google Maps link); list of delivery orders grouped by area; "Mark as Collected" button
+- [x] 15.21 Batch detail screen: pickup warehouse address (Google Maps link); list of delivery orders grouped by area; "Mark as Collected" button
 
-- [ ] 15.22 Active delivery screen:
+- [x] 15.22 Active delivery screen:
   - Next delivery address in Google Maps navigation
   - "Confirm Delivery" button: opens camera to take photo → upload via presigned URL → call `POST /api/v1/drivers/batches/{id}/orders/{orderId}/delivered`
   - Progress indicator: X of N delivered
 
-- [ ] 15.23 GPS background tracking:
+- [x] 15.23 GPS background tracking:
   - Use `expo-task-manager` + `expo-location` background task
   - Start on "Mark as Collected"; stop when batch complete
   - POST to `PUT /api/v1/drivers/location` every 30 seconds
   - Handle permission denied gracefully with in-app prompt explaining why location is needed
 
-- [ ] **Checkpoint 15** — Full mobile flows working: customer can browse → buy → track; seller can list → manage orders; driver can accept → collect → deliver with live GPS
+- [x] **Checkpoint 15** — Full mobile flows working: customer can browse → buy → track; seller can list → manage orders; driver can accept → collect → deliver with live GPS
 
 ---
 
