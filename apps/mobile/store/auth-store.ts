@@ -99,7 +99,20 @@ export const useAuthStore = create<AuthState>()(
 
         try {
           const session = await authService.register(payload);
-          get().setSession(session);
+          get().setSession({
+            ...session,
+            user:
+              session.user ??
+              (payload.role
+                ? {
+                    id: 'self',
+                    email: payload.email,
+                    role: payload.role,
+                    name: payload.name,
+                    phone: payload.phone,
+                  }
+                : undefined),
+          });
         } catch (error) {
           const message = normalizeAuthError(error);
           set({ authError: message });

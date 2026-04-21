@@ -67,6 +67,39 @@ internal sealed class OrderRepository : IOrderRepository
         return new PagedList<Order>(items, pagination.Page, pagination.PageSize, totalCount);
     }
 
+    public async Task<PagedList<Order>> GetBySellerPagedAsync(
+        Guid sellerId,
+        PaginationParams pagination,
+        OrderStatus? statusFilter,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(pagination);
+
+        IQueryable<Guid> sellerProductIds = _dbContext.Products
+            .AsNoTracking()
+            .Where(p => p.SellerId == sellerId)
+            .Select(p => p.Id);
+
+        IQueryable<Order> query = _dbContext.Orders
+            .AsNoTracking()
+            .Include(o => o.Items)
+            .Where(o => o.Items.Any(i => sellerProductIds.Contains(i.ProductId)));
+
+        if (statusFilter.HasValue)
+            query = query.Where(o => o.Status == statusFilter.Value);
+
+        query = query.OrderByDescending(o => o.CreatedAt);
+
+        long totalCount = await query.LongCountAsync(cancellationToken).ConfigureAwait(false);
+        List<Order> items = await query
+            .Skip((pagination.Page - 1) * pagination.PageSize)
+            .Take(pagination.PageSize)
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        return new PagedList<Order>(items, pagination.Page, pagination.PageSize, totalCount);
+    }
+
     public async Task<PagedList<OrderListAdminRow>> GetAllPagedForAdminAsync(
         OrderStatus? status,
         DateTimeOffset? dateFromInclusive,

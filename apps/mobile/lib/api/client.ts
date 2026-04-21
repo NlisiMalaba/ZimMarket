@@ -19,15 +19,15 @@ const api = axios.create({
 let refreshPromise: Promise<string | null> | null = null;
 
 const refreshAccessToken = async (): Promise<string | null> => {
-  const { refreshToken, clearAuth, setSession } = useAuthStore.getState();
+  const { accessToken, refreshToken, clearAuth, setSession } = useAuthStore.getState();
 
-  if (!refreshToken) {
+  if (!accessToken || !refreshToken) {
     clearAuth();
     return null;
   }
 
   try {
-    const response = await authService.refresh({ refreshToken });
+    const response = await authService.refresh({ accessToken, refreshToken });
     const newAccessToken = response.accessToken;
     const newRefreshToken = response.refreshToken ?? refreshToken;
     setSession({ accessToken: newAccessToken, refreshToken: newRefreshToken });

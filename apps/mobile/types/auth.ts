@@ -1,4 +1,5 @@
 export type UserRole = 'Customer' | 'Seller' | 'Driver' | 'Admin' | string;
+export type KycStatus = 'notSubmitted' | 'pending' | 'approved' | 'rejected' | string;
 
 export type AuthUser = {
   id: string;
@@ -12,6 +13,7 @@ export type AuthUser = {
 export type AuthTokens = {
   accessToken: string;
   refreshToken: string;
+  kycStatus?: KycStatus;
 };
 
 export type LoginRequest = {
@@ -25,10 +27,12 @@ export type RegisterRequest = {
   password: string;
   name?: string;
   role?: UserRole;
+  businessName?: string;
 };
 
 export type AuthResponse = {
   accessToken: string;
   refreshToken: string;
-  user: AuthUser;
+  kycStatus?: KycStatus;
+  user?: AuthUser;
 };

@@ -704,15 +704,15 @@
 
 ### Seller App
 
-- [ ] 15.14 Seller onboarding: register → KYC upload screen (national ID photo picker → upload via presigned URL, proof of residence → same) → "Application submitted" screen with status polling
+- [x] 15.14 Seller onboarding: register → KYC upload screen (national ID photo picker → upload via presigned URL, proof of residence → same) → "Application submitted" screen with status polling
 
-- [ ] 15.15 Seller dashboard: stats cards (active listings, orders pending, total earned); recent orders list
+- [x] 15.15 Seller dashboard: stats cards (active listings, orders pending, total earned); recent orders list
 
-- [ ] 15.16 Listings screen: list of seller's products with status badges; tap to edit; FAB to create new listing
+- [x] 15.16 Listings screen: list of seller's products with status badges; tap to edit; FAB to create new listing
 
-- [ ] 15.17 Create/Edit listing form: title, description, price, category picker, stock, address, image picker (max 5, upload via presigned URL); form validation with Zod + React Hook Form; submit → `POST /api/v1/products`
+- [x] 15.17 Create/Edit listing form: title, description, price, category picker, stock, address, image picker (max 5, upload via presigned URL); form validation with Zod + React Hook Form; submit → `POST /api/v1/products`
 
-- [ ] 15.18 Orders screen (seller view): list of orders containing seller's products; order detail with customer address (no PII beyond city)
+- [x] 15.18 Orders screen (seller view): list of orders containing seller's products; order detail with customer address (no PII beyond city)
 
 ### Driver App
 

@@ -13,6 +13,9 @@ export default function LoginScreen() {
       <Pressable onPress={() => router.push('/(auth)/register')}>
         <Text style={styles.action}>New here? Create an account</Text>
       </Pressable>
+      <Pressable onPress={() => router.push('/(auth)/register-seller' as never)}>
+        <Text style={styles.action}>Register as a seller</Text>
+      </Pressable>
     </View>
   );
 }
