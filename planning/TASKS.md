@@ -750,14 +750,14 @@
 
 - [x] 16.3 Review and confirm all endpoints in Scalar/OpenAPI docs have: correct auth requirements documented, example request and response bodies, error response codes listed
 
-- [ ] 16.4 Security review checklist:
-  - [ ] No secrets in code or git history
-  - [ ] KYC document URLs are SAS-protected (never public)
-  - [ ] Webhook endpoints verify HMAC before processing
-  - [ ] Rate limiting active on all auth endpoints
-  - [ ] All user inputs validated (FluentValidation)
-  - [ ] No raw SQL with user-provided values
+- [x] 16.4 Security review checklist:
+  - [x] No secrets in code or git history
+  - [x] KYC document URLs are SAS-protected (never public)
+  - [x] Webhook endpoints verify HMAC before processing
+  - [x] Rate limiting active on all auth endpoints
+  - [x] All user inputs validated (FluentValidation)
+  - [x] No raw SQL with user-provided values
 
-- [ ] 16.5 Add `CONTRIBUTING.md`: local setup guide, how to run tests, how to add a new feature (CQRS flow template), Docker commands reference, branching strategy
+- [x] 16.5 Add `CONTRIBUTING.md`: local setup guide, how to run tests, how to add a new feature (CQRS flow template), Docker commands reference, branching strategy
 
 - [ ] **Final Checkpoint** — Full E2E test suite passes; load test within targets; all security checklist items verified; Docker Compose starts cleanly from a fresh clone with only `.env` populated
