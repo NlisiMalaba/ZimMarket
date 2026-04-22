@@ -746,7 +746,7 @@
   - Driver confirms collection → updates GPS (3 updates) → confirms delivery
   - Verify: customer receives delivery notification; order status is `Delivered`; driver status is `Available`
 
-- [ ] 16.2 Write load test (k6 or NBomber): product search endpoint — 200 concurrent users, 60 seconds; target p95 < 500ms; fail if error rate > 1%
+- [x] 16.2 Write load test (k6 or NBomber): product search endpoint — 200 concurrent users, 60 seconds; target p95 < 500ms; fail if error rate > 1%
 
 - [ ] 16.3 Review and confirm all endpoints in Scalar/OpenAPI docs have: correct auth requirements documented, example request and response bodies, error response codes listed
 
