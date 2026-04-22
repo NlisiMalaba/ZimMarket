@@ -94,11 +94,15 @@ internal sealed class ZimMarketOpenApiDocumentTransformer(IAuthenticationSchemeP
 
             foreach (KeyValuePair<HttpMethod, OpenApiOperation> opPair in pathItem.Operations)
             {
+                HttpMethod method = opPair.Key;
                 OpenApiOperation operation = opPair.Value;
                 ApplyTag(path, operation);
-                ApplyExamples(path, opPair.Key, operation);
+                ApplyExamples(path, method, operation);
+                EnsureOperationExamples(path, method, operation);
+                bool requiresAuthentication = !IsAnonymousOperation(path, method);
+                EnsureErrorResponses(operation, requiresAuthentication);
                 if (jwtEnabled)
-                    ApplySecurity(path, opPair.Key, operation);
+                    ApplySecurity(operation, requiresAuthentication);
             }
         }
     }
@@ -142,11 +146,11 @@ internal sealed class ZimMarketOpenApiDocumentTransformer(IAuthenticationSchemeP
         return "Other";
     }
 
-    private static void ApplySecurity(string path, HttpMethod method, OpenApiOperation operation)
+    private static void ApplySecurity(OpenApiOperation operation, bool requiresAuthentication)
     {
         operation.Security ??= new List<OpenApiSecurityRequirement>();
 
-        if (IsAnonymousAuthOperation(path, method))
+        if (!requiresAuthentication)
         {
             operation.Security.Clear();
             return;
@@ -160,11 +164,8 @@ internal sealed class ZimMarketOpenApiDocumentTransformer(IAuthenticationSchemeP
             });
     }
 
-    private static bool IsAnonymousAuthOperation(string path, HttpMethod method)
+    private static bool IsAnonymousOperation(string path, HttpMethod method)
     {
-        if (!path.StartsWith("/api/v1/auth", StringComparison.OrdinalIgnoreCase))
-            return false;
-
         if (path.Equals("/api/v1/auth/login", StringComparison.OrdinalIgnoreCase) && method == HttpMethod.Post)
             return true;
 
@@ -172,6 +173,21 @@ internal sealed class ZimMarketOpenApiDocumentTransformer(IAuthenticationSchemeP
             return true;
 
         if (path.Equals("/api/v1/auth/refresh", StringComparison.OrdinalIgnoreCase) && method == HttpMethod.Post)
+            return true;
+
+        if (path.Equals("/api/v1/products", StringComparison.OrdinalIgnoreCase) && method == HttpMethod.Get)
+            return true;
+
+        if (path.Equals("/api/v1/products/categories", StringComparison.OrdinalIgnoreCase) && method == HttpMethod.Get)
+            return true;
+
+        if (path.Equals("/api/v1/products/{id}", StringComparison.OrdinalIgnoreCase) && method == HttpMethod.Get)
+            return true;
+
+        if (path.Equals("/api/v1/payments/webhook/paynow", StringComparison.OrdinalIgnoreCase) && method == HttpMethod.Post)
+            return true;
+
+        if (path.Equals("/api/v1/payments/webhook/ecocash", StringComparison.OrdinalIgnoreCase) && method == HttpMethod.Post)
             return true;
 
         return false;
@@ -221,6 +237,121 @@ internal sealed class ZimMarketOpenApiDocumentTransformer(IAuthenticationSchemeP
 
         AddErrorResponseExample(operation.Responses, "422");
         AddErrorResponseExample(operation.Responses, "400");
+    }
+
+    private static void EnsureOperationExamples(string path, HttpMethod method, OpenApiOperation operation)
+    {
+        if (method == HttpMethod.Get)
+        {
+            EnsureJsonResponseExample(
+                operation.Responses,
+                "200",
+                """
+                {
+                  "data": {}
+                }
+                """);
+            return;
+        }
+
+        if (path.Equals("/api/v1/payments/webhook/paynow", StringComparison.OrdinalIgnoreCase)
+            || path.Equals("/api/v1/payments/webhook/ecocash", StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        if (method == HttpMethod.Post || method == HttpMethod.Put || method == HttpMethod.Patch)
+        {
+            EnsureJsonRequestExample(operation.RequestBody?.Content);
+            EnsureJsonResponseExample(
+                operation.Responses,
+                "200",
+                """
+                {
+                  "data": {}
+                }
+                """);
+            EnsureJsonResponseExample(
+                operation.Responses,
+                "201",
+                """
+                {
+                  "data": "00000000-0000-0000-0000-000000000000"
+                }
+                """);
+        }
+    }
+
+    private static void EnsureJsonRequestExample(IDictionary<string, OpenApiMediaType>? content)
+    {
+        if (content is null || !content.TryGetValue("application/json", out OpenApiMediaType? media))
+            return;
+
+        if (media.Example is not null)
+            return;
+
+        media.Example = JsonNode.Parse(
+            """
+            {
+              "sample": "value"
+            }
+            """);
+    }
+
+    private static void EnsureJsonResponseExample(OpenApiResponses? responses, string statusCode, string json)
+    {
+        OpenApiMediaType? media = GetResponseMedia(responses, statusCode);
+        if (media is null || media.Example is not null)
+            return;
+
+        media.Example = JsonNode.Parse(json);
+    }
+
+    private static void EnsureErrorResponses(OpenApiOperation operation, bool requiresAuthentication)
+    {
+        AddErrorResponse(operation.Responses, "400", "Bad Request");
+        AddErrorResponse(operation.Responses, "422", "Validation Error");
+        AddErrorResponse(operation.Responses, "429", "Too Many Requests");
+        AddErrorResponse(operation.Responses, "500", "Internal Server Error");
+
+        if (requiresAuthentication)
+        {
+            AddErrorResponse(operation.Responses, "401", "Unauthorized");
+            AddErrorResponse(operation.Responses, "403", "Forbidden");
+        }
+    }
+
+    private static void AddErrorResponse(OpenApiResponses? responses, string statusCode, string description)
+    {
+        if (responses is null)
+            return;
+
+        if (!responses.TryGetValue(statusCode, out IOpenApiResponse? existingResponse))
+        {
+            var created = new OpenApiResponse
+            {
+                Description = description,
+                Content = new Dictionary<string, OpenApiMediaType>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["application/json"] = new OpenApiMediaType()
+                }
+            };
+            responses.Add(statusCode, created);
+            AddErrorResponseExample(responses, statusCode);
+            return;
+        }
+
+        if (existingResponse is OpenApiResponse openApiResponse)
+        {
+            if (string.IsNullOrWhiteSpace(openApiResponse.Description))
+                openApiResponse.Description = description;
+
+            openApiResponse.Content ??= new Dictionary<string, OpenApiMediaType>(StringComparer.OrdinalIgnoreCase);
+            if (!openApiResponse.Content.ContainsKey("application/json"))
+                openApiResponse.Content["application/json"] = new OpenApiMediaType();
+        }
+
+        AddErrorResponseExample(responses, statusCode);
     }
 
     private static void SetJsonExample(IDictionary<string, OpenApiMediaType>? content, string json)

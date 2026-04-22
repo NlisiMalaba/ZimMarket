@@ -748,7 +748,7 @@
 
 - [x] 16.2 Write load test (k6 or NBomber): product search endpoint — 200 concurrent users, 60 seconds; target p95 < 500ms; fail if error rate > 1%
 
-- [ ] 16.3 Review and confirm all endpoints in Scalar/OpenAPI docs have: correct auth requirements documented, example request and response bodies, error response codes listed
+- [x] 16.3 Review and confirm all endpoints in Scalar/OpenAPI docs have: correct auth requirements documented, example request and response bodies, error response codes listed
 
 - [ ] 16.4 Security review checklist:
   - [ ] No secrets in code or git history
