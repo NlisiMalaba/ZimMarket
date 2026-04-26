@@ -56,6 +56,22 @@ Client apps (React Native / Expo, Next.js admin) are planned alongside this repo
 
 Follow the implementation order in `planning/TASKS.md` and architectural rules in `planning/DESIGN.md` (SOLID, Result pattern, layer boundaries).
 
+## Load testing
+
+Run the product search load test (Module 16.2) with `k6`:
+
+```bash
+k6 run tests/ZimMarket.Integration.Tests/product-search-load.k6.js
+```
+
+Optional environment variables:
+
+- `BASE_URL` (default: `http://localhost:5000`)
+- `SEARCH_TERM` (default: `integration`)
+- `PAGE_SIZE` (default: `20`)
+
+The script runs `200` concurrent users for `60` seconds and fails if `p95` latency is `>= 500ms` or error rate is `>= 1%`.
+
 ## Licence
 
 Specify your licence here when the project defines one.

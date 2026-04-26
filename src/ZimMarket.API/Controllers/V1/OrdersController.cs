@@ -51,6 +51,19 @@ public sealed class OrdersController : ControllerBase
             .ToOkActionResult(HttpContext);
     }
 
+    [HttpGet("seller")]
+    [Authorize(Policy = AuthorizationPolicies.Seller)]
+    public async Task<IActionResult> GetSellerOrders(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        [FromQuery] OrderStatus? statusFilter = null,
+        CancellationToken cancellationToken = default)
+    {
+        var query = new GetSellerOrdersQuery(page, pageSize, statusFilter);
+        return (await _sender.Send(query, cancellationToken).ConfigureAwait(false))
+            .ToOkActionResult(HttpContext);
+    }
+
     [HttpGet("{id:guid}")]
     [Authorize]
     public async Task<IActionResult> GetOrderById(
@@ -58,6 +71,17 @@ public sealed class OrdersController : ControllerBase
         CancellationToken cancellationToken)
     {
         var query = new GetOrderByIdQuery(id);
+        return (await _sender.Send(query, cancellationToken).ConfigureAwait(false))
+            .ToOkActionResult(HttpContext);
+    }
+
+    [HttpGet("seller/{id:guid}")]
+    [Authorize(Policy = AuthorizationPolicies.Seller)]
+    public async Task<IActionResult> GetSellerOrderById(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        var query = new GetSellerOrderDetailQuery(id);
         return (await _sender.Send(query, cancellationToken).ConfigureAwait(false))
             .ToOkActionResult(HttpContext);
     }

@@ -28,7 +28,9 @@ try
     var builder = WebApplication.CreateBuilder(args);
 
     builder.AddZimMarketSerilog();
-    builder.Services.AddZimMarketConfigurationValidation(builder.Configuration);
+    builder.Services.AddZimMarketConfigurationValidation(
+        builder.Configuration,
+        enforceRequiredConfiguration: builder.Environment.IsProduction());
 
     builder.Services.AddInfrastructure(builder.Configuration);
     builder.Services.AddApplication();

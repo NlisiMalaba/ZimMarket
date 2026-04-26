@@ -70,3 +70,7 @@ web-build/
 
 # Docker (optional local overrides with secrets)
 docker-compose.override.yml.local
+
+# Local temp files
+.tmp*
+*.tmp

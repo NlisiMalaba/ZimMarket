@@ -37,7 +37,13 @@ public static class DependencyInjection
         ArgumentNullException.ThrowIfNull(configuration);
 
         services.AddSignalR();
-        services.AddScoped<ITrackingHubSubscriptionService, TrackingHubSubscriptionService>();
+        services.AddScoped<ITrackingHubSubscriptionService>(sp =>
+        {
+            IUnitOfWork? unitOfWork = sp.GetService<IUnitOfWork>();
+            return unitOfWork is null
+                ? new DisabledTrackingHubSubscriptionService()
+                : new TrackingHubSubscriptionService(unitOfWork);
+        });
         services.AddScoped<IDriverTrackingBroadcaster, DriverTrackingSignalRBroadcaster>();
 
         RegisterJwt(services, configuration);
@@ -91,7 +97,14 @@ public static class DependencyInjection
             ?? configuration["ConnectionStrings:DefaultConnection"];
 
         if (string.IsNullOrWhiteSpace(connectionString))
+        {
+            services.AddScoped<IUnitOfWork, UnavailableUnitOfWork>();
+            services.AddScoped<IUserIdentityReadRepository, UnavailableUserIdentityReadRepository>();
+            services.AddScoped<IUserLoginRepository, UnavailableUserLoginRepository>();
+            services.AddScoped<IExchangeRateService, FallbackExchangeRateService>();
+            services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
             return;
+        }
 
         services.AddDbContext<AppDbContext>(options =>
             options.UseNpgsql(
@@ -153,7 +166,10 @@ public static class DependencyInjection
             ?? configuration.GetConnectionString("AzureBlob");
 
         if (string.IsNullOrWhiteSpace(azureBlobConnectionString))
+        {
+            services.AddSingleton<IFileStorage, UnavailableFileStorage>();
             return;
+        }
 
         services.AddOptions<AzureBlobStorageOptions>()
             .Bind(configuration.GetSection(AzureBlobStorageOptions.SectionName))

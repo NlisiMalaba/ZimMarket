@@ -670,94 +670,94 @@
 
 ### Setup
 
-- [ ] 15.1 Scaffold Expo app in `apps/mobile/` with TypeScript, Expo Router; install: `react-native-maps`, `@tanstack/react-query`, `zustand`, `axios`, `react-hook-form`, `zod`, `@gorhom/bottom-sheet`, `expo-location`, `expo-image-picker`, `expo-notifications`
+- [x] 15.1 Scaffold Expo app in `apps/mobile/` with TypeScript, Expo Router; install: `react-native-maps`, `@tanstack/react-query`, `zustand`, `axios`, `react-hook-form`, `zod`, `@gorhom/bottom-sheet`, `expo-location`, `expo-image-picker`, `expo-notifications`
 
-- [ ] 15.2 Create API client with Axios: base URL from env; request interceptor adds auth token from Zustand store; response interceptor handles `401` (try refresh → if fails, clear auth and redirect to login)
+- [x] 15.2 Create API client with Axios: base URL from env; request interceptor adds auth token from Zustand store; response interceptor handles `401` (try refresh → if fails, clear auth and redirect to login)
 
-- [ ] 15.3 Create `useAuth` hook and Zustand auth store: persist tokens securely with `expo-secure-store` (never AsyncStorage for tokens); expose `login`, `logout`, `register`, `isAuthenticated`, `user`
+- [x] 15.3 Create `useAuth` hook and Zustand auth store: persist tokens securely with `expo-secure-store` (never AsyncStorage for tokens); expose `login`, `logout`, `register`, `isAuthenticated`, `user`
 
-- [ ] 15.4 Create Expo Router layout with role-based root: unauthenticated → `(auth)` stack; Customer → `(customer)` tab layout; Seller → `(seller)` tab layout; Driver → `(driver)` tab layout
+- [x] 15.4 Create Expo Router layout with role-based root: unauthenticated → `(auth)` stack; Customer → `(customer)` tab layout; Seller → `(seller)` tab layout; Driver → `(driver)` tab layout
 
 ### Customer App
 
-- [ ] 15.5 Customer onboarding: splash → register screen (email, phone, password, name) → OTP verification screen → home
+- [x] 15.5 Customer onboarding: splash → register screen (email, phone, password, name) → OTP verification screen → home
 
-- [ ] 15.6 Home / Browse screen: category grid at top; product search bar; paginated product list with infinite scroll (`useInfiniteQuery`); product card (image, title, price USD + ZWL equivalent)
+- [x] 15.6 Home / Browse screen: category grid at top; product search bar; paginated product list with infinite scroll (`useInfiniteQuery`); product card (image, title, price USD + ZWL equivalent)
 
-- [ ] 15.7 Product Detail screen: image carousel (max 5); title, description, seller name, price; "Add to Cart" button; stock badge
+- [x] 15.7 Product Detail screen: image carousel (max 5); title, description, seller name, price; "Add to Cart" button; stock badge
 
-- [ ] 15.8 Cart screen: list of items with quantity controls; remove item; subtotal in USD and ZWL; "Proceed to Checkout" button
+- [x] 15.8 Cart screen: list of items with quantity controls; remove item; subtotal in USD and ZWL; "Proceed to Checkout" button
 
-- [ ] 15.9 Checkout screen: delivery address selector / add new address; payment method selector (Paynow / Ecocash); order summary; "Place Order" → calls `POST /api/v1/orders` → on success navigate to payment screen with redirect URL
+- [x] 15.9 Checkout screen: delivery address selector / add new address; payment method selector (Paynow / Ecocash); order summary; "Place Order" → calls `POST /api/v1/orders` → on success navigate to payment screen with redirect URL
 
-- [ ] 15.10 Payment screen: WebView loading Paynow/Ecocash URL; listen for redirect back to app deep link; on success navigate to "Order Confirmed" screen
+- [x] 15.10 Payment screen: WebView loading Paynow/Ecocash URL; listen for redirect back to app deep link; on success navigate to "Order Confirmed" screen
 
-- [ ] 15.11 Orders list screen: tabbed by status (Active, Completed, Cancelled); order row with status badge and timestamp
+- [x] 15.11 Orders list screen: tabbed by status (Active, Completed, Cancelled); order row with status badge and timestamp
 
-- [ ] 15.12 Order tracking screen:
+- [x] 15.12 Order tracking screen:
   - Connect to SignalR hub on mount; subscribe to `order:{orderId}`
   - Google Maps showing driver marker; animate marker movement on `LocationUpdated` event
   - Order status timeline (step indicator)
   - Disconnect hub on unmount
 
-- [ ] 15.13 Profile screen: edit name, phone; manage delivery addresses; push notification preferences; logout
+- [x] 15.13 Profile screen: edit name, phone; manage delivery addresses; push notification preferences; logout
 
 ### Seller App
 
-- [ ] 15.14 Seller onboarding: register → KYC upload screen (national ID photo picker → upload via presigned URL, proof of residence → same) → "Application submitted" screen with status polling
+- [x] 15.14 Seller onboarding: register → KYC upload screen (national ID photo picker → upload via presigned URL, proof of residence → same) → "Application submitted" screen with status polling
 
-- [ ] 15.15 Seller dashboard: stats cards (active listings, orders pending, total earned); recent orders list
+- [x] 15.15 Seller dashboard: stats cards (active listings, orders pending, total earned); recent orders list
 
-- [ ] 15.16 Listings screen: list of seller's products with status badges; tap to edit; FAB to create new listing
+- [x] 15.16 Listings screen: list of seller's products with status badges; tap to edit; FAB to create new listing
 
-- [ ] 15.17 Create/Edit listing form: title, description, price, category picker, stock, address, image picker (max 5, upload via presigned URL); form validation with Zod + React Hook Form; submit → `POST /api/v1/products`
+- [x] 15.17 Create/Edit listing form: title, description, price, category picker, stock, address, image picker (max 5, upload via presigned URL); form validation with Zod + React Hook Form; submit → `POST /api/v1/products`
 
-- [ ] 15.18 Orders screen (seller view): list of orders containing seller's products; order detail with customer address (no PII beyond city)
+- [x] 15.18 Orders screen (seller view): list of orders containing seller's products; order detail with customer address (no PII beyond city)
 
 ### Driver App
 
-- [ ] 15.19 Driver onboarding: register → document upload (license, vehicle registration) → "Under review" screen
+- [x] 15.19 Driver onboarding: register → document upload (license, vehicle registration) → "Under review" screen
 
-- [ ] 15.20 Driver home screen: current status toggle (Available / Offline); active batch card if `OnDelivery`; available batches list when `Available`
+- [x] 15.20 Driver home screen: current status toggle (Available / Offline); active batch card if `OnDelivery`; available batches list when `Available`
 
-- [ ] 15.21 Batch detail screen: pickup warehouse address (Google Maps link); list of delivery orders grouped by area; "Mark as Collected" button
+- [x] 15.21 Batch detail screen: pickup warehouse address (Google Maps link); list of delivery orders grouped by area; "Mark as Collected" button
 
-- [ ] 15.22 Active delivery screen:
+- [x] 15.22 Active delivery screen:
   - Next delivery address in Google Maps navigation
   - "Confirm Delivery" button: opens camera to take photo → upload via presigned URL → call `POST /api/v1/drivers/batches/{id}/orders/{orderId}/delivered`
   - Progress indicator: X of N delivered
 
-- [ ] 15.23 GPS background tracking:
+- [x] 15.23 GPS background tracking:
   - Use `expo-task-manager` + `expo-location` background task
   - Start on "Mark as Collected"; stop when batch complete
   - POST to `PUT /api/v1/drivers/location` every 30 seconds
   - Handle permission denied gracefully with in-app prompt explaining why location is needed
 
-- [ ] **Checkpoint 15** — Full mobile flows working: customer can browse → buy → track; seller can list → manage orders; driver can accept → collect → deliver with live GPS
+- [x] **Checkpoint 15** — Full mobile flows working: customer can browse → buy → track; seller can list → manage orders; driver can accept → collect → deliver with live GPS
 
 ---
 
 ## Module 16 — Final Integration & Testing
 
-- [ ] 16.1 Write end-to-end integration test suite covering the full happy path:
+- [x] 16.1 Write end-to-end integration test suite covering the full happy path:
   - Register seller → submit KYC → admin approves → list product
   - Register customer → browse → place order → Paynow webhook fires → order paid
   - Admin records warehouse arrival → QC pass → create batch → assign driver
   - Driver confirms collection → updates GPS (3 updates) → confirms delivery
   - Verify: customer receives delivery notification; order status is `Delivered`; driver status is `Available`
 
-- [ ] 16.2 Write load test (k6 or NBomber): product search endpoint — 200 concurrent users, 60 seconds; target p95 < 500ms; fail if error rate > 1%
+- [x] 16.2 Write load test (k6 or NBomber): product search endpoint — 200 concurrent users, 60 seconds; target p95 < 500ms; fail if error rate > 1%
 
-- [ ] 16.3 Review and confirm all endpoints in Scalar/OpenAPI docs have: correct auth requirements documented, example request and response bodies, error response codes listed
+- [x] 16.3 Review and confirm all endpoints in Scalar/OpenAPI docs have: correct auth requirements documented, example request and response bodies, error response codes listed
 
-- [ ] 16.4 Security review checklist:
-  - [ ] No secrets in code or git history
-  - [ ] KYC document URLs are SAS-protected (never public)
-  - [ ] Webhook endpoints verify HMAC before processing
-  - [ ] Rate limiting active on all auth endpoints
-  - [ ] All user inputs validated (FluentValidation)
-  - [ ] No raw SQL with user-provided values
+- [x] 16.4 Security review checklist:
+  - [x] No secrets in code or git history
+  - [x] KYC document URLs are SAS-protected (never public)
+  - [x] Webhook endpoints verify HMAC before processing
+  - [x] Rate limiting active on all auth endpoints
+  - [x] All user inputs validated (FluentValidation)
+  - [x] No raw SQL with user-provided values
 
-- [ ] 16.5 Add `CONTRIBUTING.md`: local setup guide, how to run tests, how to add a new feature (CQRS flow template), Docker commands reference, branching strategy
+- [x] 16.5 Add `CONTRIBUTING.md`: local setup guide, how to run tests, how to add a new feature (CQRS flow template), Docker commands reference, branching strategy
 
 - [ ] **Final Checkpoint** — Full E2E test suite passes; load test within targets; all security checklist items verified; Docker Compose starts cleanly from a fresh clone with only `.env` populated

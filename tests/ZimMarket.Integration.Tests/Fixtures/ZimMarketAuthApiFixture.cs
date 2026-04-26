@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Testcontainers.PostgreSql;
+using Testcontainers.Redis;
 using ZimMarket.Application.Common.Interfaces;
 using ZimMarket.Infrastructure.Persistence;
 using ZimMarket.Integration.Tests.Support;
@@ -16,6 +17,7 @@ namespace ZimMarket.Integration.Tests.Fixtures;
 public sealed class ZimMarketAuthApiFixture : IAsyncLifetime
 {
     private readonly PostgreSqlContainer _postgres = new PostgreSqlBuilder("postgres:16-alpine").Build();
+    private readonly RedisContainer _redis = new RedisBuilder("redis:7-alpine").Build();
 
     private WebApplicationFactory<Program>? _factory;
     private string? _priorSuperAdminPassword;
@@ -29,6 +31,8 @@ public sealed class ZimMarketAuthApiFixture : IAsyncLifetime
     private string? _priorTestRefreshBypass;
     private string? _priorRedisConnectionString;
     private string? _priorAzureBlobConnectionString;
+    private string? _priorPaynowIntegrationId;
+    private string? _priorPaynowIntegrationKey;
 
     public HttpClient CreateClient()
     {
@@ -38,12 +42,21 @@ public sealed class ZimMarketAuthApiFixture : IAsyncLifetime
         return _factory.CreateClient();
     }
 
+    public IServiceScope CreateScope()
+    {
+        if (_factory is null)
+            throw new InvalidOperationException("Fixture not initialized.");
+
+        return _factory.Services.CreateScope();
+    }
+
     public async Task InitializeAsync()
     {
         _priorSuperAdminPassword = Environment.GetEnvironmentVariable("ZIMMARKET_SUPERADMIN_PASSWORD");
         Environment.SetEnvironmentVariable("ZIMMARKET_SUPERADMIN_PASSWORD", "IntegrationTestPwd1!");
 
         await _postgres.StartAsync();
+        await _redis.StartAsync();
         string connectionString = _postgres.GetConnectionString();
 
         await RunMigrationsAsync(connectionString);
@@ -60,8 +73,10 @@ public sealed class ZimMarketAuthApiFixture : IAsyncLifetime
         StashAndSet("Jwt__AccessTokenLifetimeSeconds", "120");
         StashAndSet("Jwt__RefreshTokenPbkdf2Iterations", "50000");
         StashAndSet("ZIMMARKET_TEST_ALLOW_REFRESH_WHILE_ACCESS_VALID", "1");
-        StashAndSet("Redis__ConnectionString", "localhost:6379");
+        StashAndSet("Redis__ConnectionString", _redis.GetConnectionString());
         StashAndSet("AzureBlob__ConnectionString", "UseDevelopmentStorage=true");
+        StashAndSet("Paynow__IntegrationId", "12345");
+        StashAndSet("Paynow__IntegrationKey", "integration-test-paynow-key");
 
         _factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
         {
@@ -83,6 +98,7 @@ public sealed class ZimMarketAuthApiFixture : IAsyncLifetime
         }
 
         await _postgres.DisposeAsync();
+        await _redis.DisposeAsync();
 
         Environment.SetEnvironmentVariable("ZIMMARKET_SUPERADMIN_PASSWORD", _priorSuperAdminPassword);
         RestoreEnv("ConnectionStrings__DefaultConnection", _priorConnectionString);
@@ -95,6 +111,8 @@ public sealed class ZimMarketAuthApiFixture : IAsyncLifetime
         RestoreEnv("ZIMMARKET_TEST_ALLOW_REFRESH_WHILE_ACCESS_VALID", _priorTestRefreshBypass);
         RestoreEnv("Redis__ConnectionString", _priorRedisConnectionString);
         RestoreEnv("AzureBlob__ConnectionString", _priorAzureBlobConnectionString);
+        RestoreEnv("Paynow__IntegrationId", _priorPaynowIntegrationId);
+        RestoreEnv("Paynow__IntegrationKey", _priorPaynowIntegrationKey);
     }
 
     private void StashAndSet(string name, string value)
@@ -130,6 +148,12 @@ public sealed class ZimMarketAuthApiFixture : IAsyncLifetime
                 break;
             case "AzureBlob__ConnectionString":
                 _priorAzureBlobConnectionString = Environment.GetEnvironmentVariable(name);
+                break;
+            case "Paynow__IntegrationId":
+                _priorPaynowIntegrationId = Environment.GetEnvironmentVariable(name);
+                break;
+            case "Paynow__IntegrationKey":
+                _priorPaynowIntegrationKey = Environment.GetEnvironmentVariable(name);
                 break;
         }
 
