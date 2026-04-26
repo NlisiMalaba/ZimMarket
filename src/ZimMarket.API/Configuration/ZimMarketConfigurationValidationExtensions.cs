@@ -6,10 +6,14 @@ public static class ZimMarketConfigurationValidationExtensions
 {
     public static IServiceCollection AddZimMarketConfigurationValidation(
         this IServiceCollection services,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        bool enforceRequiredConfiguration = true)
     {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);
+
+        if (!enforceRequiredConfiguration)
+            return services;
 
         services.AddOptions<ZimMarketRequiredConfigurationOptions>()
             .Configure(options =>
