@@ -31,6 +31,10 @@ public sealed class AppDbContext : DbContext
 
     public DbSet<SuperAdminUser> SuperAdminUsers => Set<SuperAdminUser>();
 
+    public DbSet<AuthToken> AuthTokens => Set<AuthToken>();
+
+    public DbSet<AdminApprovalState> AdminApprovalStates => Set<AdminApprovalState>();
+
     public DbSet<Product> Products => Set<Product>();
 
     public DbSet<Category> Categories => Set<Category>();

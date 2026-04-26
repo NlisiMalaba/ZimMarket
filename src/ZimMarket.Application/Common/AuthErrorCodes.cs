@@ -16,4 +16,12 @@ public static class AuthErrorCodes
     public const string AuthInvalidAccessToken = "AUTH_INVALID_ACCESS_TOKEN";
 
     public const string AuthAccessTokenNotExpired = "AUTH_ACCESS_TOKEN_NOT_EXPIRED";
+
+    public const string AuthEmailVerificationInvalid = "AUTH_EMAIL_VERIFICATION_INVALID";
+
+    public const string AuthEmailVerificationRequired = "AUTH_EMAIL_VERIFICATION_REQUIRED";
+
+    public const string AuthAdminApprovalPending = "AUTH_ADMIN_APPROVAL_PENDING";
+
+    public const string AuthPasswordResetInvalid = "AUTH_PASSWORD_RESET_INVALID";
 }

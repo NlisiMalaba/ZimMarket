@@ -15,6 +15,7 @@ using ZimMarket.Domain.Interfaces.Repositories;
 using ZimMarket.Infrastructure.BackgroundJobs;
 using ZimMarket.Infrastructure.Caching;
 using ZimMarket.Infrastructure.Configuration;
+using ZimMarket.Infrastructure.Authentication;
 using ZimMarket.Infrastructure.ExchangeRates;
 using ZimMarket.Infrastructure.Identity;
 using ZimMarket.Infrastructure.Notifications;
@@ -47,6 +48,8 @@ public static class DependencyInjection
         services.AddScoped<IDriverTrackingBroadcaster, DriverTrackingSignalRBroadcaster>();
 
         RegisterJwt(services, configuration);
+        services.AddSingleton<IAuthTokenService, AuthTokenService>();
+        services.AddSingleton<IAuthLinkBuilder, AuthLinkBuilder>();
         services.AddOptions<LogisticsOptions>()
             .Bind(configuration.GetSection(LogisticsOptions.SectionName));
         RegisterEntityFramework(services, configuration);

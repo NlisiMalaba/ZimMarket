@@ -13,6 +13,8 @@ public interface IUnitOfWork
 
     IUserRepository<AdminUser> Admins { get; }
 
+    IUserRepository<SuperAdminUser> SuperAdmins { get; }
+
     IDriverReadRepository DriverRead { get; }
 
     IProductRepository Products { get; }
@@ -32,6 +34,10 @@ public interface IUnitOfWork
     IDashboardStatsReadRepository DashboardStats { get; }
 
     IDriverLocationRepository DriverLocations { get; }
+
+    IAuthTokenRepository AuthTokens { get; }
+
+    IAdminApprovalStateRepository AdminApprovalStates { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 

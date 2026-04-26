@@ -93,6 +93,15 @@ public abstract class User : BaseEntity
         UpdatedAt = DateTimeOffset.UtcNow;
     }
 
+    public void SetPasswordHash(string passwordHash)
+    {
+        if (string.IsNullOrWhiteSpace(passwordHash))
+            throw new ArgumentException("Password hash is required.", nameof(passwordHash));
+
+        PasswordHash = passwordHash.Trim();
+        UpdatedAt = DateTimeOffset.UtcNow;
+    }
+
     protected void SetKycStatus(KycStatus kycStatus)
     {
         KycStatus = kycStatus;
