@@ -14,8 +14,6 @@ namespace ZimMarket.Application.Auth;
 
 public sealed class RegisterAdminCommandHandler : IRequestHandler<RegisterAdminCommand, Result>
 {
-    private const int SyntheticPhoneAttempts = 32;
-
     private readonly IUnitOfWork _unitOfWork;
     private readonly IUserIdentityReadRepository _userIdentityRead;
     private readonly IPasswordHasher<User> _passwordHasher;
@@ -47,16 +45,25 @@ public sealed class RegisterAdminCommandHandler : IRequestHandler<RegisterAdminC
         string normalizedEmail = request.Email.Trim().ToLowerInvariant();
         string fullName = request.FullName.Trim();
         DateTimeOffset now = DateTimeOffset.UtcNow;
+        ZimMarket.Shared.Result<PhoneNumber> phoneResult = PhoneNumber.Create(request.PhoneNumber.Trim());
+        if (phoneResult.IsFailure)
+        {
+            return Result.ValidationFailure(
+            [
+                new ValidationError(nameof(RegisterAdminCommand.PhoneNumber), string.Join("; ", phoneResult.Errors))
+            ]);
+        }
+
+        PhoneNumber phone = phoneResult.Value!;
 
         if (await _userIdentityRead.ExistsWithEmailAsync(normalizedEmail, cancellationToken).ConfigureAwait(false))
         {
             return Result.Failure(AuthErrorCodes.UserAlreadyExists, "This email is already registered.");
         }
 
-        PhoneNumber? phone = await TryAllocateSyntheticPhoneAsync(cancellationToken).ConfigureAwait(false);
-        if (phone is null)
+        if (await _userIdentityRead.ExistsWithPhoneAsync(phone, cancellationToken).ConfigureAwait(false))
         {
-            return Result.Failure("ADMIN_PHONE_ALLOCATION_FAILED", "Could not allocate phone for the administrator account.");
+            return Result.Failure(AuthErrorCodes.UserPhoneAlreadyExists, "This phone number is already registered.");
         }
 
         bool hasSuperAdmin = await _unitOfWork.AdminApprovalStates
@@ -160,24 +167,6 @@ public sealed class RegisterAdminCommandHandler : IRequestHandler<RegisterAdminC
             .ConfigureAwait(false);
 
         return Result.Success();
-    }
-
-    private async Task<PhoneNumber?> TryAllocateSyntheticPhoneAsync(CancellationToken cancellationToken)
-    {
-        for (int i = 0; i < SyntheticPhoneAttempts; i++)
-        {
-            string candidate = $"+263{Random.Shared.Next(100000000, 1000000000)}";
-            ZimMarket.Shared.Result<PhoneNumber> created = PhoneNumber.Create(candidate);
-            if (created.IsFailure)
-                continue;
-
-            if (await _userIdentityRead.ExistsWithPhoneAsync(created.Value!, cancellationToken).ConfigureAwait(false))
-                continue;
-
-            return created.Value;
-        }
-
-        return null;
     }
 
     private static EmailMessage BuildAdminVerificationMessage(string email, string fullName, string verificationUrl) =>

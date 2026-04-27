@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using System.Text.Json.Serialization;
 using ZimMarket.API.Http;
 using ZimMarket.API.RateLimiting;
 using ZimMarket.Application.Auth;
@@ -73,7 +74,7 @@ public sealed class AuthController : ControllerBase
         [FromBody] RegisterAdminRequest request,
         CancellationToken cancellationToken)
     {
-        var command = new RegisterAdminCommand(request.Email, request.Password, request.FullName);
+        var command = new RegisterAdminCommand(request.Email, request.Password, request.FullName, request.PhoneNumber);
         return (await _sender.Send(command, cancellationToken).ConfigureAwait(false))
             .ToOkActionResult(HttpContext);
     }
@@ -180,7 +181,11 @@ public sealed class AuthController : ControllerBase
 
     public sealed record RegisterDriverRequest(string Email, string Phone, string Password, string FullName);
 
-    public sealed record RegisterAdminRequest(string Email, string Password, string FullName);
+    public sealed record RegisterAdminRequest(
+        string Email,
+        string Password,
+        string FullName,
+        [property: JsonPropertyName("phone_number")] string PhoneNumber);
 
     public sealed record VerifyAdminEmailRequest(string Token);
 

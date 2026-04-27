@@ -18,5 +18,8 @@ public sealed class RegisterAdminCommandValidator : AbstractValidator<RegisterAd
             .Matches(@"^(?=.*[A-Z])(?=.*\d).{8,}$")
             .WithMessage(
                 "Password must be at least 8 characters and include at least one uppercase letter and one number.");
+
+        RuleFor(x => x.PhoneNumber)
+            .NotEmpty();
     }
 }

@@ -290,12 +290,91 @@ internal sealed class ZimMarketOpenApiDocumentTransformer(IAuthenticationSchemeP
         if (media.Example is not null)
             return;
 
-        media.Example = JsonNode.Parse(
-            """
-            {
-              "sample": "value"
-            }
-            """);
+        JsonNode? generated = GenerateExampleFromSchema(media.Schema, propertyName: null, depth: 0);
+        if (generated is not null)
+        {
+            media.Example = generated;
+            return;
+        }
+
+        media.Example = JsonNode.Parse("""{ "value": "sample" }""");
+    }
+
+    private static JsonNode? GenerateExampleFromSchema(IOpenApiSchema? schema, string? propertyName, int depth)
+    {
+        if (schema is null || depth > 6)
+            return null;
+
+        if (schema.Example is JsonNode explicitExample)
+            return explicitExample.DeepClone();
+
+        IOpenApiSchema? composedSchema = schema.OneOf?.FirstOrDefault()
+            ?? schema.AnyOf?.FirstOrDefault()
+            ?? schema.AllOf?.FirstOrDefault();
+        if (composedSchema is not null)
+            return GenerateExampleFromSchema(composedSchema, propertyName, depth + 1);
+
+        if (schema.Properties is { Count: > 0 })
+        {
+            var obj = new JsonObject();
+            foreach (KeyValuePair<string, IOpenApiSchema> prop in schema.Properties)
+                obj[prop.Key] = GenerateExampleFromSchema(prop.Value, prop.Key, depth + 1) ?? JsonValue.Create("sample");
+
+            return obj;
+        }
+
+        if (schema.Items is not null)
+        {
+            JsonNode? itemExample = GenerateExampleFromSchema(schema.Items, propertyName, depth + 1) ?? JsonValue.Create("sample");
+            return new JsonArray(itemExample);
+        }
+
+        if (schema.Enum is { Count: > 0 })
+            return JsonValue.Create(schema.Enum[0]?.ToString());
+
+        return GeneratePrimitiveExample(schema, propertyName);
+    }
+
+    private static JsonNode GeneratePrimitiveExample(IOpenApiSchema schema, string? propertyName)
+    {
+        string name = propertyName?.ToLowerInvariant() ?? string.Empty;
+        string format = schema.Format?.ToLowerInvariant() ?? string.Empty;
+
+        if (SchemaTypeContains(schema, "boolean") || name.StartsWith("is", StringComparison.Ordinal))
+            return JsonValue.Create(false);
+
+        if (format is "int32" or "int64" || SchemaTypeContains(schema, "integer"))
+            return JsonValue.Create(1);
+
+        if (format is "float" or "double" or "decimal" || SchemaTypeContains(schema, "number"))
+            return JsonValue.Create(1.0);
+
+        if (format == "uuid")
+            return JsonValue.Create("00000000-0000-0000-0000-000000000001");
+        if (format == "date")
+            return JsonValue.Create("2026-01-01");
+        if (format is "date-time" or "datetime")
+            return JsonValue.Create("2026-01-01T00:00:00Z");
+
+        if (name.Contains("email", StringComparison.Ordinal))
+            return JsonValue.Create("user@example.com");
+        if (name.Contains("phone", StringComparison.Ordinal))
+            return JsonValue.Create("+263771234567");
+        if (name.Contains("password", StringComparison.Ordinal))
+            return JsonValue.Create("YourPassword1");
+        if (name.Contains("token", StringComparison.Ordinal))
+            return JsonValue.Create("sample-token-value");
+
+        return JsonValue.Create("sample");
+    }
+
+    private static bool SchemaTypeContains(IOpenApiSchema schema, string token)
+    {
+        string? schemaType = schema.Type?.ToString();
+        if (string.IsNullOrWhiteSpace(schemaType))
+            return false;
+
+        return schemaType.Contains(token, StringComparison.OrdinalIgnoreCase);
     }
 
     private static void EnsureJsonResponseExample(OpenApiResponses? responses, string statusCode, string json)

@@ -230,8 +230,9 @@ public sealed class JwtService : IJwtService
                 "JWT signing is not configured: set Jwt:PrivateKeyPem (RSA private key PEM) in configuration or environment variables.");
         }
 
+        string normalizedPem = NormalizePem(pem);
         RSA rsa = RSA.Create();
-        rsa.ImportFromPem(pem);
+        rsa.ImportFromPem(normalizedPem);
         return new RsaSecurityKey(rsa);
     }
 
@@ -243,8 +244,15 @@ public sealed class JwtService : IJwtService
                 "JWT validation is not configured: set Jwt:PublicKeyPem (RSA public key PEM) in configuration or environment variables.");
         }
 
+        string normalizedPem = NormalizePem(pem);
         RSA rsa = RSA.Create();
-        rsa.ImportFromPem(pem);
+        rsa.ImportFromPem(normalizedPem);
         return new RsaSecurityKey(rsa);
+    }
+
+    private static string NormalizePem(string pem)
+    {
+        return pem.Replace("\\n", "\n", StringComparison.Ordinal)
+            .Trim();
     }
 }
