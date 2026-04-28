@@ -17,29 +17,16 @@ type UseAuthResult = {
 };
 
 export const useAuth = (): UseAuthResult => {
-  const {
-    accessToken,
-    user,
-    isHydrated,
-    isAuthLoading,
-    authError,
-    login,
-    logout,
-    register,
-    updateProfile,
-    clearAuthError,
-  } = useAuthStore((state) => ({
-    accessToken: state.accessToken,
-    user: state.user,
-    isHydrated: state.isHydrated,
-    isAuthLoading: state.isAuthLoading,
-    authError: state.authError,
-    login: state.login,
-    logout: state.logout,
-    register: state.register,
-    updateProfile: state.updateProfile,
-    clearAuthError: state.clearAuthError,
-  }));
+  const accessToken = useAuthStore((state) => state.accessToken);
+  const user = useAuthStore((state) => state.user);
+  const isHydrated = useAuthStore((state) => state.isHydrated);
+  const isAuthLoading = useAuthStore((state) => state.isAuthLoading);
+  const authError = useAuthStore((state) => state.authError);
+  const login = useAuthStore((state) => state.login);
+  const logout = useAuthStore((state) => state.logout);
+  const register = useAuthStore((state) => state.register);
+  const updateProfile = useAuthStore((state) => state.updateProfile);
+  const clearAuthError = useAuthStore((state) => state.clearAuthError);
 
   return useMemo(
     () => ({
