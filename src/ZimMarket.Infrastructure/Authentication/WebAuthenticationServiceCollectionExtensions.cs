@@ -105,8 +105,9 @@ public static class WebAuthenticationServiceCollectionExtensions
                 "Set Jwt:PrivateKeyPem and Jwt:PublicKeyPem so access tokens can be validated.");
         }
 
+        string normalizedPublicKeyPem = NormalizePem(jwt.PublicKeyPem);
         using RSA rsa = RSA.Create();
-        rsa.ImportFromPem(jwt.PublicKeyPem);
+        rsa.ImportFromPem(normalizedPublicKeyPem);
         // Copy parameters so the key is not tied to `rsa`'s lifetime (a `using`-disposed RSA would break validation).
         var signingKey = new RsaSecurityKey(rsa.ExportParameters(false));
 
@@ -170,5 +171,11 @@ public static class WebAuthenticationServiceCollectionExtensions
         }
 
         return services.AddZimMarketJwtBearer(configuration);
+    }
+
+    private static string NormalizePem(string pem)
+    {
+        return pem.Replace("\\n", "\n", StringComparison.Ordinal)
+            .Trim();
     }
 }

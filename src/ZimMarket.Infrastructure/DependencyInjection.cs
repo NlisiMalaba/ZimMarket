@@ -15,6 +15,7 @@ using ZimMarket.Domain.Interfaces.Repositories;
 using ZimMarket.Infrastructure.BackgroundJobs;
 using ZimMarket.Infrastructure.Caching;
 using ZimMarket.Infrastructure.Configuration;
+using ZimMarket.Infrastructure.Authentication;
 using ZimMarket.Infrastructure.ExchangeRates;
 using ZimMarket.Infrastructure.Identity;
 using ZimMarket.Infrastructure.Notifications;
@@ -47,6 +48,8 @@ public static class DependencyInjection
         services.AddScoped<IDriverTrackingBroadcaster, DriverTrackingSignalRBroadcaster>();
 
         RegisterJwt(services, configuration);
+        services.AddSingleton<IAuthTokenService, AuthTokenService>();
+        services.AddSingleton<IAuthLinkBuilder, AuthLinkBuilder>();
         services.AddOptions<LogisticsOptions>()
             .Bind(configuration.GetSection(LogisticsOptions.SectionName));
         RegisterEntityFramework(services, configuration);
@@ -55,7 +58,7 @@ public static class DependencyInjection
         RegisterPaymentGateways(services, configuration);
         RegisterExchangeRates(services, configuration);
         RegisterTwilio(services, configuration);
-        RegisterSendGrid(services, configuration);
+        RegisterEmail(services, configuration);
         RegisterFirebase(services, configuration);
         services.AddZimMarketHangfire(configuration);
         if (HangfireJobSetup.IsHangfireStorageConfigured(configuration))
@@ -260,8 +263,43 @@ public static class DependencyInjection
         }
     }
 
-    private static void RegisterSendGrid(IServiceCollection services, IConfiguration configuration)
+    private static void RegisterEmail(IServiceCollection services, IConfiguration configuration)
     {
+        string? smtpHost = configuration["Smtp:Host"] ?? configuration["SMTP_HOST"];
+        string? smtpUser = configuration["Smtp:User"] ?? configuration["SMTP_USER"];
+        string? smtpPassword = configuration["Smtp:Password"] ?? configuration["SMTP_PASSWORD"];
+        string? smtpFrom = configuration["Smtp:FromEmail"] ?? configuration["EMAIL_FROM"] ?? configuration["SMTP_USER"];
+        if (!string.IsNullOrWhiteSpace(smtpHost)
+            && !string.IsNullOrWhiteSpace(smtpUser)
+            && !string.IsNullOrWhiteSpace(smtpPassword)
+            && !string.IsNullOrWhiteSpace(smtpFrom))
+        {
+            services.AddOptions<SmtpOptions>()
+                .Bind(configuration.GetSection(SmtpOptions.SectionName))
+                .PostConfigure(options =>
+                {
+                    if (string.IsNullOrWhiteSpace(options.Host))
+                        options.Host = smtpHost;
+                    if (string.IsNullOrWhiteSpace(options.User))
+                        options.User = smtpUser;
+                    if (string.IsNullOrWhiteSpace(options.Password))
+                        options.Password = smtpPassword;
+                    if (string.IsNullOrWhiteSpace(options.FromEmail))
+                        options.FromEmail = smtpFrom;
+                    if (options.Port <= 0)
+                        options.Port = configuration.GetValue("SMTP_PORT", 587);
+                    if (string.IsNullOrWhiteSpace(options.FromName))
+                        options.FromName = configuration["EMAIL_FROM_NAME"] ?? "ZimMarket";
+                    options.EnableSsl = configuration.GetValue("SMTP_ENABLE_SSL", true);
+                })
+                .ValidateDataAnnotations()
+                .Validate(o => o.Port is > 0 and <= 65535, "Smtp:Port must be between 1 and 65535.")
+                .ValidateOnStart();
+
+            services.AddSingleton<IEmailService, SmtpEmailService>();
+            return;
+        }
+
         string? sendGridApiKey = configuration["SendGrid:ApiKey"];
         if (!string.IsNullOrWhiteSpace(sendGridApiKey))
         {

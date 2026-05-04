@@ -16,6 +16,7 @@ public sealed class UnavailableUnitOfWork : IUnitOfWork
     public IUserRepository<Domain.Entities.Users.Seller> Sellers => throw CreateUnavailableException();
     public IUserRepository<Domain.Entities.Users.Driver> Drivers => throw CreateUnavailableException();
     public IUserRepository<Domain.Entities.Users.AdminUser> Admins => throw CreateUnavailableException();
+    public IUserRepository<Domain.Entities.Users.SuperAdminUser> SuperAdmins => throw CreateUnavailableException();
     public IDriverReadRepository DriverRead => throw CreateUnavailableException();
     public IProductRepository Products => throw CreateUnavailableException();
     public ICategoryRepository Categories => throw CreateUnavailableException();
@@ -26,6 +27,8 @@ public sealed class UnavailableUnitOfWork : IUnitOfWork
     public IPendingKycReadRepository PendingKyc => throw CreateUnavailableException();
     public IDashboardStatsReadRepository DashboardStats => throw CreateUnavailableException();
     public IDriverLocationRepository DriverLocations => throw CreateUnavailableException();
+    public IAuthTokenRepository AuthTokens => throw CreateUnavailableException();
+    public IAdminApprovalStateRepository AdminApprovalStates => throw CreateUnavailableException();
 
     public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) =>
         throw CreateUnavailableException();

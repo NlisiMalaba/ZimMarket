@@ -5,6 +5,7 @@ using ZimMarket.Application.Common;
 using ZimMarket.Application.Common.Interfaces;
 using ZimMarket.Application.Common.Models;
 using ZimMarket.Domain.Entities.Users;
+using ZimMarket.Domain.Enums;
 using ZimMarket.Domain.Interfaces;
 using ZimMarket.Domain.Interfaces.Repositories;
 
@@ -65,7 +66,33 @@ public sealed class LoginQueryHandler : IRequestHandler<LoginQuery, Result<AuthT
             return Result<AuthTokensDto>.Failure(AuthErrorCodes.AuthInvalidCredentials, "Invalid email or password.");
         }
 
-        if (!user.IsActive)
+        if (user.Role == UserRole.Admin)
+        {
+            AdminApprovalState? approvalState = await _unitOfWork.AdminApprovalStates
+                .GetByUserIdAsync(user.Id, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (approvalState is null || !approvalState.IsEmailVerified)
+            {
+                return Result<AuthTokensDto>.Failure(
+                    AuthErrorCodes.AuthEmailVerificationRequired,
+                    "Verify your email before signing in.");
+            }
+
+            if (!approvalState.IsApproved)
+            {
+                return Result<AuthTokensDto>.Failure(
+                    AuthErrorCodes.AuthAdminApprovalPending,
+                    "Your account is awaiting super admin approval.");
+            }
+
+            if (!user.IsActive)
+            {
+                _logger.LogDebug("Login failed: inactive admin account {Email}.", normalizedEmail);
+                return Result<AuthTokensDto>.Failure(AuthErrorCodes.AuthAccountLocked, "This account has been disabled.");
+            }
+        }
+        else if (!user.IsActive)
         {
             _logger.LogDebug("Login failed: inactive account {Email}.", normalizedEmail);
             return Result<AuthTokensDto>.Failure(AuthErrorCodes.AuthAccountLocked, "This account has been disabled.");

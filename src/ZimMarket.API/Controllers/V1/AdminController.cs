@@ -127,6 +127,14 @@ public sealed class AdminController : ControllerBase
 
     public sealed record CreateAdminRequest(string Email, string Password, string FullName);
 
+    [HttpPost("admins/{adminUserId:guid}/approve")]
+    [Authorize(Policy = AuthorizationPolicies.SuperAdmin)]
+    public async Task<IActionResult> ApproveAdmin(Guid adminUserId, CancellationToken cancellationToken)
+    {
+        return (await _sender.Send(new ApproveAdminCommand(adminUserId), cancellationToken).ConfigureAwait(false))
+            .ToOkActionResult(HttpContext);
+    }
+
     /// <summary>Deactivates a user account, revokes refresh tokens, and blocks sign-in until reactivated.</summary>
     [HttpPost("users/{userId:guid}/deactivate")]
     public async Task<IActionResult> DeactivateUser(Guid userId, CancellationToken cancellationToken)

@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using System.Text.Json.Serialization;
 using ZimMarket.API.Http;
 using ZimMarket.API.RateLimiting;
 using ZimMarket.Application.Auth;
@@ -67,6 +68,27 @@ public sealed class AuthController : ControllerBase
             .ToCreatedActionResult(HttpContext);
     }
 
+    [HttpPost("register/admin")]
+    [AllowAnonymous]
+    public async Task<IActionResult> RegisterAdmin(
+        [FromBody] RegisterAdminRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new RegisterAdminCommand(request.Email, request.Password, request.FullName, request.PhoneNumber);
+        return (await _sender.Send(command, cancellationToken).ConfigureAwait(false))
+            .ToOkActionResult(HttpContext);
+    }
+
+    [HttpPost("verify-email/admin")]
+    [AllowAnonymous]
+    public async Task<IActionResult> VerifyAdminEmail(
+        [FromBody] VerifyAdminEmailRequest request,
+        CancellationToken cancellationToken)
+    {
+        return (await _sender.Send(new VerifyAdminEmailCommand(request.Token), cancellationToken).ConfigureAwait(false))
+            .ToOkActionResult(HttpContext);
+    }
+
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request, CancellationToken cancellationToken)
     {
@@ -92,6 +114,26 @@ public sealed class AuthController : ControllerBase
         var command = new LogoutCommand(request.RefreshToken);
 
         return (await _sender.Send(command, cancellationToken).ConfigureAwait(false))
+            .ToOkActionResult(HttpContext);
+    }
+
+    [HttpPost("forgot-password")]
+    [AllowAnonymous]
+    public async Task<IActionResult> ForgotPassword(
+        [FromBody] ForgotPasswordRequest request,
+        CancellationToken cancellationToken)
+    {
+        return (await _sender.Send(new ForgotPasswordCommand(request.Email), cancellationToken).ConfigureAwait(false))
+            .ToOkActionResult(HttpContext);
+    }
+
+    [HttpPost("reset-password")]
+    [AllowAnonymous]
+    public async Task<IActionResult> ResetPassword(
+        [FromBody] ResetPasswordRequest request,
+        CancellationToken cancellationToken)
+    {
+        return (await _sender.Send(new ResetPasswordCommand(request.Token, request.NewPassword), cancellationToken).ConfigureAwait(false))
             .ToOkActionResult(HttpContext);
     }
 
@@ -139,11 +181,23 @@ public sealed class AuthController : ControllerBase
 
     public sealed record RegisterDriverRequest(string Email, string Phone, string Password, string FullName);
 
+    public sealed record RegisterAdminRequest(
+        string Email,
+        string Password,
+        string FullName,
+        [property: JsonPropertyName("phone_number")] string PhoneNumber);
+
+    public sealed record VerifyAdminEmailRequest(string Token);
+
     public sealed record LoginRequest(string Email, string Password, string? DeviceInfo);
 
     public sealed record RefreshRequest(string AccessToken, string RefreshToken);
 
     public sealed record LogoutRequest(string RefreshToken);
+
+    public sealed record ForgotPasswordRequest(string Email);
+
+    public sealed record ResetPasswordRequest(string Token, string NewPassword);
 
     public sealed record SubmitSellerKycRequest(string NationalIdKey, string ProofOfResidenceKey);
 
