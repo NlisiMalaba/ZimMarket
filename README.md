@@ -52,6 +52,34 @@ Client apps (React Native / Expo, Next.js admin) are planned alongside this repo
 
    **Docker:** create a root `.env` from `.env.example`, then `docker compose up --build` from the repo root. The API image is built from `src/ZimMarket.API/Dockerfile`. Smoke test: `GET http://localhost:${API_PORT:-8080}/health` should return **200**.
 
+## Seed test users
+
+For quick local API testing, seed one account per role (customer, seller, driver, admin, super admin context) with:
+
+```powershell
+./scripts/seed-test-users.ps1 -SuperAdminPassword "<your-super-admin-password>"
+```
+
+Optional flags:
+
+- `-BaseUrl` (default: `http://localhost:5256`)
+- `-SuperAdminEmail` (default: `superadmin@zimmarket.local`)
+
+The script is idempotent for repeated runs and will reuse users that already exist.
+
+If you prefer migration-based seeding, set:
+
+- `ZIMMARKET_SEED_TEST_USERS=true`
+- optional `ZIMMARKET_TEST_USERS_PASSWORD` (default: `TestPass123!`)
+
+then run:
+
+```bash
+dotnet ef database update --project src/ZimMarket.Infrastructure --startup-project src/ZimMarket.API
+```
+
+This applies migration `20260504190300_SeedRoleTestUsers` and inserts one test account per role.
+
 ## Contributing
 
 Follow the implementation order in `planning/TASKS.md` and architectural rules in `planning/DESIGN.md` (SOLID, Result pattern, layer boundaries).
