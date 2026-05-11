@@ -21,6 +21,9 @@ Desktop.ini
 *.rsuser
 
 # .NET / C#
+# Local configuration (use appsettings.*.example or secrets manager in CI)
+**/appsettings.json
+**/appsettings.Development.json
 [Bb]in/
 [Oo]bj/
 [Ll]og/

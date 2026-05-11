@@ -5,6 +5,8 @@ import { GoogleMap, InfoWindow, MarkerF, useJsApiLoader } from "@react-google-ma
 import * as signalR from "@microsoft/signalr";
 
 import { ApiError, api } from "@/lib/api";
+import { getAccessToken } from "@/lib/auth-session";
+import { env } from "@/lib/env";
 
 type ApiSuccessResponse<T> = {
   data: T;
@@ -57,6 +59,11 @@ const defaultCenter = {
   lat: -17.8252,
   lng: 31.0335,
 };
+
+function buildTrackingHubUrl(): string {
+  const apiUrl = env.apiUrl.endsWith("/") ? env.apiUrl.slice(0, -1) : env.apiUrl;
+  return `${apiUrl}/hubs/tracking`;
+}
 
 export function DriversLiveMap() {
   const [locations, setLocations] = useState<Record<string, DriverLocation>>({});
@@ -137,12 +144,13 @@ export function DriversLiveMap() {
   }, [loadInitialData]);
 
   useEffect(() => {
-    const hubUrl = `${process.env.NEXT_PUBLIC_API_URL}/hubs/tracking`;
+    const hubUrl = buildTrackingHubUrl();
 
     const connection = new signalR.HubConnectionBuilder()
       .withUrl(hubUrl, {
-        accessTokenFactory: () => "",
-        withCredentials: true,
+        // Hub auth is JWT bearer based (token is read from access_token query on /hubs/*).
+        accessTokenFactory: () => getAccessToken() ?? "",
+        withCredentials: false,
       })
       .withAutomaticReconnect()
       .build();
@@ -174,8 +182,11 @@ export function DriversLiveMap() {
         await connection.start();
         await connection.invoke("SubscribeToAdminMap");
         setConnectionState("connected");
-      } catch {
+      } catch (error) {
         setConnectionState("disconnected");
+        setErrorMessage(
+          error instanceof Error ? `Live tracking connection failed: ${error.message}` : "Live tracking connection failed.",
+        );
       }
     };
 

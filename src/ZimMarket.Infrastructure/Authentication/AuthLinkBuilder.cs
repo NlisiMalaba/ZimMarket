@@ -10,7 +10,7 @@ public sealed class AuthLinkBuilder : IAuthLinkBuilder
     public AuthLinkBuilder(IConfiguration configuration)
     {
         ArgumentNullException.ThrowIfNull(configuration);
-        _adminPanelOrigin = configuration["Cors:AdminPanelOrigin"]?.TrimEnd('/') ?? "http://localhost:5173";
+        _adminPanelOrigin = configuration["Cors:AdminPanelOrigin"]?.TrimEnd('/') ?? "http://localhost:3000";
     }
 
     public string BuildAdminEmailVerificationLink(string token) =>

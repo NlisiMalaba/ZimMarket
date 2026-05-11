@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { DollarSign, Package, Truck, UserSearch } from "lucide-react";
 
 import { ApiError, api } from "@/lib/api";
+import { getCurrencyLabel, getOrderStatusLabel, getPaymentStatusLabel } from "@/lib/domain-enums";
 import {
   MetricHighlightCard,
   MonthlyGoalCard,
@@ -26,10 +27,10 @@ type DashboardStats = {
 type RecentOrder = {
   orderId: string;
   customerId: string;
-  status: string;
-  paymentStatus: string;
+  status: number | string;
+  paymentStatus: number | string;
   totalAmount: number;
-  totalCurrency: string;
+  totalCurrency: number | string;
   lineItemCount: number;
   createdAt: string;
 };
@@ -244,11 +245,15 @@ export default function DashboardPage() {
                   <td className="whitespace-nowrap px-6 py-3 font-mono text-xs">{order.orderId.slice(0, 8)}</td>
                   <td className="whitespace-nowrap px-6 py-3 font-mono text-xs">{order.customerId.slice(0, 8)}</td>
                   <td className="whitespace-nowrap px-6 py-3">
-                    <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium">{order.status}</span>
+                    <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium">
+                      {getOrderStatusLabel(order.status)}
+                    </span>
                   </td>
-                  <td className="whitespace-nowrap px-6 py-3 text-muted-foreground">{order.paymentStatus}</td>
+                  <td className="whitespace-nowrap px-6 py-3 text-muted-foreground">
+                    {getPaymentStatusLabel(order.paymentStatus)}
+                  </td>
                   <td className="whitespace-nowrap px-6 py-3 font-medium tabular-nums">
-                    {order.totalCurrency} {order.totalAmount.toFixed(2)}
+                    {getCurrencyLabel(order.totalCurrency)} {order.totalAmount.toFixed(2)}
                   </td>
                   <td className="whitespace-nowrap px-6 py-3 tabular-nums">{order.lineItemCount}</td>
                   <td className="whitespace-nowrap px-6 py-3 text-muted-foreground">

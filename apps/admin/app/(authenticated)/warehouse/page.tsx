@@ -3,6 +3,11 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { ApiError, api } from "@/lib/api";
+import {
+  getWarehouseQcStatusLabel,
+  getWarehouseQcStatusValue,
+  type WarehouseQcStatusName,
+} from "@/lib/domain-enums";
 
 type ApiSuccessResponse<T> = {
   data: T;
@@ -15,22 +20,20 @@ type PagedList<T> = {
   totalCount: number;
 };
 
-type WarehouseQcStatus = "Pending" | "Passed" | "Failed";
-
 type WarehouseItem = {
   warehouseItemId: string;
   orderId: string;
   customerId: string;
   productId: string;
   arrivedAt: string;
-  qcStatus: WarehouseQcStatus;
+  qcStatus: number | WarehouseQcStatusName;
   qcNotes?: string | null;
   batchId?: string | null;
   warehouseItemCreatedAt: string;
   orderStatus: string;
   orderPaymentStatus: string;
   orderTotalAmount: number;
-  orderTotalCurrency: string;
+  orderTotalCurrency: number | string;
   orderCreatedAt: string;
 };
 
@@ -191,10 +194,10 @@ export default function WarehousePage() {
     setSelectedQcItemId(null);
 
     try {
-      await api.patch<ApiSuccessResponse<null>, { qcStatus: WarehouseQcStatus; notes?: string }>(
+      await api.patch<ApiSuccessResponse<null>, { qcStatus: number; notes?: string }>(
         `/api/v1/warehouse/items/${itemId}/qc`,
         {
-          qcStatus,
+          qcStatus: getWarehouseQcStatusValue(qcStatus),
           notes: qcNotes.trim() || undefined,
         },
       );
@@ -479,7 +482,7 @@ export default function WarehousePage() {
                     <td className="px-4 py-3 font-mono text-xs">{shortId(item.orderId)}</td>
                     <td className="px-4 py-3 font-mono text-xs">{shortId(item.customerId)}</td>
                     <td className="px-4 py-3 font-mono text-xs">{shortId(item.productId)}</td>
-                    <td className="px-4 py-3">{item.qcStatus}</td>
+                    <td className="px-4 py-3">{getWarehouseQcStatusLabel(item.qcStatus)}</td>
                   </tr>
                 ))}
                 {!isLoadingUnbatched && unbatchedItems.length === 0 ? (

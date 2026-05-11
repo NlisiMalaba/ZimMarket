@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { ApiError, api } from "@/lib/api";
+import { getUserRoleLabel, getUserRoleValue } from "@/lib/domain-enums";
 
 type UserRole = "Seller" | "Driver";
 
@@ -27,7 +28,7 @@ type PendingKycQueueItemDto = {
   userId: string;
   email: string;
   fullName: string;
-  role: UserRole;
+  role: number | UserRole;
   businessName?: string | null;
   licenseNumber?: string | null;
   vehicleRegistration?: string | null;
@@ -115,9 +116,9 @@ export function KycReviewPage({ role, title, description }: KycReviewPageProps) 
     setIsMutating(true);
 
     try {
-      await api.post<ApiSuccessResponse<null>, { role: UserRole }>(
+      await api.post<ApiSuccessResponse<null>, { role: number }>(
         `/api/v1/admin/kyc/${target.userId}/approve`,
-        { role },
+        { role: getUserRoleValue(role) },
       );
       setErrorMessage(null);
     } catch (error) {
@@ -146,9 +147,9 @@ export function KycReviewPage({ role, title, description }: KycReviewPageProps) 
     setIsMutating(true);
 
     try {
-      await api.post<ApiSuccessResponse<null>, { role: UserRole; reason: string }>(
+      await api.post<ApiSuccessResponse<null>, { role: number; reason: string }>(
         `/api/v1/admin/kyc/${target.userId}/reject`,
-        { role, reason },
+        { role: getUserRoleValue(role), reason },
       );
       setErrorMessage(null);
     } catch (error) {
@@ -207,7 +208,7 @@ export function KycReviewPage({ role, title, description }: KycReviewPageProps) 
                   >
                     <td className="px-4 py-3">{item.fullName}</td>
                     <td className="px-4 py-3">{item.email}</td>
-                    <td className="px-4 py-3">{item.role}</td>
+                    <td className="px-4 py-3">{getUserRoleLabel(item.role)}</td>
                     <td className="px-4 py-3">
                       <span className="inline-flex rounded-full bg-amber-100 px-2 py-1 text-xs font-medium text-amber-800">
                         Pending Review
