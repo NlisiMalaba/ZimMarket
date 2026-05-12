@@ -1,6 +1,7 @@
 import Link from "next/link";
 
-const categories = ["Groceries", "Household", "Electronics", "Fashion", "Health", "Deals"] as const;
+import { CategoryCard } from "@/components/store/category-card";
+import { STOREFRONT_CATEGORIES } from "@/lib/storefront-data";
 
 export const metadata = {
   title: "Categories",
@@ -8,20 +9,49 @@ export const metadata = {
 
 export default function CategoriesPage() {
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
-      <h1 className="text-2xl font-semibold text-neutral-900">All categories</h1>
-      <ul className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {categories.map((name) => (
-          <li key={name}>
+    <div className="pb-16">
+      <div className="border-b border-border bg-page-elevated">
+        <div className="container-store py-10 sm:py-12">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand">Browse</p>
+          <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+            All categories
+          </h1>
+          <p className="mt-3 max-w-2xl text-sm text-muted sm:text-base">
+            Premium cards with iconography, subtle motion, and clear hierarchy—optimised for fast scanning on mobile
+            and desktop.
+          </p>
+        </div>
+      </div>
+
+      <div className="container-store py-10 sm:py-12">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {STOREFRONT_CATEGORIES.map((c) => (
+            <CategoryCard key={c.slug} category={c} />
+          ))}
+        </div>
+
+        <div className="mt-12 rounded-[var(--radius-lg)] border border-border bg-page-elevated p-6 shadow-[var(--shadow-card)] sm:p-8">
+          <h2 className="font-display text-lg font-semibold text-foreground">Need something specific?</h2>
+          <p className="mt-2 text-sm text-muted">
+            Use search for SKUs and brands, or open deals for promoted offers. Category taxonomy will map to your
+            catalogue API.
+          </p>
+          <div className="mt-5 flex flex-wrap gap-3">
             <Link
-              href={`/categories/${encodeURIComponent(name.toLowerCase())}`}
-              className="block rounded-lg border border-neutral-200 bg-white p-4 font-medium text-neutral-900 shadow-sm hover:border-store-accent/40"
+              href="/search"
+              className="inline-flex items-center justify-center rounded-[14px] bg-brand px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-hover"
             >
-              {name}
+              Open search
             </Link>
-          </li>
-        ))}
-      </ul>
+            <Link
+              href="/deals"
+              className="inline-flex items-center justify-center rounded-[14px] border border-border bg-page px-5 py-2.5 text-sm font-semibold text-foreground transition hover:border-brand/30"
+            >
+              View deals
+            </Link>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

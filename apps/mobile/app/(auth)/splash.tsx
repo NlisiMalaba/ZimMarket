@@ -7,7 +7,7 @@ export default function SplashScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.brand}>ZimMarket</Text>
-      <Text style={styles.tagline}>Fresh groceries delivered quickly and safely.</Text>
+      <Text style={styles.tagline}>Trusted products, secure checkout, and delivery you can track.</Text>
 
       <Pressable style={styles.primaryButton} onPress={() => router.push('/(auth)/register')}>
         <Text style={styles.primaryButtonText}>Get started</Text>
