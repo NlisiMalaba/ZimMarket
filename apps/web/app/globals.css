@@ -1,0 +1,12 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --color-store-accent: oklch(0.55 0.17 45);
+  --color-store-accent-hover: oklch(0.48 0.17 45);
+}
+
+body {
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}

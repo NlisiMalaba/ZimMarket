@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useSyncExternalStore } from "react";
+import { startTransition, useEffect, useSyncExternalStore } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
+import { AdminHeader } from "@/components/admin-header";
 import { AdminSidebar } from "@/components/admin-sidebar";
 import {
+  clearSession,
   getAccessToken,
   getCurrentUserRole,
   subscribeToSession,
@@ -21,18 +23,24 @@ export default function AuthenticatedLayout({
   const role = useSyncExternalStore(subscribeToSession, getCurrentUserRole, getCurrentUserRole);
 
   useEffect(() => {
-    if (!token) {
-      router.replace("/login");
+    if (!token || role === "Unknown") {
+      if (token && role === "Unknown") {
+        clearSession();
+      }
+      startTransition(() => {
+        router.replace("/login");
+      });
+      return;
     }
-  }, [router, token]);
 
-  useEffect(() => {
     if (pathname.startsWith("/settings") && role !== "SuperAdmin") {
-      router.replace("/dashboard");
+      startTransition(() => {
+        router.replace("/dashboard");
+      });
     }
-  }, [pathname, role, router]);
+  }, [router, pathname, role, token]);
 
-  if (!token) {
+  if (!token || role === "Unknown") {
     return (
       <main className="flex min-h-screen items-center justify-center text-sm text-muted-foreground">
         Redirecting to login...
@@ -43,7 +51,10 @@ export default function AuthenticatedLayout({
   return (
     <div className="flex min-h-screen bg-background">
       <AdminSidebar />
-      <main className="flex-1 p-6">{children}</main>
+      <div className="flex min-w-0 flex-1 flex-col">
+        <AdminHeader />
+        <main className="flex-1 overflow-auto bg-muted/35 px-4 py-6 lg:px-8 lg:py-8">{children}</main>
+      </div>
     </div>
   );
 }

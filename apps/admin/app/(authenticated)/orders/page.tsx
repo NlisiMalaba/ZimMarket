@@ -3,6 +3,14 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { ApiError, api } from "@/lib/api";
+import {
+  getCurrencyLabel,
+  getOrderStatusLabel,
+  getOrderStatusValue,
+  getPaymentStatusLabel,
+  isOrderStatusName,
+  type OrderStatusName,
+} from "@/lib/domain-enums";
 
 type ApiSuccessResponse<T> = {
   data: T;
@@ -18,8 +26,8 @@ type PagedList<T> = {
 type AdminOrderListItemDto = {
   orderId: string;
   customerId: string;
-  status: string;
-  paymentStatus: string;
+  status: number | OrderStatusName;
+  paymentStatus: number | string;
   totalAmount: number;
   totalCurrency: string;
   lineItemCount: number;
@@ -36,8 +44,8 @@ type OrderDetailItemDto = {
 
 type OrderDetailDto = {
   orderId: string;
-  status: string;
-  paymentStatus: string;
+  status: number | OrderStatusName;
+  paymentStatus: number | string;
   deliveryBatchId?: string | null;
   items: OrderDetailItemDto[];
   totalUsd: number;
@@ -57,7 +65,7 @@ const orderStatuses = [
   "Delivered",
   "Cancelled",
   "Refunded",
-] as const;
+] as const satisfies readonly OrderStatusName[];
 
 function formatDateTime(value: string): string {
   const parsed = new Date(value);
@@ -83,7 +91,7 @@ export default function OrdersPage() {
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
 
   const [isOverrideModalOpen, setIsOverrideModalOpen] = useState(false);
-  const [overrideStatus, setOverrideStatus] = useState<string>("Paid");
+  const [overrideStatus, setOverrideStatus] = useState<OrderStatusName>("Paid");
   const [overrideReason, setOverrideReason] = useState("");
 
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
@@ -163,7 +171,14 @@ export default function OrdersPage() {
         return direction * (a.totalAmount - b.totalAmount);
       }
 
-      return direction * a[sortField].localeCompare(b[sortField]);
+      if (sortField === "status") {
+        return direction * getOrderStatusLabel(a.status).localeCompare(getOrderStatusLabel(b.status));
+      }
+
+      return (
+        direction *
+        getPaymentStatusLabel(a.paymentStatus).localeCompare(getPaymentStatusLabel(b.paymentStatus))
+      );
     });
   }, [customerFilter, orders, sortDirection, sortField]);
 
@@ -172,7 +187,8 @@ export default function OrdersPage() {
       return;
     }
 
-    setOverrideStatus(selectedOrderDetail.status);
+    const normalizedStatus = getOrderStatusLabel(selectedOrderDetail.status);
+    setOverrideStatus(isOrderStatusName(normalizedStatus) ? normalizedStatus : "Pending");
     setOverrideReason("");
     setIsOverrideModalOpen(true);
   };
@@ -190,10 +206,10 @@ export default function OrdersPage() {
     setIsMutating(true);
 
     try {
-      await api.patch<ApiSuccessResponse<null>, { newStatus: string; reason: string }>(
+      await api.patch<ApiSuccessResponse<null>, { newStatus: number; reason: string }>(
         `/api/v1/admin/orders/${selectedOrderDetail.orderId}/status`,
         {
-          newStatus: overrideStatus,
+          newStatus: getOrderStatusValue(overrideStatus),
           reason: overrideReason.trim(),
         },
       );
@@ -316,10 +332,10 @@ export default function OrdersPage() {
                   >
                     <td className="px-4 py-3 font-mono text-xs">{order.orderId.slice(0, 8)}</td>
                     <td className="px-4 py-3 font-mono text-xs">{order.customerId.slice(0, 8)}</td>
-                    <td className="px-4 py-3">{order.status}</td>
-                    <td className="px-4 py-3">{order.paymentStatus}</td>
+                    <td className="px-4 py-3">{getOrderStatusLabel(order.status)}</td>
+                    <td className="px-4 py-3">{getPaymentStatusLabel(order.paymentStatus)}</td>
                     <td className="px-4 py-3">
-                      {order.totalCurrency} {order.totalAmount.toFixed(2)}
+                      {getCurrencyLabel(order.totalCurrency)} {order.totalAmount.toFixed(2)}
                     </td>
                     <td className="px-4 py-3">{formatDateTime(order.createdAt)}</td>
                   </tr>
@@ -387,10 +403,11 @@ export default function OrdersPage() {
                   <span className="font-mono text-xs">{selectedOrderDetail.orderId}</span>
                 </p>
                 <p>
-                  <span className="font-medium">Status:</span> {selectedOrderDetail.status}
+                  <span className="font-medium">Status:</span> {getOrderStatusLabel(selectedOrderDetail.status)}
                 </p>
                 <p>
-                  <span className="font-medium">Payment:</span> {selectedOrderDetail.paymentStatus}
+                  <span className="font-medium">Payment:</span>{" "}
+                  {getPaymentStatusLabel(selectedOrderDetail.paymentStatus)}
                 </p>
                 <p>
                   <span className="font-medium">Delivery Batch:</span>{" "}
@@ -424,11 +441,15 @@ export default function OrdersPage() {
                 <ol className="mt-2 space-y-2">
                   <li className="rounded-md border p-2">
                     <p className="font-medium">Current Status</p>
-                    <p className="text-xs text-muted-foreground">{selectedOrderDetail.status}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {getOrderStatusLabel(selectedOrderDetail.status)}
+                    </p>
                   </li>
                   <li className="rounded-md border p-2">
                     <p className="font-medium">Payment State</p>
-                    <p className="text-xs text-muted-foreground">{selectedOrderDetail.paymentStatus}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {getPaymentStatusLabel(selectedOrderDetail.paymentStatus)}
+                    </p>
                   </li>
                 </ol>
               </div>
@@ -455,7 +476,7 @@ export default function OrdersPage() {
 
             <select
               value={overrideStatus}
-              onChange={(event) => setOverrideStatus(event.target.value)}
+              onChange={(event) => setOverrideStatus(event.target.value as OrderStatusName)}
               className="mt-3 w-full rounded-md border bg-background px-3 py-2 text-sm"
             >
               {orderStatuses.map((status) => (
