@@ -31,14 +31,14 @@ export function TopSellersRow() {
         <Link
           key={s.name}
           href={s.href}
-          className="group flex flex-col rounded-[var(--radius-card)] border border-border bg-page-elevated p-5 shadow-[var(--shadow-card)] transition hover:-translate-y-0.5 hover:border-brand/25 hover:shadow-[var(--shadow-card-hover)]"
+          className="group flex flex-col rounded-none border border-border bg-page-elevated p-5 shadow-[var(--shadow-card)] transition hover:-translate-y-0.5 hover:border-brand/25 hover:shadow-[var(--shadow-card-hover)]"
         >
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="text-sm font-semibold text-foreground">{s.name}</p>
               <p className="mt-1 text-xs text-muted">{s.badge}</p>
             </div>
-            <span className="inline-flex items-center gap-1 rounded-full bg-success/10 px-2 py-1 text-[11px] font-semibold text-success">
+            <span className="inline-flex items-center gap-1 rounded-none bg-success/10 px-2 py-1 text-[11px] font-semibold text-success">
               ★ {s.rating}
             </span>
           </div>

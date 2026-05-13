@@ -9,7 +9,7 @@ export function CategoryCard({ category, featured }: { category: StorefrontCateg
   return (
     <Link
       href={href}
-      className={`group relative flex flex-col overflow-hidden rounded-[var(--radius-lg)] border border-border bg-page-elevated shadow-[var(--shadow-card)] transition duration-300 hover:-translate-y-0.5 hover:border-brand/25 hover:shadow-[var(--shadow-card-hover)] ${
+      className={`group relative flex flex-col overflow-hidden rounded-none border border-border bg-page-elevated shadow-[var(--shadow-card)] transition duration-300 hover:-translate-y-0.5 hover:border-brand/25 hover:shadow-[var(--shadow-card-hover)] ${
         featured ? "min-h-[240px] justify-end p-6 sm:min-h-[280px] sm:p-8" : "p-5"
       }`}
     >
@@ -18,13 +18,13 @@ export function CategoryCard({ category, featured }: { category: StorefrontCateg
       />
       <div className={`relative flex items-start justify-between gap-3 ${featured ? "" : ""}`}>
         <div
-          className={`inline-flex items-center justify-center rounded-[14px] border border-border bg-page-elevated text-brand shadow-sm transition group-hover:border-brand/30 group-hover:text-brand ${
+          className={`inline-flex items-center justify-center rounded-none border border-border bg-page-elevated text-brand shadow-sm transition group-hover:border-brand/30 group-hover:text-brand ${
             featured ? "h-14 w-14" : "h-12 w-12"
           }`}
         >
           <CategoryIcon icon={category.icon} className={featured ? "h-8 w-8" : undefined} />
         </div>
-        <span className="rounded-full border border-border bg-page-elevated px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-muted transition group-hover:border-brand/20 group-hover:text-brand">
+        <span className="rounded-none border border-border bg-page-elevated px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-muted transition group-hover:border-brand/20 group-hover:text-brand">
           {featured ? "Start here" : "Browse"}
         </span>
       </div>

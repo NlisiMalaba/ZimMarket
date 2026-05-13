@@ -23,23 +23,23 @@ export default function AccountPage() {
               <button
                 key={item}
                 type="button"
-                className="flex w-full items-center justify-between rounded-[14px] border border-border bg-page-elevated px-4 py-3 text-left text-sm font-semibold text-foreground shadow-sm transition hover:border-brand/30"
+                className="flex w-full items-center justify-between rounded-none border border-border bg-page-elevated px-4 py-3 text-left text-sm font-semibold text-foreground shadow-sm transition hover:border-brand/30"
               >
                 {item}
                 <span className="text-muted">›</span>
               </button>
             ))}
           </aside>
-          <div className="rounded-[var(--radius-lg)] border border-border bg-page-elevated p-6 shadow-[var(--shadow-card)] lg:col-span-2">
+          <div className="rounded-none border border-border bg-page-elevated p-6 shadow-[var(--shadow-card)] lg:col-span-2">
             <p className="text-sm font-semibold text-foreground">Account overview</p>
             <p className="mt-2 text-sm text-muted">
               Wire authentication to unlock personalised recommendations, saved carts, and order history on web.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
-              <Link href="/orders" className="rounded-[14px] bg-brand px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-hover">
+              <Link href="/orders" className="rounded-none bg-brand px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-hover">
                 View orders
               </Link>
-              <Link href="/" className="rounded-[14px] border border-border px-4 py-2.5 text-sm font-semibold text-foreground hover:border-brand/30">
+              <Link href="/" className="rounded-none border border-border px-4 py-2.5 text-sm font-semibold text-foreground hover:border-brand/30">
                 Continue shopping
               </Link>
             </div>

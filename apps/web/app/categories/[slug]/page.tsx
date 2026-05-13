@@ -57,21 +57,21 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
       <div className="container-store py-8 sm:py-10">
         <div className="flex flex-col gap-6 lg:flex-row">
           <aside className="w-full shrink-0 space-y-4 lg:max-w-xs">
-            <div className="rounded-[var(--radius-card)] border border-border bg-page-elevated p-4 shadow-[var(--shadow-card)]">
+            <div className="rounded-none border border-border bg-page-elevated p-4 shadow-[var(--shadow-card)]">
               <p className="text-sm font-semibold text-foreground">Refine</p>
               <div className="mt-4 space-y-3 text-sm text-muted">
                 <label className="flex items-center gap-2">
-                  <input type="checkbox" className="rounded border-border text-brand" readOnly /> Verified sellers only
+                  <input type="checkbox" className="rounded-none border-border text-brand" readOnly /> Verified sellers only
                 </label>
                 <label className="flex items-center gap-2">
-                  <input type="checkbox" className="rounded border-border text-brand" readOnly /> Warehouse verified
+                  <input type="checkbox" className="rounded-none border-border text-brand" readOnly /> Warehouse verified
                 </label>
                 <label className="flex items-center gap-2">
-                  <input type="checkbox" className="rounded border-border text-brand" readOnly /> Next-day delivery
+                  <input type="checkbox" className="rounded-none border-border text-brand" readOnly /> Next-day delivery
                 </label>
               </div>
             </div>
-            <div className="rounded-[var(--radius-card)] border border-border bg-gradient-to-br from-success/10 via-page-elevated to-brand/10 p-4">
+            <div className="rounded-none border border-border bg-gradient-to-br from-success/10 via-page-elevated to-brand/10 p-4">
               <p className="text-sm font-semibold text-foreground">Trust on every aisle</p>
               <p className="mt-2 text-xs leading-relaxed text-muted">
                 Badges reflect seller verification and fulfilment signals. Wire your catalogue rules to drive these
@@ -87,7 +87,7 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
               </p>
               <label className="flex items-center gap-2 text-sm text-muted">
                 Sort
-                <select className="rounded-[12px] border border-border bg-page-elevated px-3 py-2 text-sm font-medium text-foreground">
+                <select className="rounded-none border border-border bg-page-elevated px-3 py-2 text-sm font-medium text-foreground">
                   <option>Featured</option>
                   <option>Price: Low to High</option>
                   <option>Price: High to Low</option>

@@ -30,7 +30,7 @@ export default function CategoriesPage() {
           ))}
         </div>
 
-        <div className="mt-12 rounded-[var(--radius-lg)] border border-border bg-page-elevated p-6 shadow-[var(--shadow-card)] sm:p-8">
+        <div className="mt-12 rounded-none border border-border bg-page-elevated p-6 shadow-[var(--shadow-card)] sm:p-8">
           <h2 className="font-display text-lg font-semibold text-foreground">Need something specific?</h2>
           <p className="mt-2 text-sm text-muted">
             Use search for SKUs and brands, or open deals for promoted offers. Category taxonomy will map to your
@@ -39,13 +39,13 @@ export default function CategoriesPage() {
           <div className="mt-5 flex flex-wrap gap-3">
             <Link
               href="/search"
-              className="inline-flex items-center justify-center rounded-[14px] bg-brand px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-hover"
+              className="inline-flex items-center justify-center rounded-none bg-brand px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-hover"
             >
               Open search
             </Link>
             <Link
               href="/deals"
-              className="inline-flex items-center justify-center rounded-[14px] border border-border bg-page px-5 py-2.5 text-sm font-semibold text-foreground transition hover:border-brand/30"
+              className="inline-flex items-center justify-center rounded-none border border-border bg-page px-5 py-2.5 text-sm font-semibold text-foreground transition hover:border-brand/30"
             >
               View deals
             </Link>

@@ -78,7 +78,7 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
       <div className="mx-auto w-full max-w-none px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10 xl:px-10 2xl:px-12">
         <div className="grid gap-4 lg:grid-cols-12 lg:items-stretch lg:gap-5">
           <div className="relative min-h-0 lg:col-span-8">
-            <div className="relative h-full min-h-[380px] overflow-hidden rounded-[22px] border border-border/80 bg-slate-950 shadow-[0_24px_80px_rgb(15_23_42/0.14)] ring-1 ring-slate-900/10 dark:border-slate-800/80 dark:shadow-[0_28px_90px_rgb(0_0_0/0.45)] dark:ring-white/10 sm:min-h-[420px] lg:min-h-[460px]">
+            <div className="relative h-full min-h-[380px] overflow-hidden rounded-none border border-border/80 bg-slate-950 shadow-[0_24px_80px_rgb(15_23_42/0.14)] ring-1 ring-slate-900/10 dark:border-slate-800/80 dark:shadow-[0_28px_90px_rgb(0_0_0/0.45)] dark:ring-white/10 sm:min-h-[420px] lg:min-h-[460px]">
               <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgb(255_255_255/0.12),transparent_55%)]" />
 
               {slides.map((s, i) => (
@@ -96,11 +96,11 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
                     sizes="(min-width: 1024px) 72vw, 100vw"
                   />
                   <div className={`absolute inset-0 bg-gradient-to-r ${s.gradient}`} />
-                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/35 to-slate-950/25 lg:from-slate-950/80 lg:via-slate-950/30 lg:to-slate-950/20" />
-                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-slate-950/75 via-slate-950/35 to-transparent" />
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/92 via-slate-950/45 to-slate-950/20 lg:from-slate-950/85 lg:via-slate-950/40 lg:to-slate-950/15" />
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-slate-950/80 via-slate-950/40 to-transparent" />
                   <div className="absolute inset-0 z-[1] flex flex-col justify-end p-6 pb-[5.75rem] sm:p-8 sm:pb-28 lg:justify-center lg:py-10 lg:pl-20 lg:pr-20 lg:pb-36">
-                    <div className="relative max-w-xl animate-[fade-in_0.55s_ease-out_both] rounded-2xl border border-white/15 bg-slate-950/65 p-5 shadow-[0_20px_50px_rgb(0_0_0/0.45)] ring-1 ring-white/10 backdrop-blur-md sm:p-6 lg:max-w-lg lg:pl-8 lg:pr-8">
-                      <span className="inline-flex w-fit rounded-full border border-white/25 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-white">
+                    <div className="relative max-w-xl animate-[fade-in_0.55s_ease-out_both] lg:max-w-lg">
+                      <span className="inline-flex w-fit rounded-none border border-white/25 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-white">
                         {s.eyebrow}
                       </span>
                       <h1 className="mt-4 font-display text-balance-safe text-[1.75rem] font-semibold leading-[1.12] tracking-[-0.02em] text-white [text-shadow:0_2px_24px_rgb(0_0_0/0.55)] sm:text-4xl lg:text-[2.5rem]">
@@ -112,14 +112,14 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
                       <div className="mt-7 flex flex-wrap gap-3 lg:mt-9">
                         <Link
                           href={s.ctaHref}
-                          className="inline-flex items-center justify-center rounded-2xl bg-gradient-to-b from-cta to-cta-hover px-6 py-3 text-sm font-semibold text-white shadow-[0_10px_28px_rgb(245_158_11/0.35)] ring-1 ring-white/20 transition hover:brightness-110 active:scale-[0.99]"
+                          className="inline-flex items-center justify-center rounded-none bg-gradient-to-b from-cta to-cta-hover px-6 py-3 text-sm font-semibold text-white shadow-[0_10px_28px_rgb(245_158_11/0.35)] ring-1 ring-white/20 transition hover:brightness-110 active:scale-[0.99]"
                         >
                           {s.ctaLabel}
                         </Link>
                         {s.secondaryCtaHref && s.secondaryCtaLabel ? (
                           <Link
                             href={s.secondaryCtaHref}
-                            className="inline-flex items-center justify-center rounded-2xl border border-white/35 bg-white/10 px-6 py-3 text-sm font-semibold text-white shadow-[inset_0_1px_0_rgb(255_255_255/0.12)] backdrop-blur-md transition hover:bg-white/14"
+                            className="inline-flex items-center justify-center rounded-none border border-white/35 bg-white/10 px-6 py-3 text-sm font-semibold text-white shadow-[inset_0_1px_0_rgb(255_255_255/0.12)] backdrop-blur-md transition hover:bg-white/14"
                           >
                             {s.secondaryCtaLabel}
                           </Link>
@@ -134,7 +134,7 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
                 <button
                   type="button"
                   onClick={() => go(-1)}
-                  className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/30 bg-slate-950/70 text-white shadow-lg backdrop-blur-md transition hover:border-white/45 hover:bg-slate-950/85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-none border border-white/30 bg-slate-950/70 text-white shadow-lg backdrop-blur-md transition hover:border-white/45 hover:bg-slate-950/85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
                   aria-label="Previous promotion"
                 >
                   <ChevronLeft className="h-5 w-5" />
@@ -144,7 +144,7 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
                 <button
                   type="button"
                   onClick={() => go(1)}
-                  className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/30 bg-slate-950/70 text-white shadow-lg backdrop-blur-md transition hover:border-white/45 hover:bg-slate-950/85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-none border border-white/30 bg-slate-950/70 text-white shadow-lg backdrop-blur-md transition hover:border-white/45 hover:bg-slate-950/85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
                   aria-label="Next promotion"
                 >
                   <ChevronRight className="h-5 w-5" />
@@ -158,12 +158,12 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
                       key={s.id}
                       type="button"
                       onClick={() => setIndex(i)}
-                      className={`group relative h-2.5 overflow-hidden rounded-full transition-all duration-500 ${i === index ? "w-12 bg-white/15" : "w-2.5 bg-white/25 hover:bg-white/40"}`}
+                      className={`group relative h-2.5 overflow-hidden rounded-none transition-all duration-500 ${i === index ? "w-12 bg-white/15" : "w-2.5 bg-white/25 hover:bg-white/40"}`}
                       aria-label={`Show promotion ${i + 1}`}
                       aria-current={i === index}
                     >
                       <span
-                        className={`absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-brand via-brand-muted to-brand transition-all duration-500 ${i === index ? "w-full opacity-100" : "w-0 opacity-0"}`}
+                        className={`absolute inset-y-0 left-0 rounded-none bg-gradient-to-r from-brand via-brand-muted to-brand transition-all duration-500 ${i === index ? "w-full opacity-100" : "w-0 opacity-0"}`}
                       />
                     </button>
                   ))}
@@ -205,11 +205,11 @@ function HeroSidePromo({
   return (
     <Link
       href={href}
-      className="group relative flex min-h-[200px] flex-1 flex-row overflow-hidden rounded-[22px] border border-border/80 bg-page-elevated shadow-[var(--shadow-card)] ring-1 ring-slate-900/[0.04] transition duration-300 hover:-translate-y-0.5 hover:shadow-[var(--shadow-card-hover)] dark:border-slate-800/80 dark:bg-slate-900/45 dark:ring-white/[0.06] lg:min-h-0 lg:flex-1"
+      className="group relative flex min-h-[200px] flex-1 flex-row overflow-hidden rounded-none border border-border/80 bg-page-elevated shadow-[var(--shadow-card)] ring-1 ring-slate-900/[0.04] transition duration-300 hover:-translate-y-0.5 hover:shadow-[var(--shadow-card-hover)] dark:border-slate-800/80 dark:bg-slate-900/45 dark:ring-white/[0.06] lg:min-h-0 lg:flex-1"
     >
-      <div className="pointer-events-none absolute -right-16 top-1/2 z-[1] h-56 w-56 -translate-y-1/2 rounded-full bg-gradient-to-br from-brand/15 to-transparent blur-2xl dark:from-brand/25" />
+      <div className="pointer-events-none absolute -right-16 top-1/2 z-[1] h-56 w-56 -translate-y-1/2 rounded-none bg-gradient-to-br from-brand/15 to-transparent blur-2xl dark:from-brand/25" />
       <div className="relative z-[2] flex min-w-0 flex-1 flex-col justify-center p-5 sm:p-6">
-        <div className="absolute right-4 top-4 grid h-[4.25rem] w-[4.25rem] place-items-center rounded-full bg-gradient-to-br from-cta to-cta-hover text-center text-[11px] font-bold leading-tight text-white shadow-[0_8px_24px_rgb(245_158_11/0.35)] ring-2 ring-white/90 dark:ring-slate-900">
+        <div className="absolute right-4 top-4 grid h-[4.25rem] w-[4.25rem] place-items-center rounded-none bg-gradient-to-br from-cta to-cta-hover text-center text-[11px] font-bold leading-tight text-white shadow-[0_8px_24px_rgb(245_158_11/0.35)] ring-2 ring-white/90 dark:ring-slate-900">
           {badge}
         </div>
         <p className="max-w-[58%] font-display text-lg font-semibold tracking-tight text-foreground sm:text-xl">
@@ -237,11 +237,11 @@ function HeroSidePromo({
 
 function HeroServiceStrip() {
   return (
-    <div className="mt-6 rounded-[22px] border border-border/80 bg-page-elevated/90 px-4 py-6 shadow-[var(--shadow-card)] ring-1 ring-slate-900/[0.03] dark:border-slate-800/80 dark:bg-slate-900/40 dark:ring-white/[0.05] sm:px-6 lg:px-8">
+    <div className="mt-6 rounded-none border border-border/80 bg-page-elevated/90 px-4 py-6 shadow-[var(--shadow-card)] ring-1 ring-slate-900/[0.03] dark:border-slate-800/80 dark:bg-slate-900/40 dark:ring-white/[0.05] sm:px-6 lg:px-8">
       <ul className="grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3 lg:grid-cols-5 lg:gap-6">
         {SERVICE_ITEMS.map((item) => (
           <li key={item.title} className="flex gap-3">
-            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-brand/15 bg-brand/[0.06] text-brand dark:border-brand/25 dark:bg-brand/15 dark:text-white">
+            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-none border border-brand/15 bg-brand/[0.06] text-brand dark:border-brand/25 dark:bg-brand/15 dark:text-white">
               {item.icon}
             </span>
             <div className="min-w-0">

@@ -32,7 +32,7 @@ export function MegaMenu({ columns }: { columns: MegaNavColumn[] }) {
     >
       <button
         type="button"
-        className={`inline-flex items-center gap-1 rounded-2xl px-3.5 py-2 text-sm font-semibold transition ${
+        className={`inline-flex items-center gap-1 rounded-none px-3.5 py-2 text-sm font-semibold transition ${
           open
             ? "bg-page-elevated text-brand shadow-sm ring-1 ring-slate-200/90 dark:bg-slate-800 dark:ring-slate-600/80"
             : "text-foreground hover:bg-slate-100/80 dark:hover:bg-slate-800/70"
@@ -50,14 +50,14 @@ export function MegaMenu({ columns }: { columns: MegaNavColumn[] }) {
 
       {open ? (
         <div
-          className="absolute left-0 top-full z-50 mt-2 w-[min(100vw-2rem,920px)] rounded-[var(--radius-lg)] border border-border/80 bg-page-elevated/95 p-4 shadow-[var(--shadow-card-hover)] ring-1 ring-black/[0.04] backdrop-blur-xl animate-[fade-in_0.2s_ease-out_both] dark:border-slate-800/90 dark:bg-slate-950/90 dark:ring-white/[0.06]"
+          className="absolute left-0 top-full z-50 mt-2 w-[min(100vw-2rem,920px)] rounded-none border border-border/80 bg-page-elevated/95 p-4 shadow-[var(--shadow-card-hover)] ring-1 ring-black/[0.04] backdrop-blur-xl animate-[fade-in_0.2s_ease-out_both] dark:border-slate-800/90 dark:bg-slate-950/90 dark:ring-white/[0.06]"
           role="menu"
         >
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {columns.map((col) => (
               <div
                 key={col.title}
-                className="rounded-2xl border border-border/70 bg-gradient-to-b from-page-elevated to-page p-3.5 shadow-sm dark:border-slate-800/80 dark:from-slate-900/80 dark:to-slate-950/40"
+                className="rounded-none border border-border/70 bg-gradient-to-b from-page-elevated to-page p-3.5 shadow-sm dark:border-slate-800/80 dark:from-slate-900/80 dark:to-slate-950/40"
               >
                 <Link
                   href={col.href}

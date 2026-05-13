@@ -22,7 +22,7 @@ export function ThemeToggle({ variant = "default" }: ThemeToggleProps) {
     <button
       type="button"
       onClick={toggleTheme}
-      className={`inline-flex h-10 w-10 items-center justify-center rounded-2xl border transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${surface}`}
+      className={`inline-flex h-10 w-10 items-center justify-center rounded-none border transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${surface}`}
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
     >
       {isDark ? (

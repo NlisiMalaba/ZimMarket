@@ -166,7 +166,7 @@ export default function HomePage() {
       <BuyerProtectionBanner />
 
       <section className="container-store pb-6">
-        <div className="rounded-[22px] border border-border bg-page-elevated p-6 sm:p-8 dark:border-slate-800/80 dark:bg-slate-900/40">
+        <div className="rounded-none border border-border bg-page-elevated p-6 sm:p-8 dark:border-slate-800/80 dark:bg-slate-900/40">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
             <div className="max-w-2xl">
               <p className="text-sm font-medium text-muted">Delivery</p>
@@ -181,13 +181,13 @@ export default function HomePage() {
             <div className="flex shrink-0 flex-col gap-3 sm:flex-row lg:flex-col">
               <Link
                 href="/orders"
-                className="inline-flex items-center justify-center rounded-2xl bg-brand px-6 py-3 text-sm font-semibold text-white shadow-md shadow-brand/20 transition hover:bg-brand-hover"
+                className="inline-flex items-center justify-center rounded-none bg-brand px-6 py-3 text-sm font-semibold text-white shadow-md shadow-brand/20 transition hover:bg-brand-hover"
               >
                 Track an order
               </Link>
               <Link
                 href="/help"
-                className="inline-flex items-center justify-center rounded-2xl border border-border bg-page px-6 py-3 text-sm font-semibold text-foreground transition hover:border-brand/30 dark:border-slate-700 dark:bg-slate-950/60"
+                className="inline-flex items-center justify-center rounded-none border border-border bg-page px-6 py-3 text-sm font-semibold text-foreground transition hover:border-brand/30 dark:border-slate-700 dark:bg-slate-950/60"
               >
                 Delivery questions
               </Link>

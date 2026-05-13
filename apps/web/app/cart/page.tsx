@@ -18,7 +18,7 @@ export default function CartPage() {
 
       <div className="container-store py-10 sm:py-12">
         <div className="grid gap-8 lg:grid-cols-12">
-          <div className="rounded-[var(--radius-lg)] border border-dashed border-border bg-page-elevated p-10 text-center shadow-[var(--shadow-card)] lg:col-span-8">
+          <div className="rounded-none border border-dashed border-border bg-page-elevated p-10 text-center shadow-[var(--shadow-card)] lg:col-span-8">
             <p className="font-display text-lg font-semibold text-foreground">Your cart is empty</p>
             <p className="mt-2 text-sm text-muted">
               Save items with one tap, see delivery estimates inline, and checkout with encrypted payments.
@@ -26,20 +26,20 @@ export default function CartPage() {
             <div className="mt-6 flex flex-wrap justify-center gap-3">
               <Link
                 href="/deals"
-                className="inline-flex items-center justify-center rounded-[14px] bg-cta px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-cta/20 transition hover:bg-cta-hover"
+                className="inline-flex items-center justify-center rounded-none bg-cta px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-cta/20 transition hover:bg-cta-hover"
               >
                 Shop deals
               </Link>
               <Link
                 href="/categories"
-                className="inline-flex items-center justify-center rounded-[14px] border border-border bg-page px-5 py-2.5 text-sm font-semibold text-foreground transition hover:border-brand/30"
+                className="inline-flex items-center justify-center rounded-none border border-border bg-page px-5 py-2.5 text-sm font-semibold text-foreground transition hover:border-brand/30"
               >
                 Browse categories
               </Link>
             </div>
           </div>
           <aside className="space-y-4 lg:col-span-4">
-            <div className="rounded-[var(--radius-card)] border border-border bg-page-elevated p-5 shadow-[var(--shadow-card)]">
+            <div className="rounded-none border border-border bg-page-elevated p-5 shadow-[var(--shadow-card)]">
               <p className="text-sm font-semibold text-foreground">Order summary</p>
               <dl className="mt-4 space-y-2 text-sm">
                 <div className="flex justify-between text-muted">
@@ -58,13 +58,13 @@ export default function CartPage() {
               <button
                 type="button"
                 disabled
-                className="mt-5 w-full rounded-[14px] bg-brand py-3 text-sm font-semibold text-white opacity-60"
+                className="mt-5 w-full rounded-none bg-brand py-3 text-sm font-semibold text-white opacity-60"
               >
                 Proceed to checkout
               </button>
               <p className="mt-3 text-center text-xs text-muted">Secure payment · Buyer protection on eligible orders</p>
             </div>
-            <div className="rounded-[var(--radius-card)] border border-success/25 bg-success/10 p-5 text-sm text-muted">
+            <div className="rounded-none border border-success/25 bg-success/10 p-5 text-sm text-muted">
               <p className="font-semibold text-success">Delivery clarity</p>
               <p className="mt-2">Slot-level ETAs appear here once items are added—mirrors production checkout UX.</p>
             </div>

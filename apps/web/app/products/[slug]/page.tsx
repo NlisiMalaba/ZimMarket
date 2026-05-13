@@ -54,7 +54,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
       <div className="container-store py-10 lg:py-12">
         <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
           <div className="lg:col-span-7">
-            <div className="overflow-hidden rounded-[var(--radius-lg)] border border-border bg-page shadow-[var(--shadow-card)]">
+            <div className="overflow-hidden rounded-none border border-border bg-page shadow-[var(--shadow-card)]">
               <div className="relative aspect-square">
                 <Image src={product.image} alt={product.name} fill className="object-cover" sizes="(max-width:1024px) 100vw, 55vw" priority />
               </div>
@@ -63,7 +63,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
                   <button
                     key={`${src}-${i}`}
                     type="button"
-                    className={`relative aspect-square overflow-hidden rounded-[12px] border ${i === 0 ? "border-brand ring-2 ring-brand/20" : "border-border"} bg-page`}
+                    className={`relative aspect-square overflow-hidden rounded-none border ${i === 0 ? "border-brand ring-2 ring-brand/20" : "border-border"} bg-page`}
                     aria-label={`Image ${i + 1}`}
                   >
                     <Image src={src} alt="" fill className="object-cover" sizes="120px" />
@@ -72,7 +72,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
               </div>
             </div>
 
-            <div className="mt-8 rounded-[var(--radius-card)] border border-border bg-page-elevated p-6 shadow-[var(--shadow-card)]">
+            <div className="mt-8 rounded-none border border-border bg-page-elevated p-6 shadow-[var(--shadow-card)]">
               <h2 className="font-display text-lg font-semibold text-foreground">Delivery & fulfilment</h2>
               <p className="mt-2 text-sm text-muted">
                 Estimates reflect your selected area. Final windows are confirmed at checkout for supported routes.
@@ -82,25 +82,25 @@ export default async function ProductDetailPage({ params }: PageProps) {
                 <DeliveryStat label="Warehouse" value={product.warehouseVerified ? "Verified pick" : "Seller ship"} />
                 <DeliveryStat label="Tracking" value="Live updates" />
               </div>
-              <div className="mt-6 rounded-[12px] border border-dashed border-border bg-page p-4">
+              <div className="mt-6 rounded-none border border-dashed border-border bg-page p-4">
                 <p className="text-xs font-semibold uppercase tracking-wide text-muted">Tracking preview</p>
                 <ol className="mt-4 space-y-3 text-sm">
                   <li className="flex gap-3">
-                    <span className="mt-0.5 h-2 w-2 shrink-0 rounded-full bg-success" />
+                    <span className="mt-0.5 h-2 w-2 shrink-0 rounded-none bg-success" />
                     <div>
                       <p className="font-semibold text-foreground">Order placed</p>
                       <p className="text-xs text-muted">Payment authorised · Buyer protection active</p>
                     </div>
                   </li>
                   <li className="flex gap-3">
-                    <span className="mt-0.5 h-2 w-2 shrink-0 rounded-full bg-brand" />
+                    <span className="mt-0.5 h-2 w-2 shrink-0 rounded-none bg-brand" />
                     <div>
                       <p className="font-semibold text-foreground">Preparing shipment</p>
                       <p className="text-xs text-muted">Seller confirms inventory and packaging</p>
                     </div>
                   </li>
                   <li className="flex gap-3">
-                    <span className="mt-0.5 h-2 w-2 shrink-0 rounded-full bg-border-strong" />
+                    <span className="mt-0.5 h-2 w-2 shrink-0 rounded-none bg-border-strong" />
                     <div>
                       <p className="font-semibold text-foreground">Out for delivery</p>
                       <p className="text-xs text-muted">Driver assigned · map tracking enabled in app</p>
@@ -113,15 +113,15 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
           <div className="lg:col-span-5">
             <div className="sticky top-24 space-y-6">
-              <div className="rounded-[var(--radius-lg)] border border-border bg-page-elevated p-6 shadow-[var(--shadow-card)] sm:p-8">
+              <div className="rounded-none border border-border bg-page-elevated p-6 shadow-[var(--shadow-card)] sm:p-8">
                 <div className="flex flex-wrap items-center gap-2">
                   {pct ? (
-                    <span className="rounded-full bg-success/10 px-2.5 py-1 text-xs font-semibold text-success">
+                    <span className="rounded-none bg-success/10 px-2.5 py-1 text-xs font-semibold text-success">
                       Save {pct}%
                     </span>
                   ) : null}
                   {product.badge === "new" ? (
-                    <span className="rounded-full bg-brand/10 px-2.5 py-1 text-xs font-semibold text-brand">New</span>
+                    <span className="rounded-none bg-brand/10 px-2.5 py-1 text-xs font-semibold text-brand">New</span>
                   ) : null}
                 </div>
                 <h1 className="mt-3 font-display text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
@@ -140,20 +140,20 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
                 <div className="mt-5 flex flex-wrap gap-2">
                   {product.verifiedSeller ? (
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-success/25 bg-success/10 px-3 py-1 text-xs font-semibold text-success">
+                    <span className="inline-flex items-center gap-1.5 rounded-none border border-success/25 bg-success/10 px-3 py-1 text-xs font-semibold text-success">
                       Verified seller
                     </span>
                   ) : (
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1 text-xs font-semibold text-muted">
+                    <span className="inline-flex items-center gap-1.5 rounded-none border border-border px-3 py-1 text-xs font-semibold text-muted">
                       Marketplace seller
                     </span>
                   )}
                   {product.warehouseVerified ? (
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-brand/20 bg-brand/5 px-3 py-1 text-xs font-semibold text-brand">
+                    <span className="inline-flex items-center gap-1.5 rounded-none border border-brand/20 bg-brand/5 px-3 py-1 text-xs font-semibold text-brand">
                       Warehouse verified
                     </span>
                   ) : null}
-                  <span className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1 text-xs font-semibold text-muted">
+                  <span className="inline-flex items-center gap-1.5 rounded-none border border-border px-3 py-1 text-xs font-semibold text-muted">
                     Authenticity checks on report
                   </span>
                 </div>
@@ -163,7 +163,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
                   Connect your catalogue API to replace this demo description.
                 </p>
 
-                <div className="mt-6 rounded-[12px] border border-border bg-page p-4 text-sm">
+                <div className="mt-6 rounded-none border border-border bg-page p-4 text-sm">
                   <p className="font-semibold text-foreground">Sold by {product.sellerName}</p>
                   <p className="mt-1 text-muted">High fulfilment score · responsive support on eligible orders</p>
                 </div>
@@ -171,13 +171,13 @@ export default async function ProductDetailPage({ params }: PageProps) {
                 <div className="mt-6 flex flex-col gap-3 sm:flex-row">
                   <Link
                     href="/cart"
-                    className="inline-flex flex-1 items-center justify-center rounded-[14px] bg-cta px-6 py-3.5 text-sm font-semibold text-white shadow-md shadow-cta/25 transition hover:bg-cta-hover"
+                    className="inline-flex flex-1 items-center justify-center rounded-none bg-cta px-6 py-3.5 text-sm font-semibold text-white shadow-md shadow-cta/25 transition hover:bg-cta-hover"
                   >
                     Buy now
                   </Link>
                   <Link
                     href="/cart"
-                    className="inline-flex flex-1 items-center justify-center rounded-[14px] border border-border bg-page px-6 py-3.5 text-sm font-semibold text-foreground transition hover:border-brand/40 hover:text-brand"
+                    className="inline-flex flex-1 items-center justify-center rounded-none border border-border bg-page px-6 py-3.5 text-sm font-semibold text-foreground transition hover:border-brand/40 hover:text-brand"
                   >
                     Add to cart
                   </Link>
@@ -218,7 +218,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
 function DeliveryStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-[12px] border border-border bg-page p-4">
+    <div className="rounded-none border border-border bg-page p-4">
       <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">{label}</p>
       <p className="mt-2 text-sm font-semibold text-foreground">{value}</p>
     </div>

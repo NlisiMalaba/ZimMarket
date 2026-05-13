@@ -58,9 +58,9 @@ export function SiteHeader() {
           <div className="flex items-center justify-between gap-3 lg:contents">
             <Link
               href="/"
-              className="group flex shrink-0 items-center gap-2.5 outline-none focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-offset-2 focus-visible:ring-offset-brand rounded-xl"
+              className="group flex shrink-0 items-center gap-2.5 outline-none focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-offset-2 focus-visible:ring-offset-brand rounded-none"
             >
-              <span className="grid h-10 w-10 place-items-center rounded-2xl bg-white/15 text-[15px] font-bold tracking-tight text-white ring-1 ring-white/25 transition group-hover:bg-white/20">
+              <span className="grid h-10 w-10 place-items-center rounded-none bg-white/15 text-[15px] font-bold tracking-tight text-white ring-1 ring-white/25 transition group-hover:bg-white/20">
                 Z
               </span>
               <span className="font-display text-[1.05rem] font-bold tracking-tight sm:text-xl">
@@ -73,27 +73,27 @@ export function SiteHeader() {
               <ThemeToggle variant="onBrand" />
               <Link
                 href="/account"
-                className="relative inline-flex h-11 w-11 items-center justify-center rounded-xl border border-white/20 text-white transition hover:bg-white/10"
+                className="relative inline-flex h-11 w-11 items-center justify-center rounded-none border border-white/20 text-white transition hover:bg-white/10"
                 aria-label="Wishlist"
               >
                 <HeartGlyph className="h-[19px] w-[19px]" />
-                <span className="absolute -right-0.5 -top-0.5 grid min-h-[1.125rem] min-w-[1.125rem] place-items-center rounded-full bg-slate-900 px-1 text-[10px] font-bold leading-none text-white ring-2 ring-brand dark:ring-slate-950">
+                <span className="absolute -right-0.5 -top-0.5 grid min-h-[1.125rem] min-w-[1.125rem] place-items-center rounded-none bg-slate-900 px-1 text-[10px] font-bold leading-none text-white ring-2 ring-brand dark:ring-slate-950">
                   0
                 </span>
               </Link>
               <Link
                 href="/cart"
-                className="relative inline-flex h-11 w-11 items-center justify-center rounded-xl border border-white/20 text-white transition hover:bg-white/10"
+                className="relative inline-flex h-11 w-11 items-center justify-center rounded-none border border-white/20 text-white transition hover:bg-white/10"
                 aria-label="Shopping cart"
               >
                 <CartGlyph className="h-[19px] w-[19px]" />
-                <span className="absolute -right-0.5 -top-0.5 grid min-h-[1.125rem] min-w-[1.125rem] place-items-center rounded-full bg-slate-900 px-1 text-[10px] font-bold leading-none text-white ring-2 ring-brand dark:ring-slate-950">
+                <span className="absolute -right-0.5 -top-0.5 grid min-h-[1.125rem] min-w-[1.125rem] place-items-center rounded-none bg-slate-900 px-1 text-[10px] font-bold leading-none text-white ring-2 ring-brand dark:ring-slate-950">
                   0
                 </span>
               </Link>
               <Link
                 href="/account"
-                className={`flex items-center gap-2 rounded-xl border border-white/15 px-2 py-1.5 transition hover:bg-white/10 ${accountActive ? "bg-white/10" : ""}`}
+                className={`flex items-center gap-2 rounded-none border border-white/15 px-2 py-1.5 transition hover:bg-white/10 ${accountActive ? "bg-white/10" : ""}`}
               >
                 <UserGlyph className="h-7 w-7 shrink-0 text-white/95" />
                 <span className="flex flex-col text-left leading-tight">
@@ -112,7 +112,7 @@ export function SiteHeader() {
             <label className="sr-only" htmlFor="store-search">
               Search ZimMarket
             </label>
-            <div className="flex w-full min-w-0 overflow-hidden rounded-xl border border-white/20 bg-white shadow-sm ring-1 ring-black/5 dark:border-slate-600 dark:bg-slate-100">
+            <div className="flex w-full min-w-0 overflow-hidden rounded-none border border-white/20 bg-white shadow-sm ring-1 ring-black/5 dark:border-slate-600 dark:bg-slate-100">
               <div className="relative shrink-0 border-r border-slate-200 dark:border-slate-300">
                 <label htmlFor="nav-department" className="sr-only">
                   Department
@@ -152,27 +152,27 @@ export function SiteHeader() {
             <ThemeToggle variant="onBrand" />
             <Link
               href="/account"
-              className="relative inline-flex h-11 w-11 items-center justify-center rounded-xl border border-white/20 text-white transition hover:bg-white/10"
+              className="relative inline-flex h-11 w-11 items-center justify-center rounded-none border border-white/20 text-white transition hover:bg-white/10"
               aria-label="Wishlist"
             >
               <HeartGlyph className="h-[19px] w-[19px]" />
-              <span className="absolute -right-0.5 -top-0.5 grid min-h-[1.125rem] min-w-[1.125rem] place-items-center rounded-full bg-slate-900 px-1 text-[10px] font-bold leading-none text-white ring-2 ring-brand dark:ring-slate-950">
+              <span className="absolute -right-0.5 -top-0.5 grid min-h-[1.125rem] min-w-[1.125rem] place-items-center rounded-none bg-slate-900 px-1 text-[10px] font-bold leading-none text-white ring-2 ring-brand dark:ring-slate-950">
                 0
               </span>
             </Link>
             <Link
               href="/cart"
-              className="relative inline-flex h-11 w-11 items-center justify-center rounded-xl border border-white/20 text-white transition hover:bg-white/10"
+              className="relative inline-flex h-11 w-11 items-center justify-center rounded-none border border-white/20 text-white transition hover:bg-white/10"
               aria-label="Shopping cart"
             >
               <CartGlyph className="h-[19px] w-[19px]" />
-              <span className="absolute -right-0.5 -top-0.5 grid min-h-[1.125rem] min-w-[1.125rem] place-items-center rounded-full bg-slate-900 px-1 text-[10px] font-bold leading-none text-white ring-2 ring-brand dark:ring-slate-950">
+              <span className="absolute -right-0.5 -top-0.5 grid min-h-[1.125rem] min-w-[1.125rem] place-items-center rounded-none bg-slate-900 px-1 text-[10px] font-bold leading-none text-white ring-2 ring-brand dark:ring-slate-950">
                 0
               </span>
             </Link>
             <Link
               href="/account"
-              className={`ml-1 flex items-center gap-2.5 rounded-xl border border-white/15 px-2 py-1.5 transition hover:bg-white/10 ${accountActive ? "bg-white/10" : ""}`}
+              className={`ml-1 flex items-center gap-2.5 rounded-none border border-white/15 px-2 py-1.5 transition hover:bg-white/10 ${accountActive ? "bg-white/10" : ""}`}
             >
               <UserGlyph className="h-8 w-8 shrink-0 text-white/95" />
               <span className="flex flex-col text-left leading-tight">
@@ -188,29 +188,29 @@ export function SiteHeader() {
             className="-mx-1 flex min-w-0 items-center gap-1 overflow-x-auto pb-0.5 text-sm [scrollbar-width:none] sm:gap-2 [&::-webkit-scrollbar]:hidden"
             aria-label="Primary"
           >
-            <Link href="/" className={`shrink-0 whitespace-nowrap rounded-lg px-2 py-2 sm:px-3 ${navMuted(homeActive)}`}>
+            <Link href="/" className={`shrink-0 whitespace-nowrap rounded-none px-2 py-2 sm:px-3 ${navMuted(homeActive)}`}>
               Home
             </Link>
             <Link
               href="/categories"
-              className={`inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-lg px-2 py-2 sm:px-3 ${navMuted(shopActive)}`}
+              className={`inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-none px-2 py-2 sm:px-3 ${navMuted(shopActive)}`}
             >
               Shop
               <ChevronDownGlyph className="h-3.5 w-3.5 opacity-70" />
             </Link>
             <Link
               href="/deals"
-              className={`inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-lg px-2 py-2 sm:px-3 ${navMuted(dealsActive)}`}
+              className={`inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-none px-2 py-2 sm:px-3 ${navMuted(dealsActive)}`}
             >
               Deals
               <ChevronDownGlyph className="h-3.5 w-3.5 opacity-70" />
             </Link>
             <details className="group relative shrink-0">
-              <summary className="flex cursor-pointer list-none items-center gap-1 whitespace-nowrap rounded-lg px-2 py-2 marker:content-none sm:px-3 [&::-webkit-details-marker]:hidden">
+              <summary className="flex cursor-pointer list-none items-center gap-1 whitespace-nowrap rounded-none px-2 py-2 marker:content-none sm:px-3 [&::-webkit-details-marker]:hidden">
                 <span className={navMuted(moreActive)}>More</span>
                 <ChevronDownGlyph className="h-3.5 w-3.5 text-white/70 transition group-open:rotate-180" />
               </summary>
-              <ul className="absolute left-0 top-full z-50 mt-1 min-w-[12rem] rounded-xl border border-slate-200 bg-white py-1.5 text-sm text-slate-800 shadow-lg ring-1 ring-black/5 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:ring-white/10">
+              <ul className="absolute left-0 top-full z-50 mt-1 min-w-[12rem] rounded-none border border-slate-200 bg-white py-1.5 text-sm text-slate-800 shadow-lg ring-1 ring-black/5 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:ring-white/10">
                 <li>
                   <Link href="/help" className="block px-4 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-800">
                     Help centre
@@ -233,7 +233,7 @@ export function SiteHeader() {
           <div className="flex flex-wrap items-center gap-x-1 gap-y-2 text-[13px] text-white/90 sm:justify-end">
             <a
               href={`${env.sellerSiteUrl}/register`}
-              className="whitespace-nowrap rounded-lg px-2 py-1.5 font-medium transition hover:bg-white/10 hover:text-white"
+              className="whitespace-nowrap rounded-none px-2 py-1.5 font-medium transition hover:bg-white/10 hover:text-white"
             >
               Sell on ZimMarket
             </a>
@@ -242,7 +242,7 @@ export function SiteHeader() {
             </span>
             <Link
               href="/orders"
-              className={`whitespace-nowrap rounded-lg px-2 py-1.5 font-medium transition hover:bg-white/10 hover:text-white ${ordersActive ? "font-semibold text-white" : ""}`}
+              className={`whitespace-nowrap rounded-none px-2 py-1.5 font-medium transition hover:bg-white/10 hover:text-white ${ordersActive ? "font-semibold text-white" : ""}`}
             >
               Track your order
             </Link>
@@ -250,11 +250,11 @@ export function SiteHeader() {
               |
             </span>
             <details className="relative">
-              <summary className="flex cursor-pointer list-none items-center gap-1 whitespace-nowrap rounded-lg px-2 py-1.5 marker:content-none hover:bg-white/10 [&::-webkit-details-marker]:hidden">
+              <summary className="flex cursor-pointer list-none items-center gap-1 whitespace-nowrap rounded-none px-2 py-1.5 marker:content-none hover:bg-white/10 [&::-webkit-details-marker]:hidden">
                 <span className="font-medium">US Dollar</span>
                 <ChevronDownGlyph className="h-3.5 w-3.5 text-white/70" />
               </summary>
-              <ul className="absolute right-0 top-full z-50 mt-1 min-w-[9rem] rounded-xl border border-slate-200 bg-white py-1 text-sm font-medium text-slate-800 shadow-lg dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
+              <ul className="absolute right-0 top-full z-50 mt-1 min-w-[9rem] rounded-none border border-slate-200 bg-white py-1 text-sm font-medium text-slate-800 shadow-lg dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
                 <li className="px-4 py-2 text-slate-500 dark:text-slate-400">USD (default)</li>
                 <li className="px-4 py-2 text-slate-500 dark:text-slate-400">ZiG (soon)</li>
               </ul>
@@ -263,11 +263,11 @@ export function SiteHeader() {
               |
             </span>
             <details className="relative">
-              <summary className="flex cursor-pointer list-none items-center gap-1 whitespace-nowrap rounded-lg px-2 py-1.5 marker:content-none hover:bg-white/10 [&::-webkit-details-marker]:hidden">
+              <summary className="flex cursor-pointer list-none items-center gap-1 whitespace-nowrap rounded-none px-2 py-1.5 marker:content-none hover:bg-white/10 [&::-webkit-details-marker]:hidden">
                 <span className="font-medium">English</span>
                 <ChevronDownGlyph className="h-3.5 w-3.5 text-white/70" />
               </summary>
-              <ul className="absolute right-0 top-full z-50 mt-1 min-w-[9rem] rounded-xl border border-slate-200 bg-white py-1 text-sm font-medium text-slate-800 shadow-lg dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
+              <ul className="absolute right-0 top-full z-50 mt-1 min-w-[9rem] rounded-none border border-slate-200 bg-white py-1 text-sm font-medium text-slate-800 shadow-lg dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
                 <li className="px-4 py-2 text-slate-500 dark:text-slate-400">English</li>
               </ul>
             </details>

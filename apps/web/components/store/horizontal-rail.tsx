@@ -37,7 +37,7 @@ export function HorizontalRail({
             <button
               type="button"
               onClick={() => scrollByDir(-1)}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-[12px] border border-border bg-page-elevated text-foreground shadow-sm transition hover:border-brand/30 hover:text-brand"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-none border border-border bg-page-elevated text-foreground shadow-sm transition hover:border-brand/30 hover:text-brand"
               aria-label="Scroll left"
             >
               ‹
@@ -45,7 +45,7 @@ export function HorizontalRail({
             <button
               type="button"
               onClick={() => scrollByDir(1)}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-[12px] border border-border bg-page-elevated text-foreground shadow-sm transition hover:border-brand/30 hover:text-brand"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-none border border-border bg-page-elevated text-foreground shadow-sm transition hover:border-brand/30 hover:text-brand"
               aria-label="Scroll right"
             >
               ›

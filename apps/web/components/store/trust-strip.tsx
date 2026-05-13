@@ -26,7 +26,7 @@ export function TrustStrip() {
 export function BuyerProtectionBanner() {
   return (
     <aside className="container-store py-8">
-      <div className="rounded-[22px] border border-border/70 bg-page-elevated p-6 sm:p-8 dark:border-slate-800/80 dark:bg-slate-900/40">
+      <div className="rounded-none border border-border/70 bg-page-elevated p-6 sm:p-8 dark:border-slate-800/80 dark:bg-slate-900/40">
         <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between lg:gap-12">
           <div className="max-w-2xl">
             <p className="text-sm font-medium text-muted">A note on trust</p>

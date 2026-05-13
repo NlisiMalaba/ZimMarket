@@ -53,7 +53,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
       <div className="container-store py-8 sm:py-10">
         <div className="flex flex-col gap-8 lg:flex-row">
           <aside className="w-full shrink-0 space-y-4 lg:max-w-xs">
-            <form className="rounded-[var(--radius-card)] border border-border bg-page-elevated p-4 shadow-[var(--shadow-card)]" action="/search" method="get">
+            <form className="rounded-none border border-border bg-page-elevated p-4 shadow-[var(--shadow-card)]" action="/search" method="get">
               <p className="text-sm font-semibold text-foreground">Filters</p>
               <label className="mt-4 block text-xs font-semibold uppercase tracking-wide text-muted" htmlFor="q-side">
                 Keyword
@@ -62,23 +62,23 @@ export default async function SearchPage({ searchParams }: PageProps) {
                 id="q-side"
                 name="q"
                 defaultValue={q}
-                className="mt-2 w-full rounded-[12px] border border-border bg-page px-3 py-2 text-sm text-foreground"
+                className="mt-2 w-full rounded-none border border-border bg-page px-3 py-2 text-sm text-foreground"
               />
               <input type="hidden" name="tag" value={tag} />
               <button
                 type="submit"
-                className="mt-3 w-full rounded-[12px] bg-brand py-2 text-sm font-semibold text-white transition hover:bg-brand-hover"
+                className="mt-3 w-full rounded-none bg-brand py-2 text-sm font-semibold text-white transition hover:bg-brand-hover"
               >
                 Apply
               </button>
             </form>
-            <div className="rounded-[var(--radius-card)] border border-border bg-page-elevated p-4 text-sm text-muted shadow-[var(--shadow-card)]">
+            <div className="rounded-none border border-border bg-page-elevated p-4 text-sm text-muted shadow-[var(--shadow-card)]">
               <p className="font-semibold text-foreground">Trust filters</p>
               <p className="mt-2 leading-relaxed">
                 Verified sellers, warehouse checks, and delivery badges will map to your search index.
               </p>
             </div>
-            <Link href="/deals" className="block rounded-[var(--radius-card)] border border-cta/30 bg-cta/10 p-4 text-sm font-semibold text-foreground transition hover:border-cta/50">
+            <Link href="/deals" className="block rounded-none border border-cta/30 bg-cta/10 p-4 text-sm font-semibold text-foreground transition hover:border-cta/50">
               Jump to deals →
             </Link>
           </aside>
@@ -91,7 +91,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
                 Sort
                 <select
                   name="sort"
-                  className="rounded-[12px] border border-border bg-page-elevated px-3 py-2 text-sm font-medium text-foreground"
+                  className="rounded-none border border-border bg-page-elevated px-3 py-2 text-sm font-medium text-foreground"
                   defaultValue={sp.sort ?? "featured"}
                 >
                   <option value="featured">Featured</option>
@@ -105,10 +105,10 @@ export default async function SearchPage({ searchParams }: PageProps) {
               {filtered.length ? (
                 <ProductGrid products={filtered} />
               ) : (
-                <div className="rounded-[var(--radius-lg)] border border-dashed border-border bg-page-elevated p-10 text-center">
+                <div className="rounded-none border border-dashed border-border bg-page-elevated p-10 text-center">
                   <p className="font-display text-lg font-semibold text-foreground">No matches yet</p>
                   <p className="mt-2 text-sm text-muted">Try a broader keyword or clear filters—API wiring will enrich results.</p>
-                  <Link href="/categories" className="mt-6 inline-flex rounded-[14px] bg-brand px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-hover">
+                  <Link href="/categories" className="mt-6 inline-flex rounded-none bg-brand px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-hover">
                     Browse categories
                   </Link>
                 </div>

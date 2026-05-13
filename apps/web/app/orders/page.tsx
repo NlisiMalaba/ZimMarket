@@ -16,10 +16,10 @@ export default function OrdersPage() {
         </div>
       </div>
       <div className="container-store py-10 sm:py-12">
-        <div className="rounded-[var(--radius-lg)] border border-dashed border-border bg-page-elevated p-10 text-center shadow-[var(--shadow-card)]">
+        <div className="rounded-none border border-dashed border-border bg-page-elevated p-10 text-center shadow-[var(--shadow-card)]">
           <p className="font-display text-lg font-semibold text-foreground">No orders to display</p>
           <p className="mt-2 text-sm text-muted">When live, each row opens a timeline with map tracking and secure payment receipts.</p>
-          <Link href="/products/wireless-noise-headphones" className="mt-6 inline-flex rounded-[14px] bg-brand px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-hover">
+          <Link href="/products/wireless-noise-headphones" className="mt-6 inline-flex rounded-none bg-brand px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-hover">
             Explore a sample product
           </Link>
         </div>

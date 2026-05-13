@@ -26,13 +26,13 @@ export default function DealsPage() {
           <div className="mt-6 flex flex-wrap gap-3">
             <Link
               href="/search?tag=deal"
-              className="inline-flex items-center justify-center rounded-[14px] bg-cta px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-cta/25 transition hover:bg-cta-hover"
+              className="inline-flex items-center justify-center rounded-none bg-cta px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-cta/25 transition hover:bg-cta-hover"
             >
               Shop all deals
             </Link>
             <Link
               href="/categories"
-              className="inline-flex items-center justify-center rounded-[14px] border border-border bg-page-elevated px-5 py-2.5 text-sm font-semibold text-foreground transition hover:border-brand/30"
+              className="inline-flex items-center justify-center rounded-none border border-border bg-page-elevated px-5 py-2.5 text-sm font-semibold text-foreground transition hover:border-brand/30"
             >
               Browse categories
             </Link>
@@ -42,7 +42,7 @@ export default function DealsPage() {
 
       <div className="container-store py-10 sm:py-12">
         <div className="grid gap-6 lg:grid-cols-3">
-          <div className="rounded-[var(--radius-lg)] border border-border bg-page-elevated p-6 shadow-[var(--shadow-card)] lg:col-span-2">
+          <div className="rounded-none border border-border bg-page-elevated p-6 shadow-[var(--shadow-card)] lg:col-span-2">
             <h2 className="font-display text-lg font-semibold text-foreground">Spotlight offers</h2>
             <p className="mt-2 text-sm text-muted">Hero-style promo surface for campaigns and seasonal pushes.</p>
             <div className="mt-6">
@@ -50,11 +50,11 @@ export default function DealsPage() {
             </div>
           </div>
           <aside className="space-y-4">
-            <div className="rounded-[var(--radius-card)] border border-border bg-page-elevated p-5 shadow-[var(--shadow-card)]">
+            <div className="rounded-none border border-border bg-page-elevated p-5 shadow-[var(--shadow-card)]">
               <p className="text-sm font-semibold text-foreground">Secure checkout</p>
               <p className="mt-2 text-sm text-muted">PCI-minded flows with buyer protection messaging at every step.</p>
             </div>
-            <div className="rounded-[var(--radius-card)] border border-success/25 bg-success/10 p-5">
+            <div className="rounded-none border border-success/25 bg-success/10 p-5">
               <p className="text-sm font-semibold text-success">Delivery guarantees</p>
               <p className="mt-2 text-sm text-muted">
                 Prominent delivery badges reduce anxiety on high-velocity promotional traffic.

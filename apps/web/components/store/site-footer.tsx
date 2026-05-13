@@ -14,10 +14,10 @@ export function SiteFooter() {
               across Zimbabwe.
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
-              <span className="rounded-full border border-success/25 bg-success/10 px-3 py-1 text-xs font-semibold text-success">
+              <span className="rounded-none border border-success/25 bg-success/10 px-3 py-1 text-xs font-semibold text-success">
                 Secure payments
               </span>
-              <span className="rounded-full border border-brand/20 bg-brand/5 px-3 py-1 text-xs font-semibold text-brand">
+              <span className="rounded-none border border-brand/20 bg-brand/5 px-3 py-1 text-xs font-semibold text-brand">
                 Verified sellers
               </span>
             </div>
