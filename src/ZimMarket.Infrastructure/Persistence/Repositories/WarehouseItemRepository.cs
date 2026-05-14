@@ -79,9 +79,11 @@ internal sealed class WarehouseItemRepository : IWarehouseItemRepository
         if (qcStatusFilter.HasValue)
             items = items.Where(x => x.QcStatus == qcStatusFilter.Value);
 
+        // Order on entity columns before projecting — EF cannot translate OrderBy on constructed rows.
         IQueryable<WarehouseItemListRow> query =
             from w in items
             join o in _dbContext.Orders.AsNoTracking() on w.OrderId equals o.Id
+            orderby w.ArrivedAt descending
             select new WarehouseItemListRow(
                 w.Id,
                 w.OrderId,
@@ -98,10 +100,8 @@ internal sealed class WarehouseItemRepository : IWarehouseItemRepository
                 o.TotalAmount.Currency,
                 o.CreatedAt);
 
-        IOrderedQueryable<WarehouseItemListRow> ordered = query.OrderByDescending(x => x.ArrivedAt);
-
-        long totalCount = await ordered.LongCountAsync(cancellationToken).ConfigureAwait(false);
-        List<WarehouseItemListRow> page = await ordered
+        long totalCount = await query.LongCountAsync(cancellationToken).ConfigureAwait(false);
+        List<WarehouseItemListRow> page = await query
             .Skip((pagination.Page - 1) * pagination.PageSize)
             .Take(pagination.PageSize)
             .ToListAsync(cancellationToken)
