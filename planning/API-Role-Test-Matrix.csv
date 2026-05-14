@@ -1,0 +1,61 @@
+Method,Route,Summary,Anonymous,Customer,Seller,Driver,Admin,SuperAdmin,ASP_NET_Policy,Notes,
+GET,/health,Liveness (process up),Yes,No,No,No,No,No,none,No JWT required,
+GET,/health/ready,Readiness (DB + Redis when configured),Yes,No,No,No,No,No,none,No JWT required,
+GET,/openapi/v1.json,OpenAPI document,Yes,Yes,Yes,Yes,Yes,Yes,none,Development only (Program.cs),
+GET,/scalar/v1,Scalar API UI,Yes,Yes,Yes,Yes,Yes,Yes,none,Development only; path may vary with Scalar version,
+GET,/hangfire,Hangfire dashboard UI,Maybe,Maybe,Maybe,Maybe,Maybe,Maybe,none,Only when Hangfire storage configured; requires authenticated principal with Admin or SuperAdmin role claim (browser session not same as Postman JWT unless you wire it),
+WS,/hubs/tracking,SignalR tracking hub,No,Yes,Yes,Yes,Yes,Yes,TrackingHub (authenticated),Yes,Pass access_token query string or negotiate with Bearer per Program.cs
+POST,/api/v1/auth/register/customer,Register customer,Yes,No,No,No,No,No,none,No JWT,
+POST,/api/v1/auth/register/seller,Register seller,Yes,No,No,No,No,No,none,No JWT,
+POST,/api/v1/auth/register/driver,Register driver,Yes,No,No,No,No,No,none,No JWT,
+POST,/api/v1/auth/register/admin,Bootstrap first SuperAdmin OR register Admin pending onboarding,Yes,No,No,No,No,No,none,No,First user in empty DB becomes SuperAdmin; otherwise creates Admin pending email + super approval
+POST,/api/v1/auth/verify-email/admin,Verify admin email token,Yes,No,No,No,No,No,none,No,Anonymous token in body
+POST,/api/v1/auth/login,Login (returns access + refresh tokens),Yes,Yes,Yes,Yes,Yes,Yes,none,Yes,No JWT required to call; use role-specific seeded accounts
+POST,/api/v1/auth/refresh,Refresh tokens,Yes,Yes,Yes,Yes,Yes,Yes,none,Yes,No JWT required; body has old access + refresh
+POST,/api/v1/auth/forgot-password,Request password reset,Yes,No,No,No,No,No,none,No JWT,
+POST,/api/v1/auth/reset-password,Complete password reset,Yes,No,No,No,No,No,none,No JWT,
+POST,/api/v1/auth/logout,Revoke refresh session,No,Yes,Yes,Yes,Yes,Yes,Authorize,Yes,Any authenticated role; body includes refreshToken
+POST,/api/v1/auth/kyc/seller,Submit seller KYC documents,No,No,Yes,No,No,No,Seller,No,Seller role only (KYC not yet approved)
+POST,/api/v1/auth/kyc/driver,Submit driver KYC documents,No,No,No,Yes,No,No,Driver,No,Driver role only (KYC not yet approved)
+GET,/api/v1/products,Search products,Yes,Yes,Yes,Yes,Yes,Yes,none,Yes,Public catalogue
+GET,/api/v1/products/categories,List categories,Yes,Yes,Yes,Yes,Yes,Yes,none,Yes,Public
+GET,/api/v1/products/{id},Product detail,Yes,Yes,Yes,Yes,Yes,Yes,none,Yes,Public
+GET,/api/v1/products/my,Seller's own listings,No,No,Yes,No,No,No,Seller,No,Seller JWT; KYC not enforced at policy
+POST,/api/v1/products,Create product,No,No,Yes,No,No,No,SellerKycApproved,No,Seller + KYC claim Approved
+PUT,/api/v1/products/{id},Update product,No,No,Yes,No,No,No,SellerKycApproved,No,Owner checks in handler
+DELETE,/api/v1/products/{id},Delete product,No,No,Yes,No,No,No,SellerKycApproved,No,Owner checks in handler
+PATCH,/api/v1/products/{id}/stock,Adjust stock,No,No,Yes,No,No,No,SellerKycApproved,No,Owner checks in handler
+POST,/api/v1/orders,Place order,No,Yes,No,No,No,No,Customer,No,Optional Idempotency-Key header per middleware rules
+GET,/api/v1/orders,List customer orders,No,Yes,No,No,No,No,Customer,No,
+GET,/api/v1/orders/seller,List seller orders,No,No,Yes,No,No,No,Seller,No,
+GET,/api/v1/orders/{id},Order detail,No,Maybe,Maybe,No,Yes,Yes,Authorize,JWT any role; handler allows Customer own Admin SuperAdmin Seller if order contains their products; Driver always forbidden (403),
+GET,/api/v1/orders/seller/{id},Seller order detail,No,No,Yes,No,No,No,Seller,No,
+POST,/api/v1/orders/{id}/cancel,Cancel order,No,Yes,No,No,No,No,Customer,No,
+POST,/api/v1/payments/initiate,Start payment for order,No,Yes,No,No,No,No,Customer,No,Requires Idempotency-Key header
+POST,/api/v1/payments/webhook/paynow,Paynow webhook,Yes,No,No,No,No,No,AllowAnonymous,No,Gateway calls; not a normal user test
+POST,/api/v1/payments/webhook/ecocash,Ecocash webhook,Yes,No,No,No,No,No,AllowAnonymous,No,Gateway calls; not a normal user test
+POST,/api/v1/files/presigned-url,Get upload presigned URL,No,Yes,Yes,Yes,Yes,Yes,Authorize,Yes,Any authenticated role; file type must match role use-case
+GET,/api/v1/files/kyc-document/{key},Get read SAS for KYC key,No,No,No,No,Yes,No,Admin,Policy is Admin role only SuperAdmin JWT fails 401/403 at auth layer; super admin uses SAS embedded in GET admin kyc instead,
+GET,/api/v1/admin/kyc,Pending KYC queue,No,No,No,No,Yes,Yes,AdminOrAbove,Query role=Seller or Driver,
+POST,/api/v1/admin/kyc/{userId}/approve,Approve KYC,No,No,No,No,Yes,Yes,AdminOrAbove,,
+POST,/api/v1/admin/kyc/{userId}/reject,Reject KYC,No,No,No,No,Yes,Yes,AdminOrAbove,,
+PATCH,/api/v1/admin/products/{productId}/suspend,Suspend listing,No,No,No,No,Yes,Yes,AdminOrAbove,,
+GET,/api/v1/admin/orders,All orders (ops),No,No,No,No,Yes,Yes,AdminOrAbove,,
+PATCH,/api/v1/admin/orders/{orderId}/status,Override order status,No,No,No,No,Yes,Yes,AdminOrAbove,,
+GET,/api/v1/admin/dashboard,Dashboard stats,No,No,No,No,Yes,Yes,AdminOrAbove,,
+POST,/api/v1/admin/admins,Create admin user,No,No,No,No,No,Yes,SuperAdmin,SuperAdmin only,
+POST,/api/v1/admin/admins/{adminUserId}/approve,Approve self-registered admin,No,No,No,No,No,Yes,SuperAdmin,After verify-email admin,
+POST,/api/v1/admin/users/{userId}/deactivate,Deactivate user,No,No,No,No,Yes,Yes,AdminOrAbove,Lifecycle rules in handlers (Admin cannot deactivate SuperAdmin),
+POST,/api/v1/admin/users/{userId}/activate,Activate user,No,No,No,No,Yes,Yes,AdminOrAbove,,
+POST,/api/v1/warehouse/arrivals,Record warehouse arrival,No,No,No,No,Yes,Yes,AdminOrAbove,,
+PATCH,/api/v1/warehouse/items/{id}/qc,Update QC status,No,No,No,No,Yes,Yes,AdminOrAbove,,
+GET,/api/v1/warehouse/items,List warehouse items,No,No,No,No,Yes,Yes,AdminOrAbove,,
+GET,/api/v1/warehouse/items/unbatched,Unbatched items,No,No,No,No,Yes,Yes,AdminOrAbove,,
+POST,/api/v1/batches,Create delivery batch,No,No,No,No,Yes,Yes,AdminOrAbove,,
+GET,/api/v1/batches,List batches,No,No,No,No,Yes,Yes,AdminOrAbove,,
+GET,/api/v1/batches/{id},Batch details,No,No,No,No,Yes,Yes,AdminOrAbove,,
+GET,/api/v1/batches/drivers/locations,Active driver locations,No,No,No,No,Yes,Yes,AdminOrAbove,,
+GET,/api/v1/drivers/batches/{id},Driver batch details,No,No,No,Yes,No,No,DriverActive,No,Driver + KYC Approved
+POST,/api/v1/drivers/location,Post driver GPS,No,No,No,Yes,No,No,DriverActive,No,
+POST,/api/v1/drivers/batches/{id}/collected,Confirm batch collected,No,No,No,Yes,No,No,DriverActive,No,
+POST,/api/v1/drivers/batches/{id}/orders/{orderId}/delivered,Confirm delivery,No,No,No,Yes,No,No,DriverActive,No,
