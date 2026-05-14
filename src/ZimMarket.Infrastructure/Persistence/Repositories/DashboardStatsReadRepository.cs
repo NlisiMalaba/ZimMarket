@@ -22,50 +22,40 @@ internal sealed class DashboardStatsReadRepository : IDashboardStatsReadReposito
         int lowStockMaxQuantityInclusive,
         CancellationToken cancellationToken = default)
     {
-        Task<int> ordersTodayTask = _dbContext.Orders.AsNoTracking()
+        int ordersToday = await _dbContext.Orders.AsNoTracking()
             .Where(o => o.CreatedAt >= utcDayStart && o.CreatedAt < utcDayEndExclusive)
-            .CountAsync(cancellationToken);
+            .CountAsync(cancellationToken)
+            .ConfigureAwait(false);
 
-        Task<List<PaidOrderTotalRow>> paidTotalsTask = _dbContext.Orders.AsNoTracking()
+        List<PaidOrderTotalRow> paidTotals = await _dbContext.Orders.AsNoTracking()
             .Where(o =>
                 o.CreatedAt >= utcDayStart
                 && o.CreatedAt < utcDayEndExclusive
                 && o.PaymentStatus == PaymentStatus.Paid)
             .Select(o => new PaidOrderTotalRow(o.TotalAmount.Amount, o.TotalAmount.Currency))
-            .ToListAsync(cancellationToken);
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
 
-        Task<long> pendingSellersTask = _dbContext.Sellers.AsNoTracking()
-            .LongCountAsync(s => s.KycStatus == KycStatus.PendingReview, cancellationToken);
+        long pendingSellers = await _dbContext.Sellers.AsNoTracking()
+            .LongCountAsync(s => s.KycStatus == KycStatus.PendingReview, cancellationToken)
+            .ConfigureAwait(false);
 
-        Task<long> pendingDriversTask = _dbContext.Drivers.AsNoTracking()
-            .LongCountAsync(d => d.KycStatus == KycStatus.PendingReview, cancellationToken);
+        long pendingDrivers = await _dbContext.Drivers.AsNoTracking()
+            .LongCountAsync(d => d.KycStatus == KycStatus.PendingReview, cancellationToken)
+            .ConfigureAwait(false);
 
-        Task<int> activeDriversTask = _dbContext.Drivers.AsNoTracking()
+        int activeDrivers = await _dbContext.Drivers.AsNoTracking()
             .Where(d =>
                 d.IsActive
                 && d.IsApproved
                 && (d.DriverStatus == DriverStatus.Available || d.DriverStatus == DriverStatus.OnDelivery))
-            .CountAsync(cancellationToken);
-
-        Task<int> lowStockTask = _dbContext.Products.AsNoTracking()
-            .Where(p => p.Status == ProductStatus.Active && p.StockQuantity <= lowStockMaxQuantityInclusive)
-            .CountAsync(cancellationToken);
-
-        await Task.WhenAll(
-                ordersTodayTask,
-                paidTotalsTask,
-                pendingSellersTask,
-                pendingDriversTask,
-                activeDriversTask,
-                lowStockTask)
+            .CountAsync(cancellationToken)
             .ConfigureAwait(false);
 
-        int ordersToday = await ordersTodayTask.ConfigureAwait(false);
-        List<PaidOrderTotalRow> paidTotals = await paidTotalsTask.ConfigureAwait(false);
-        long pendingSellers = await pendingSellersTask.ConfigureAwait(false);
-        long pendingDrivers = await pendingDriversTask.ConfigureAwait(false);
-        int activeDrivers = await activeDriversTask.ConfigureAwait(false);
-        int lowStock = await lowStockTask.ConfigureAwait(false);
+        int lowStock = await _dbContext.Products.AsNoTracking()
+            .Where(p => p.Status == ProductStatus.Active && p.StockQuantity <= lowStockMaxQuantityInclusive)
+            .CountAsync(cancellationToken)
+            .ConfigureAwait(false);
 
         int pendingKyc = (int)(pendingSellers + pendingDrivers);
         return new DashboardStatsRaw(ordersToday, paidTotals, pendingKyc, activeDrivers, lowStock);
