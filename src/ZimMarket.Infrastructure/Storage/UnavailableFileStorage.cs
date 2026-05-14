@@ -8,7 +8,7 @@ namespace ZimMarket.Infrastructure.Storage;
 public sealed class UnavailableFileStorage : IFileStorage
 {
     private static InvalidOperationException CreateUnavailableException() =>
-        new("File storage is not configured. Set AzureBlob:ConnectionString to enable file operations.");
+        new("File storage is not configured. Set Storage:Provider to 'Local' or configure AzureBlob:ConnectionString.");
 
     public Task<string> UploadAsync(
         Stream stream,

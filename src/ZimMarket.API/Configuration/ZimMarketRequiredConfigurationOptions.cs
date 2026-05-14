@@ -11,6 +11,8 @@ public sealed class ZimMarketRequiredConfigurationOptions
     public string RedisConnectionString { get; set; } = string.Empty;
 
     [Required]
+    public string StorageProvider { get; set; } = string.Empty;
+
     public string AzureBlobConnectionString { get; set; } = string.Empty;
 
     [Required]

@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using ZimMarket.Application.Catalogue;
 using ZimMarket.Application.Common.Interfaces;
@@ -86,9 +87,35 @@ public sealed class SearchProductsQueryTests
         query.Should().NotBeAssignableTo<ZimMarket.Application.Common.Abstractions.ICacheable>();
     }
 
+    [Fact]
+    public async Task Handler_returns_products_without_primary_image_when_storage_is_unavailable()
+    {
+        Guid sellerId = Guid.NewGuid();
+        Guid categoryId = Guid.NewGuid();
+        var repositoryResult = new PagedList<Product>(
+            [CreateProduct(sellerId, Guid.NewGuid(), categoryId, "Fresh tomato", 5m)],
+            page: 1,
+            pageSize: 20,
+            totalCount: 1);
+
+        var result = await HandleQueryAsync(
+            new SearchProductsQuery(null, null, null, null, 1, 20),
+            repositoryResult,
+            fileStorage =>
+            {
+                fileStorage.GenerateSasUrlAsync(Arg.Any<string>(), Arg.Any<DateTimeOffset>(), Arg.Any<CancellationToken>())
+                    .Returns<Task<string>>(_ => throw new InvalidOperationException("File storage is not configured."));
+            });
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value!.Items.Should().ContainSingle();
+        result.Value.Items[0].PrimaryImageUrl.Should().BeNull();
+    }
+
     private static async Task<ZimMarket.Application.Common.Models.Result<PagedList<ProductSummaryDto>>> HandleQueryAsync(
         SearchProductsQuery query,
-        PagedList<Product> repositoryResult)
+        PagedList<Product> repositoryResult,
+        Action<IFileStorage>? configureFileStorage = null)
     {
         Guid sellerId = repositoryResult.Items[0].SellerId;
         Guid categoryId = repositoryResult.Items[0].CategoryId;
@@ -120,8 +147,12 @@ public sealed class SearchProductsQueryTests
         var fileStorage = Substitute.For<IFileStorage>();
         fileStorage.GenerateSasUrlAsync(Arg.Any<string>(), Arg.Any<DateTimeOffset>(), Arg.Any<CancellationToken>())
             .Returns(ci => $"https://blob.example/{ci.ArgAt<string>(0)}");
+        configureFileStorage?.Invoke(fileStorage);
 
-        var handler = new SearchProductsQueryHandler(unitOfWork, fileStorage);
+        var handler = new SearchProductsQueryHandler(
+            unitOfWork,
+            fileStorage,
+            NullLogger<SearchProductsQueryHandler>.Instance);
         return await handler.Handle(query, CancellationToken.None);
     }
 

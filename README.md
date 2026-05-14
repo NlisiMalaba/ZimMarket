@@ -50,6 +50,15 @@ Client apps (React Native / Expo, Next.js admin) are planned alongside this repo
    dotnet build ZimMarket.sln
    ```
 
+   For local file uploads without Azure Blob Storage, run the API with:
+
+   ```bash
+   Storage__Provider=Local
+   LocalFileStorage__PublicBaseUrl=http://localhost:8080
+   LocalFileStorage__RootPath=storage
+   LocalFileStorage__SigningKey=<local-development-secret>
+   ```
+
    **Docker:** create a root `.env` from `.env.example`, then `docker compose up --build` from the repo root. The API image is built from `src/ZimMarket.API/Dockerfile`. Smoke test: `GET http://localhost:${API_PORT:-8080}/health` should return **200**.
 
 ## Seed test users
