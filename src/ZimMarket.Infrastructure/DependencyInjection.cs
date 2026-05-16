@@ -54,7 +54,7 @@ public static class DependencyInjection
             .Bind(configuration.GetSection(LogisticsOptions.SectionName));
         RegisterEntityFramework(services, configuration);
         RegisterRedis(services, configuration);
-        RegisterAzureBlobStorage(services, configuration);
+        RegisterFileStorage(services, configuration);
         RegisterPaymentGateways(services, configuration);
         RegisterExchangeRates(services, configuration);
         RegisterTwilio(services, configuration);
@@ -162,6 +162,63 @@ public static class DependencyInjection
         services.AddSingleton<ICacheService, RedisCacheService>();
     }
 
+    private static void RegisterFileStorage(IServiceCollection services, IConfiguration configuration)
+    {
+        string provider = configuration["Storage:Provider"]?.Trim() ?? string.Empty;
+        if (string.IsNullOrWhiteSpace(provider))
+        {
+            string? azureBlobConnectionString =
+                configuration["AzureBlob:ConnectionString"]
+                ?? configuration.GetConnectionString("AzureBlob");
+
+            provider = string.IsNullOrWhiteSpace(azureBlobConnectionString)
+                ? "Unavailable"
+                : "AzureBlob";
+        }
+
+        if (provider.Equals("Local", StringComparison.OrdinalIgnoreCase))
+        {
+            RegisterLocalFileStorage(services, configuration);
+            return;
+        }
+
+        if (provider.Equals("AzureBlob", StringComparison.OrdinalIgnoreCase))
+        {
+            RegisterAzureBlobStorage(services, configuration);
+            return;
+        }
+
+        services.AddSingleton<IFileStorage, UnavailableFileStorage>();
+    }
+
+    private static void RegisterLocalFileStorage(IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddOptions<LocalFileStorageOptions>()
+            .Bind(configuration.GetSection(LocalFileStorageOptions.SectionName))
+            .PostConfigure(options =>
+            {
+                if (string.IsNullOrWhiteSpace(options.PublicBaseUrl))
+                {
+                    options.PublicBaseUrl =
+                        configuration["Storage:PublicBaseUrl"]
+                        ?? configuration["Api:PublicBaseUrl"]
+                        ?? "http://localhost:8080";
+                }
+            })
+            .ValidateDataAnnotations()
+            .Validate(
+                o => Uri.TryCreate(o.PublicBaseUrl, UriKind.Absolute, out _),
+                "LocalFileStorage:PublicBaseUrl must be an absolute URL.")
+            .Validate(
+                o => o.ReadUrlTtlKyc > TimeSpan.Zero && o.ReadUrlTtlDefault > TimeSpan.Zero && o.WriteUrlTtl > TimeSpan.Zero,
+                "Local file storage read/write URL TTL values must be positive.")
+            .ValidateOnStart();
+
+        services.AddSingleton<LocalFileStorage>();
+        services.AddSingleton<IFileStorage>(sp => sp.GetRequiredService<LocalFileStorage>());
+        services.AddSingleton<ILocalFileStorageAccess>(sp => sp.GetRequiredService<LocalFileStorage>());
+    }
+
     private static void RegisterAzureBlobStorage(IServiceCollection services, IConfiguration configuration)
     {
         string? azureBlobConnectionString =
@@ -169,6 +226,16 @@ public static class DependencyInjection
             ?? configuration.GetConnectionString("AzureBlob");
 
         if (string.IsNullOrWhiteSpace(azureBlobConnectionString))
+        {
+            services.AddSingleton<IFileStorage, UnavailableFileStorage>();
+            return;
+        }
+
+        try
+        {
+            _ = new BlobServiceClient(azureBlobConnectionString);
+        }
+        catch (Exception ex) when (ex is FormatException or ArgumentException)
         {
             services.AddSingleton<IFileStorage, UnavailableFileStorage>();
             return;

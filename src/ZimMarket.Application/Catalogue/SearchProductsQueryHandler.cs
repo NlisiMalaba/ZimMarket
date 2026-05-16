@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.Extensions.Logging;
 using ZimMarket.Application.Common.Interfaces;
 using ZimMarket.Application.Common.Models;
 using ZimMarket.Domain.Common;
@@ -15,13 +16,16 @@ public sealed class SearchProductsQueryHandler : IRequestHandler<SearchProductsQ
 
     private readonly IUnitOfWork _unitOfWork;
     private readonly IFileStorage _fileStorage;
+    private readonly ILogger<SearchProductsQueryHandler> _logger;
 
     public SearchProductsQueryHandler(
         IUnitOfWork unitOfWork,
-        IFileStorage fileStorage)
+        IFileStorage fileStorage,
+        ILogger<SearchProductsQueryHandler> logger)
     {
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         _fileStorage = fileStorage ?? throw new ArgumentNullException(nameof(fileStorage));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     public async Task<Result<ZimMarket.Shared.PagedList<ProductSummaryDto>>> Handle(SearchProductsQuery request, CancellationToken cancellationToken)
@@ -110,6 +114,14 @@ public sealed class SearchProductsQueryHandler : IRequestHandler<SearchProductsQ
         if (imageKeys.Count == 0)
             return null;
 
-        return await _fileStorage.GenerateSasUrlAsync(imageKeys[0], expiry, cancellationToken).ConfigureAwait(false);
+        try
+        {
+            return await _fileStorage.GenerateSasUrlAsync(imageKeys[0], expiry, cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception ex) when (ex is InvalidOperationException or ArgumentException or FormatException)
+        {
+            _logger.LogWarning(ex, "Product primary image URL generation failed for blob key {BlobKey}.", imageKeys[0]);
+            return null;
+        }
     }
 }

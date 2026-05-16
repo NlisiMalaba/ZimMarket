@@ -21,6 +21,7 @@ public sealed class WarehouseController : ControllerBase
     }
 
     [HttpPost("arrivals")]
+     [Authorize(Policy = AuthorizationPolicies.Admin)]
     public async Task<IActionResult> RecordArrival(
         [FromBody] RecordItemArrivalRequest request,
         CancellationToken cancellationToken)
@@ -31,6 +32,7 @@ public sealed class WarehouseController : ControllerBase
     }
 
     [HttpPatch("items/{id:guid}/qc")]
+    [Authorize(Policy = AuthorizationPolicies.Admin)]
     public async Task<IActionResult> UpdateQcStatus(
         Guid id,
         [FromBody] UpdateWarehouseItemQcRequest request,
@@ -42,6 +44,7 @@ public sealed class WarehouseController : ControllerBase
     }
 
     [HttpGet("items")]
+    [Authorize(Policy = AuthorizationPolicies.Admin)]
     public async Task<IActionResult> GetItems(
         [FromQuery] WarehouseQcStatus? qcStatus = null,
         [FromQuery] int page = 1,
@@ -54,6 +57,7 @@ public sealed class WarehouseController : ControllerBase
     }
 
     [HttpGet("items/unbatched")]
+    [Authorize(Policy = AuthorizationPolicies.Admin)]
     public async Task<IActionResult> GetUnbatchedItems(CancellationToken cancellationToken)
     {
         var query = new GetUnbatchedItemsQuery();

@@ -12,9 +12,13 @@ namespace ZimMarket.Infrastructure.Persistence.Migrations;
 
 /// <summary>
 /// Dev/testing seed for one account per role.
-/// Opt-in only: set ZIMMARKET_SEED_TEST_USERS=true before applying migrations.
-/// Optional password override: ZIMMARKET_TEST_USERS_PASSWORD (default: TestPass123!).
+/// Opt-in only: set <c>ZIMMARKET_SEED_TEST_USERS=true</c> in the environment or repository root <c>.env</c> before this migration runs.
+/// Optional password override: <c>ZIMMARKET_TEST_USERS_PASSWORD</c> (default: TestPass123!).
 /// </summary>
+/// <remarks>
+/// If this migration was already applied without the flag, <c>Up</c> did nothing but EF still recorded it.
+/// Remove <c>20260504190300_SeedRoleTestUsers</c> from <c>__EFMigrationsHistory</c>, set the flag, then run <c>dotnet ef database update</c> again.
+/// </remarks>
 [DbContext(typeof(AppDbContext))]
 [Migration("20260504190300_SeedRoleTestUsers")]
 public partial class SeedRoleTestUsers : Migration
@@ -29,6 +33,9 @@ public partial class SeedRoleTestUsers : Migration
 
     protected override void Up(MigrationBuilder migrationBuilder)
     {
+        // Migrations do not load .env automatically; align with design-time factory and Docker Compose.
+        ZimMarket.Infrastructure.Persistence.RepositoryDotEnv.TryApply();
+
         if (!ShouldSeedTestUsers())
             return;
 
@@ -77,7 +84,11 @@ public partial class SeedRoleTestUsers : Migration
 
     private static bool ShouldSeedTestUsers()
     {
-        string raw = Environment.GetEnvironmentVariable("ZIMMARKET_SEED_TEST_USERS");
+        string raw = Environment.GetEnvironmentVariable("ZIMMARKET_SEED_TEST_USERS") ?? string.Empty;
+        raw = raw.Trim();
+        if (raw.Length == 0)
+            return false;
+
         return string.Equals(raw, "true", StringComparison.OrdinalIgnoreCase)
             || string.Equals(raw, "1", StringComparison.OrdinalIgnoreCase)
             || string.Equals(raw, "yes", StringComparison.OrdinalIgnoreCase);

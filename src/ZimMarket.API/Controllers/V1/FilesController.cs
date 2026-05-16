@@ -21,12 +21,18 @@ public sealed class FilesController : ControllerBase
 
     private readonly ISender _sender;
     private readonly IFileStorage _fileStorage;
+    private readonly ILocalFileStorageAccess? _localFileStorageAccess;
     private readonly ILogger<FilesController> _logger;
 
-    public FilesController(ISender sender, IFileStorage fileStorage, ILogger<FilesController> logger)
+    public FilesController(
+        ISender sender,
+        IFileStorage fileStorage,
+        IEnumerable<ILocalFileStorageAccess> localFileStorageAccess,
+        ILogger<FilesController> logger)
     {
         _sender = sender ?? throw new ArgumentNullException(nameof(sender));
         _fileStorage = fileStorage ?? throw new ArgumentNullException(nameof(fileStorage));
+        _localFileStorageAccess = localFileStorageAccess?.SingleOrDefault();
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
@@ -86,6 +92,78 @@ public sealed class FilesController : ControllerBase
             [
                 new ValidationError(nameof(key), ex.Message)
             ]).ToOkActionResult(HttpContext);
+        }
+    }
+
+    [HttpPut("local-upload/{*key}")]
+    [AllowAnonymous]
+    public async Task<IActionResult> UploadLocalFile(
+        string key,
+        [FromQuery] long expires,
+        [FromQuery] string signature,
+        [FromQuery] string contentType,
+        CancellationToken cancellationToken)
+    {
+        if (_localFileStorageAccess is null)
+            return NotFound();
+
+        string normalizedKey = Uri.UnescapeDataString(key).Trim();
+        if (!TryCreateExpiry(expires, out DateTimeOffset expiresAt))
+            return Unauthorized();
+
+        string requestContentType = Request.ContentType ?? contentType;
+
+        if (!_localFileStorageAccess.IsUploadRequestAuthorized(normalizedKey, requestContentType, expiresAt, signature))
+            return Unauthorized();
+
+        await _fileStorage
+            .UploadAsync(Request.Body, normalizedKey, requestContentType, cancellationToken)
+            .ConfigureAwait(false);
+
+        return Ok();
+    }
+
+    [HttpGet("local-read/{*key}")]
+    [AllowAnonymous]
+    public async Task<IActionResult> ReadLocalFile(
+        string key,
+        [FromQuery] long expires,
+        [FromQuery] string signature,
+        CancellationToken cancellationToken)
+    {
+        if (_localFileStorageAccess is null)
+            return NotFound();
+
+        string normalizedKey = Uri.UnescapeDataString(key).Trim();
+        if (!TryCreateExpiry(expires, out DateTimeOffset expiresAt))
+            return Unauthorized();
+
+        if (!_localFileStorageAccess.IsReadRequestAuthorized(normalizedKey, expiresAt, signature))
+            return Unauthorized();
+
+        try
+        {
+            Stream stream = await _localFileStorageAccess.OpenReadAsync(normalizedKey, cancellationToken)
+                .ConfigureAwait(false);
+            return File(stream, _localFileStorageAccess.GetContentType(normalizedKey));
+        }
+        catch (FileNotFoundException)
+        {
+            return NotFound();
+        }
+    }
+
+    private static bool TryCreateExpiry(long unixTimeSeconds, out DateTimeOffset expiresAt)
+    {
+        try
+        {
+            expiresAt = DateTimeOffset.FromUnixTimeSeconds(unixTimeSeconds);
+            return true;
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            expiresAt = default;
+            return false;
         }
     }
 
