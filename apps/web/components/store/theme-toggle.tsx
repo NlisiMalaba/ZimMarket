@@ -4,19 +4,44 @@ import { useTheme } from "@/components/store/theme-provider";
 
 type ThemeToggleProps = {
   /** Use on dark / brand backgrounds (navy header bar). */
-  variant?: "default" | "onBrand";
+  variant?: "default" | "onBrand" | "onHeader";
 };
+
+const HEADER_ICON_BUTTON =
+  "relative inline-flex h-10 w-10 shrink-0 items-center justify-center text-black transition hover:opacity-75 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black/40";
 
 export function ThemeToggle({ variant = "default" }: ThemeToggleProps) {
   const { theme, toggleTheme } = useTheme();
   const isDark = theme === "dark";
+
+  if (variant === "onHeader") {
+    return (
+      <button
+        type="button"
+        onClick={toggleTheme}
+        className={HEADER_ICON_BUTTON}
+        aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+      >
+        {isDark ? (
+          <SunIcon className="h-[22px] w-[22px]" />
+        ) : (
+          <MoonIcon className="h-[22px] w-[22px]" />
+        )}
+      </button>
+    );
+  }
 
   const surface =
     variant === "onBrand"
       ? "border-white/25 bg-white/10 text-white shadow-none hover:border-white/40 hover:bg-white/15 focus-visible:outline-white/60 dark:border-white/20 dark:bg-white/10 dark:hover:bg-white/15"
       : "border-border/90 bg-page/90 text-foreground shadow-sm hover:border-brand/30 hover:shadow-md focus-visible:outline-brand dark:border-slate-700/90 dark:bg-slate-900/50";
 
-  const iconOnBrand = variant === "onBrand" ? "text-white" : isDark ? "text-amber-200" : "text-brand";
+  const iconClass =
+    variant === "onBrand"
+      ? "text-white"
+      : isDark
+        ? "text-amber-200"
+        : "text-brand";
 
   return (
     <button
@@ -26,9 +51,9 @@ export function ThemeToggle({ variant = "default" }: ThemeToggleProps) {
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
     >
       {isDark ? (
-        <SunIcon className="h-[18px] w-[18px] text-amber-200" />
+        <SunIcon className={`h-[18px] w-[18px] ${variant === "onBrand" ? "text-white" : "text-amber-200"}`} />
       ) : (
-        <MoonIcon className={`h-[18px] w-[18px] ${iconOnBrand}`} />
+        <MoonIcon className={`h-[18px] w-[18px] ${iconClass}`} />
       )}
     </button>
   );

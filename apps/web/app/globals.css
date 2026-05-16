@@ -11,6 +11,10 @@
   --color-brand-hover: #172554;
   --color-brand-muted: #3b5998;
 
+  /* Store header (Martfury-style) */
+  --color-header: #fcb800;
+  --color-header-hover: #e3a600;
+
   --color-success: #10b981;
   --color-success-muted: #059669;
 

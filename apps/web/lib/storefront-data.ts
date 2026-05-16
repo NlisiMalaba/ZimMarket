@@ -24,15 +24,19 @@ export type StorefrontProduct = {
 
 export type HeroSlide = {
   id: string;
-  eyebrow: string;
-  title: string;
+  /** Small line above the highlight, e.g. "BIGGEST" */
+  kicker: string;
+  /** Large accent word, e.g. "DROP" */
+  highlight: string;
+  /** Text after the highlight, e.g. "OF THE YEAR!" */
+  headlineTail: string;
   subtitle: string;
   ctaLabel: string;
   ctaHref: string;
-  secondaryCtaLabel?: string;
-  secondaryCtaHref?: string;
-  image: string;
-  gradient: string;
+  /** Tailwind-friendly gradient stops for the slide background */
+  background: string;
+  leftImage: string;
+  rightImage: string;
 };
 
 export const STOREFRONT_CATEGORIES: StorefrontCategory[] = [
@@ -89,60 +93,60 @@ export const STOREFRONT_CATEGORIES: StorefrontCategory[] = [
 
 export const HERO_SLIDES: HeroSlide[] = [
   {
-    id: "1",
-    eyebrow: "This week",
-    title: "Upgrade your everyday tech",
-    subtitle:
-      "If you’re buying a laptop or headphones online, you want the boring stuff done right—clear seller history, real photos, and delivery you can plan your day around.",
-    ctaLabel: "Browse electronics",
-    ctaHref: "/categories/electronics",
-    secondaryCtaLabel: "See what’s on sale",
-    secondaryCtaHref: "/deals",
-    image:
-      "https://images.unsplash.com/photo-1498049794561-7780e7231661?auto=format&fit=crop&w=1600&q=80",
-    gradient: "from-[#0f172a]/92 via-[#1e3a8a]/55 to-[#1e3a8a]/25",
+    id: "drop",
+    kicker: "BIGGEST",
+    highlight: "DROP",
+    headlineTail: "OF THE YEAR!",
+    subtitle: "Hurry, it won't last long!",
+    ctaLabel: "Grab deals",
+    ctaHref: "/deals",
+    background: "from-[#ffd4c4] via-[#ffc9a8] to-[#ffb88a]",
+    leftImage:
+      "https://images.unsplash.com/photo-1483985988354-763728e1115b?auto=format&fit=crop&w=900&q=80",
+    rightImage:
+      "https://images.unsplash.com/photo-1556742502-ec7c0e9f34b1?auto=format&fit=crop&w=900&q=80",
   },
   {
-    id: "2",
-    eyebrow: "From the rail",
-    title: "Clothes you’ll actually wear",
-    subtitle:
-      "We’re picky about who sells fashion here—fewer mystery shops, more sellers who answer messages and ship on time.",
+    id: "tech",
+    kicker: "FRESH",
+    highlight: "TECH",
+    headlineTail: "JUST LANDED",
+    subtitle: "Laptops, audio, and accessories from verified sellers.",
+    ctaLabel: "Shop electronics",
+    ctaHref: "/categories/electronics",
+    background: "from-[#c8e6ff] via-[#b8d9f8] to-[#a8ccf5]",
+    leftImage:
+      "https://images.unsplash.com/photo-1498049794561-7780e7231661?auto=format&fit=crop&w=900&q=80",
+    rightImage:
+      "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    id: "fashion",
+    kicker: "STYLE",
+    highlight: "SALE",
+    headlineTail: "THIS WEEK",
+    subtitle: "Fashion picks with clear sizing and honest photos.",
     ctaLabel: "Shop fashion",
     ctaHref: "/categories/fashion",
-    secondaryCtaLabel: "What just landed",
-    secondaryCtaHref: "/search?tag=new",
-    image:
-      "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1600&q=80",
-    gradient: "from-[#0f172a]/90 via-slate-900/60 to-indigo-900/30",
+    background: "from-[#ffd6e8] via-[#ffc4de] to-[#ffb0d4]",
+    leftImage:
+      "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=900&q=80",
+    rightImage:
+      "https://images.unsplash.com/photo-1469334031218-e382a71b716b?auto=format&fit=crop&w=900&q=80",
   },
   {
-    id: "3",
-    eyebrow: "Automotive",
-    title: "Parts, dash cams, and car care you can trust",
-    subtitle:
-      "Clear fitment notes, honest photos, and delivery windows you can plan around—whether you’re commuting in Harare or road-tripping from Bulawayo.",
-    ctaLabel: "Shop automotive",
-    ctaHref: "/categories/automotive",
-    secondaryCtaLabel: "How delivery works",
-    secondaryCtaHref: "/help",
-    image:
-      "https://images.unsplash.com/photo-1494976388539-d1058494cdd8?auto=format&fit=crop&w=1600&q=80",
-    gradient: "from-[#0f172a]/92 via-slate-900/65 to-slate-800/35",
-  },
-  {
-    id: "4",
-    eyebrow: "Orders",
-    title: "Follow it like a parcel should be followed",
-    subtitle:
-      "No more “it’s on the way” with no context. You’ll see handoffs, delays (when they happen), and who to talk to—without hunting for a support email.",
-    ctaLabel: "Open your orders",
+    id: "delivery",
+    kicker: "FAST",
+    highlight: "DELIVERY",
+    headlineTail: "ACROSS ZIM",
+    subtitle: "Track every handoff—from Harare to Bulawayo and beyond.",
+    ctaLabel: "Track your order",
     ctaHref: "/orders",
-    secondaryCtaLabel: "Keep browsing",
-    secondaryCtaHref: "/categories",
-    image:
-      "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=1600&q=80",
-    gradient: "from-[#020617]/92 via-[#1e3a8a]/50 to-slate-800/35",
+    background: "from-[#c9f5e3] via-[#b5efd6] to-[#9fe8c8]",
+    leftImage:
+      "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=900&q=80",
+    rightImage:
+      "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&w=900&q=80",
   },
 ];
 
