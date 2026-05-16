@@ -1,11 +1,12 @@
 export type ProductCategory =
   | 'All'
-  | 'Groceries'
-  | 'Fresh Produce'
-  | 'Beverages'
-  | 'Household'
-  | 'Snacks'
-  | 'Dairy';
+  | 'Electronics'
+  | 'Phones'
+  | 'Fashion'
+  | 'Home'
+  | 'Beauty'
+  | 'Automotive'
+  | 'Household';
 
 export type Product = {
   id: string;

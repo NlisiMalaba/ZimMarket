@@ -14,13 +14,13 @@ export default function SellerHomePage() {
       <div className="mt-10 flex flex-wrap gap-3">
         <Link
           href="/register"
-          className="inline-flex rounded-md bg-slate-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-slate-800"
+          className="inline-flex rounded-none bg-slate-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-slate-800"
         >
           Create seller account
         </Link>
         <Link
           href="/login"
-          className="inline-flex rounded-md border border-slate-300 bg-white px-5 py-2.5 text-sm font-medium text-slate-800 hover:bg-slate-50"
+          className="inline-flex rounded-none border border-slate-300 bg-white px-5 py-2.5 text-sm font-medium text-slate-800 hover:bg-slate-50"
         >
           Seller sign in
         </Link>

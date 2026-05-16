@@ -18,7 +18,7 @@ export function DriverHeader() {
           </Link>
           <Link
             href="/register"
-            className="rounded-md bg-emerald-700 px-3 py-1.5 text-white hover:bg-emerald-800"
+            className="rounded-none bg-emerald-700 px-3 py-1.5 text-white hover:bg-emerald-800"
           >
             Apply to drive
           </Link>

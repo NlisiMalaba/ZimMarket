@@ -18,12 +18,13 @@ const PAGE_SIZE = 12;
 const DEFAULT_USD_TO_ZWL_RATE = 30;
 const categories: ProductCategory[] = [
   'All',
-  'Groceries',
-  'Fresh Produce',
-  'Beverages',
+  'Electronics',
+  'Phones',
+  'Fashion',
+  'Home',
+  'Beauty',
+  'Automotive',
   'Household',
-  'Snacks',
-  'Dairy',
 ];
 
 const formatCurrency = (value: number, currency: 'USD' | 'ZWL'): string =>

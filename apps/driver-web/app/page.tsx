@@ -14,13 +14,13 @@ export default function DriverHomePage() {
       <div className="mt-10 flex flex-wrap gap-3">
         <Link
           href="/register"
-          className="inline-flex rounded-md bg-emerald-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-emerald-800"
+          className="inline-flex rounded-none bg-emerald-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-emerald-800"
         >
           Start driver application
         </Link>
         <Link
           href="/login"
-          className="inline-flex rounded-md border border-emerald-300 bg-white px-5 py-2.5 text-sm font-medium text-emerald-950 hover:bg-emerald-50"
+          className="inline-flex rounded-none border border-emerald-300 bg-white px-5 py-2.5 text-sm font-medium text-emerald-950 hover:bg-emerald-50"
         >
           Driver sign in
         </Link>

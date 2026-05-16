@@ -18,7 +18,7 @@ export function SellerHeader() {
           </Link>
           <Link
             href="/register"
-            className="rounded-md bg-slate-900 px-3 py-1.5 text-white hover:bg-slate-800"
+            className="rounded-none bg-slate-900 px-3 py-1.5 text-white hover:bg-slate-800"
           >
             Start selling
           </Link>
