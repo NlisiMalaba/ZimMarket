@@ -10,6 +10,8 @@ export type StorefrontProduct = {
   id: string;
   slug: string;
   name: string;
+  /** One-line subtitle shown on product cards */
+  summary: string;
   image: string;
   priceUsd: number;
   compareAtUsd?: number;
@@ -91,6 +93,55 @@ export const STOREFRONT_CATEGORIES: StorefrontCategory[] = [
   },
 ];
 
+export type HomeBentoCategory = {
+  slug: string;
+  name: string;
+  itemCount: number;
+  itemLabel: string;
+  image: string;
+  /** Tailwind col-span classes for the 6-column bento grid (sm+) */
+  colSpan: string;
+};
+
+export const HOME_BENTO_CATEGORIES: HomeBentoCategory[] = [
+  {
+    slug: "electronics",
+    name: "Electronics",
+    itemCount: 1240,
+    itemLabel: "Premium Items",
+    image:
+      "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=1200&q=80",
+    colSpan: "sm:col-span-4",
+  },
+  {
+    slug: "fashion",
+    name: "Fashion",
+    itemCount: 890,
+    itemLabel: "Items",
+    image:
+      "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=900&q=80",
+    colSpan: "sm:col-span-2",
+  },
+  {
+    slug: "home-living",
+    name: "Home & Living",
+    itemCount: 650,
+    itemLabel: "Items",
+    image:
+      "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=900&q=80",
+    colSpan: "sm:col-span-3",
+  },
+  {
+    slug: "beauty",
+    name: "Beauty",
+    itemCount: 420,
+    itemLabel: "Items",
+    image:
+      "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=900&q=80",
+    colSpan: "sm:col-span-3",
+  },
+];
+
 export const HERO_SLIDES: HeroSlide[] = [
   {
     id: "drop",
@@ -155,6 +206,7 @@ const baseProducts: StorefrontProduct[] = [
     id: "p1",
     slug: "wireless-noise-headphones",
     name: "Studio-grade wireless headphones",
+    summary: "Premium noise cancellation with 40-hour battery life.",
     image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80",
     priceUsd: 189,
     compareAtUsd: 249,
@@ -170,6 +222,7 @@ const baseProducts: StorefrontProduct[] = [
     id: "p2",
     slug: "ultrabook-14",
     name: "14\" Ultrabook — 16GB / 512GB",
+    summary: "Lightweight performance laptop built for work and travel.",
     image: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=800&q=80",
     priceUsd: 899,
     compareAtUsd: 1049,
@@ -185,6 +238,7 @@ const baseProducts: StorefrontProduct[] = [
     id: "p3",
     slug: "smartwatch-pro",
     name: "Smartwatch Pro — sapphire glass",
+    summary: "Advanced health tracking with sapphire glass and GPS.",
     image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80",
     priceUsd: 279,
     rating: 4.6,
@@ -198,6 +252,7 @@ const baseProducts: StorefrontProduct[] = [
     id: "p4",
     slug: "minimal-running-shoes",
     name: "Minimal running shoes",
+    summary: "Breathable mesh upper designed for all-day comfort.",
     image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=800&q=80",
     priceUsd: 119,
     compareAtUsd: 149,
@@ -211,6 +266,7 @@ const baseProducts: StorefrontProduct[] = [
     id: "p5",
     slug: "ergonomic-mesh-office-chair",
     name: "Ergonomic mesh office chair",
+    summary: "Adjustable lumbar support for long desk sessions.",
     image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=800&q=80",
     priceUsd: 165,
     rating: 4.9,
@@ -224,6 +280,7 @@ const baseProducts: StorefrontProduct[] = [
     id: "p6",
     slug: "portable-bluetooth-speaker-ipx7",
     name: "Portable Bluetooth speaker (IPX7)",
+    summary: "Waterproof portable audio with 12-hour playback.",
     image: "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?auto=format&fit=crop&w=800&q=80",
     priceUsd: 79,
     compareAtUsd: 99,
@@ -238,6 +295,7 @@ const baseProducts: StorefrontProduct[] = [
     id: "p7",
     slug: "daily-radiance-serum",
     name: "Daily radiance serum 30ml",
+    summary: "Vitamin C serum for daily radiance and hydration.",
     image: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=800&q=80",
     priceUsd: 36,
     rating: 4.4,
@@ -250,6 +308,7 @@ const baseProducts: StorefrontProduct[] = [
     id: "p8",
     slug: "dash-camera-4k",
     name: "4K dash camera with night mode",
+    summary: "4K recording with night vision and parking mode.",
     image: "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=800&q=80",
     priceUsd: 129,
     compareAtUsd: 179,

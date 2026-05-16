@@ -34,8 +34,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning className={`${inter.variable} ${manrope.variable} h-full antialiased`}>
-      <body className="flex min-h-full flex-col text-foreground">
+      <head>
         <ThemeScript />
+      </head>
+      <body className="flex min-h-full flex-col text-foreground">
         <ThemeProvider>
           <SiteHeader />
           <main className="flex-1">{children}</main>

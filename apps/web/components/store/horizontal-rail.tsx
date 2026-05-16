@@ -68,5 +68,5 @@ export function HorizontalRail({
 }
 
 export function RailItem({ children }: { children: React.ReactNode }) {
-  return <div className="w-[min(280px,78vw)] shrink-0 snap-start">{children}</div>;
+  return <div className="w-[min(300px,85vw)] shrink-0 snap-start">{children}</div>;
 }

@@ -1,7 +1,8 @@
 import Link from "next/link";
 
-import { BuyerProtectionBanner, TrustStrip } from "@/components/store/trust-strip";
-import { CategoryCard } from "@/components/store/category-card";
+import { DealsOfTheDay } from "@/components/store/deals-of-the-day";
+import { BuyerProtectionBanner } from "@/components/store/trust-strip";
+import { CategoriesBento } from "@/components/store/categories-bento";
 import { HeroCarousel } from "@/components/store/hero-carousel";
 import { HorizontalRail, RailItem } from "@/components/store/horizontal-rail";
 import { ProductCard } from "@/components/store/product-card";
@@ -10,7 +11,7 @@ import { TopSellersRow } from "@/components/store/top-sellers-row";
 import {
   getProductsByBadge,
   HERO_SLIDES,
-  STOREFRONT_CATEGORIES,
+  HOME_BENTO_CATEGORIES,
   STOREFRONT_PRODUCTS,
 } from "@/lib/storefront-data";
 
@@ -19,36 +20,18 @@ export default function HomePage() {
   const deals = getProductsByBadge("deal");
   const fresh = getProductsByBadge("new");
   const recommended = STOREFRONT_PRODUCTS.slice(0, 4);
-  const [heroCategory, ...restCategories] = STOREFRONT_CATEGORIES;
+  const dealOfDayProducts = (() => {
+    const ids = new Set(deals.map((d) => d.id));
+    const extras = STOREFRONT_PRODUCTS.filter((p) => p.compareAtUsd && !ids.has(p.id));
+    return [...deals, ...extras].slice(0, 8);
+  })();
 
   return (
     <div className="pb-16">
       <HeroCarousel slides={HERO_SLIDES} />
-      <TrustStrip />
+      <DealsOfTheDay products={dealOfDayProducts} />
 
-      <section className="container-store py-12 sm:py-14">
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-          <div className="max-w-2xl">
-            <h2 className="font-display text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">Categories</h2>
-            <p className="mt-3 text-sm leading-relaxed text-muted sm:text-base">
-              Start somewhere sensible. Electronics and fashion behave differently—so the browsing shouldn’t feel
-              identical either.
-            </p>
-          </div>
-          <Link href="/categories" className="shrink-0 text-sm font-medium text-brand underline-offset-4 hover:underline">
-            See the full list
-          </Link>
-        </div>
-
-        <div className="mt-8 grid auto-rows-fr gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="sm:col-span-2 lg:col-span-2 lg:row-span-2">
-            <CategoryCard category={heroCategory} featured />
-          </div>
-          {restCategories.map((c) => (
-            <CategoryCard key={c.slug} category={c} />
-          ))}
-        </div>
-      </section>
+      <CategoriesBento categories={HOME_BENTO_CATEGORIES} />
 
       <HorizontalRail
         id="trending"

@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
 import { useTheme } from "@/components/store/theme-provider";
 
 type ThemeToggleProps = {
@@ -12,7 +14,40 @@ const HEADER_ICON_BUTTON =
 
 export function ThemeToggle({ variant = "default" }: ThemeToggleProps) {
   const { theme, toggleTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const isDark = theme === "dark";
+  const label = isDark ? "Switch to light mode" : "Switch to dark mode";
+
+  if (!mounted) {
+    if (variant === "onHeader") {
+      return (
+        <button type="button" className={HEADER_ICON_BUTTON} aria-label="Toggle theme" suppressHydrationWarning>
+          <MoonIcon className="h-[22px] w-[22px] opacity-0" />
+        </button>
+      );
+    }
+
+    const surface =
+      variant === "onBrand"
+        ? "border-white/25 bg-white/10 text-white shadow-none dark:border-white/20 dark:bg-white/10"
+        : "border-border/90 bg-page/90 text-foreground shadow-sm dark:border-slate-700/90 dark:bg-slate-900/50";
+
+    return (
+      <button
+        type="button"
+        className={`inline-flex h-10 w-10 items-center justify-center rounded-none border transition ${surface}`}
+        aria-label="Toggle theme"
+        suppressHydrationWarning
+      >
+        <MoonIcon className="h-[18px] w-[18px] opacity-0" />
+      </button>
+    );
+  }
 
   if (variant === "onHeader") {
     return (
@@ -20,7 +55,7 @@ export function ThemeToggle({ variant = "default" }: ThemeToggleProps) {
         type="button"
         onClick={toggleTheme}
         className={HEADER_ICON_BUTTON}
-        aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+        aria-label={label}
       >
         {isDark ? (
           <SunIcon className="h-[22px] w-[22px]" />
@@ -48,7 +83,7 @@ export function ThemeToggle({ variant = "default" }: ThemeToggleProps) {
       type="button"
       onClick={toggleTheme}
       className={`inline-flex h-10 w-10 items-center justify-center rounded-none border transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${surface}`}
-      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+      aria-label={label}
     >
       {isDark ? (
         <SunIcon className={`h-[18px] w-[18px] ${variant === "onBrand" ? "text-white" : "text-amber-200"}`} />

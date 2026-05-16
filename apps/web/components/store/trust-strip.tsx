@@ -1,28 +1,3 @@
-import Link from "next/link";
-
-export function TrustStrip() {
-  return (
-    <div className="border-y border-border/70 bg-page-elevated/80 dark:border-slate-800/80 dark:bg-slate-950/50">
-      <div className="container-store flex flex-col gap-5 py-5 sm:flex-row sm:items-start sm:justify-between sm:gap-10">
-        <p className="max-w-3xl text-[15px] leading-relaxed text-foreground/90 sm:text-sm">
-          <span className="font-semibold text-foreground">We get it—</span>
-          buying from someone you’ve never met can feel odd. ZimMarket is built around the unglamorous bits: clearer
-          seller signals, payments that don’t feel sketchy, and delivery updates that read like a human wrote them—not
-          a template.
-        </p>
-        <div className="flex shrink-0 flex-col gap-2 text-sm sm:items-end sm:text-right">
-          <Link href="/help" className="font-medium text-brand underline-offset-4 hover:underline">
-            How we handle disputes
-          </Link>
-          <Link href="/privacy" className="text-muted underline-offset-4 hover:text-foreground hover:underline">
-            Privacy (plain language)
-          </Link>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export function BuyerProtectionBanner() {
   return (
     <aside className="container-store py-8">

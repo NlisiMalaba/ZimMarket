@@ -7,112 +7,74 @@ function formatUsd(n: number) {
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
 }
 
-function discountPct(price: number, compare?: number) {
-  if (!compare || compare <= price) return null;
-  return Math.round((1 - price / compare) * 100);
-}
-
-function StarRow({ rating }: { rating: number }) {
-  const full = Math.floor(rating);
-  const partial = rating - full >= 0.5;
-  return (
-    <div className="flex items-center gap-0.5" aria-label={`${rating} out of 5 stars`}>
-      {Array.from({ length: 5 }).map((_, i) => {
-        const filled = i < full || (i === full && partial);
-        return (
-          <span key={i} className={filled ? "text-cta" : "text-border-strong"}>
-            ★
-          </span>
-        );
-      })}
-    </div>
-  );
+function formatReviewCount(n: number) {
+  return new Intl.NumberFormat("en-US").format(n);
 }
 
 export function ProductCard({ product, priority }: { product: StorefrontProduct; priority?: boolean }) {
-  const pct = discountPct(product.priceUsd, product.compareAtUsd);
   const href = `/products/${encodeURIComponent(product.slug)}`;
+  const showVerified = product.verifiedSeller || product.warehouseVerified;
 
   return (
-    <article className="group relative flex h-full flex-col overflow-hidden rounded-none border border-border bg-page-elevated shadow-[var(--shadow-card)] transition duration-300 hover:-translate-y-0.5 hover:border-border-strong hover:shadow-[var(--shadow-card-hover)]">
-      <Link href={href} className="relative block aspect-square overflow-hidden bg-page">
-        <Image
-          src={product.image}
-          alt={product.name}
-          fill
-          sizes="(max-width:640px) 50vw, (max-width:1024px) 33vw, 25vw"
-          className="object-cover transition duration-500 group-hover:scale-[1.03]"
-          priority={priority}
-        />
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#0f172a]/25 to-transparent opacity-0 transition group-hover:opacity-100" />
-        {product.badge ? (
-          <span className="absolute left-3 top-3 rounded-none bg-cta px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-white shadow-sm">
-            {product.badge === "deal" ? "Deal" : product.badge === "new" ? "New" : "Trending"}
-          </span>
-        ) : null}
-        {pct ? (
-          <span className="absolute right-3 top-3 rounded-none bg-success px-2.5 py-1 text-[11px] font-semibold text-white shadow-sm">
-            -{pct}%
-          </span>
-        ) : null}
-      </Link>
+    <article className="group flex h-full flex-col overflow-hidden rounded-[16px] border border-border/80 bg-page-elevated shadow-sm transition duration-300 hover:shadow-md dark:border-slate-700/80">
+      <div className="relative aspect-square overflow-hidden rounded-t-[16px] bg-[#f3f4f6] dark:bg-slate-800/60">
+        <Link href={href} className="absolute inset-0 block">
+          <Image
+            src={product.image}
+            alt={product.name}
+            fill
+            sizes="(max-width:640px) 50vw, (max-width:1024px) 33vw, 25vw"
+            className="object-contain p-5 transition duration-500 group-hover:scale-[1.03] sm:p-6"
+            priority={priority}
+          />
+        </Link>
 
-      <div className="flex flex-1 flex-col p-4">
-        <Link href={href} className="block">
-          <h3 className="line-clamp-2 min-h-[2.75rem] text-sm font-semibold leading-snug text-foreground transition group-hover:text-brand">
+        {showVerified ? (
+          <span className="absolute left-3 top-3 z-10 inline-flex items-center gap-1 rounded-[8px] bg-emerald-500/15 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-emerald-700 backdrop-blur-sm dark:bg-emerald-500/25 dark:text-emerald-300">
+            <VerifiedIcon className="h-3 w-3" />
+            Verified
+          </span>
+        ) : null}
+
+        <Link
+          href="/account"
+          aria-label="Save to wishlist"
+          className="absolute right-3 top-3 z-10 inline-flex h-9 w-9 items-center justify-center rounded-full border border-border/60 bg-page-elevated/95 text-muted shadow-sm transition hover:border-border-strong hover:text-foreground dark:border-slate-600 dark:bg-slate-900/90"
+        >
+          <HeartIcon className="h-4 w-4" />
+        </Link>
+      </div>
+
+      <div className="flex flex-1 flex-col p-4 sm:p-5">
+        <div className="flex items-center gap-1.5 text-sm">
+          <StarIcon className="h-4 w-4 shrink-0 text-cta" />
+          <span className="font-medium text-foreground">{product.rating.toFixed(1)}</span>
+          <span className="text-muted">({formatReviewCount(product.reviewCount)})</span>
+        </div>
+
+        <Link href={href} className="mt-2 block">
+          <h3 className="line-clamp-2 text-base font-semibold leading-snug text-foreground transition group-hover:text-brand">
             {product.name}
           </h3>
         </Link>
 
-        <div className="mt-3 flex items-baseline gap-2">
-          <p className="text-lg font-semibold tracking-tight text-foreground">{formatUsd(product.priceUsd)}</p>
-          {product.compareAtUsd ? (
-            <p className="text-sm text-muted line-through">{formatUsd(product.compareAtUsd)}</p>
-          ) : null}
-        </div>
+        <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-muted">{product.summary}</p>
 
-        <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted">
-          <StarRow rating={product.rating} />
-          <span className="text-foreground/80">
-            {product.rating.toFixed(1)} <span className="text-muted">({product.reviewCount.toLocaleString()})</span>
-          </span>
-        </div>
-
-        <div className="mt-3 flex flex-wrap items-center gap-2">
-          {product.verifiedSeller ? (
-            <span className="inline-flex items-center gap-1 rounded-none border border-success/25 bg-success/10 px-2 py-0.5 text-[11px] font-medium text-success">
-              <ShieldTick className="h-3.5 w-3.5" />
-              Verified seller
+        <div className="mt-auto flex items-end justify-between gap-3 pt-4">
+          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+            <span className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
+              {formatUsd(product.priceUsd)}
             </span>
-          ) : (
-            <span className="inline-flex items-center gap-1 rounded-none border border-border px-2 py-0.5 text-[11px] font-medium text-muted">
-              Marketplace seller
-            </span>
-          )}
-          {product.warehouseVerified ? (
-            <span className="inline-flex items-center gap-1 rounded-none border border-brand/20 bg-brand/5 px-2 py-0.5 text-[11px] font-medium text-brand">
-              Warehouse checked
-            </span>
-          ) : null}
-        </div>
-
-        <p className="mt-3 flex items-start gap-1.5 text-xs text-muted">
-          <TruckIcon className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand" />
-          <span>{product.deliveryEstimate}</span>
-        </p>
-
-        <div className="mt-4 flex gap-2">
-          <Link
-            href={href}
-            className="inline-flex flex-1 items-center justify-center rounded-none border border-border bg-page px-3 py-2 text-xs font-semibold text-foreground transition hover:border-brand hover:text-brand"
-          >
-            View
-          </Link>
+            {product.compareAtUsd ? (
+              <span className="text-sm text-muted line-through">{formatUsd(product.compareAtUsd)}</span>
+            ) : null}
+          </div>
           <Link
             href="/cart"
-            className="inline-flex flex-1 items-center justify-center rounded-none bg-cta px-3 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-cta-hover"
+            aria-label={`Add ${product.name} to cart`}
+            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] bg-brand text-white shadow-sm transition hover:bg-brand-hover"
           >
-            Buy now
+            <CartPlusIcon className="h-5 w-5" />
           </Link>
         </div>
       </div>
@@ -120,21 +82,41 @@ export function ProductCard({ product, priority }: { product: StorefrontProduct;
   );
 }
 
-function ShieldTick({ className }: { className?: string }) {
+function StarIcon({ className }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
-      <path d="M12 3l7 3v6c0 4-3 7-7 9-4-2-7-5-7-9V6l7-3z" strokeLinejoin="round" />
-      <path d="M9 12l2 2 4-4" strokeLinecap="round" strokeLinejoin="round" />
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+      <path d="M12 2l2.9 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14l-5-4.87 7.1-1.01L12 2z" />
     </svg>
   );
 }
 
-function TruckIcon({ className }: { className?: string }) {
+function VerifiedIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden>
+      <path d="M9 12l2 2 4-4" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="12" cy="12" r="9" />
+    </svg>
+  );
+}
+
+function HeartIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
-      <path d="M3 7h11v10H3zM14 11h3l3 3v3h-6" strokeLinejoin="round" />
-      <circle cx="7.5" cy="18.5" r="1.5" />
-      <circle cx="17.5" cy="18.5" r="1.5" />
+      <path
+        d="M12 20.5s-7-4.35-7-9.5a4 4 0 017-2.2A4 4 0 0119 11c0 5.15-7 9.5-7 9.5z"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function CartPlusIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+      <path d="M6 6h14l-1.5 9H8L6 6zM6 6L5 3H2" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="9" cy="20" r="1.25" fill="currentColor" stroke="none" />
+      <circle cx="17" cy="20" r="1.25" fill="currentColor" stroke="none" />
+      <path d="M12 8v6M9 11h6" strokeLinecap="round" />
     </svg>
   );
 }

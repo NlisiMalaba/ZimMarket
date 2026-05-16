@@ -31,17 +31,21 @@ function applyDomTheme(mode: ThemeMode) {
   else root.classList.remove("dark");
 }
 
+function readInitialTheme(): ThemeMode {
+  const stored = readStoredTheme();
+  if (stored) return stored;
+  if (typeof document !== "undefined" && document.documentElement.classList.contains("dark")) {
+    return "dark";
+  }
+  return "light";
+}
+
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  // Always start light on server + first client paint so SSR matches hydration (theme script sets .dark on <html> before paint).
   const [theme, setThemeState] = useState<ThemeMode>("light");
 
   useLayoutEffect(() => {
-    const stored = readStoredTheme();
-    const fromDom = typeof document !== "undefined" && document.documentElement.classList.contains("dark");
-    const initial: ThemeMode = stored ?? (fromDom ? "dark" : "light");
-    // Reconcile React state with ThemeScript/localStorage after SSR; must run before paint to avoid flicker.
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional one-time hydration from persisted theme
-    setThemeState(initial);
-    applyDomTheme(initial);
+    setThemeState(readInitialTheme());
   }, []);
 
   const setTheme = useCallback((mode: ThemeMode) => {
