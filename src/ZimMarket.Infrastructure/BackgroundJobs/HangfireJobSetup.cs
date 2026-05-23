@@ -19,6 +19,7 @@ public static class HangfireJobSetup
     internal const string RecurringJobCleanExpiredTokens = "clean-expired-refresh-tokens";
     internal const string RecurringJobBatchStaleOrders = "batch-stale-unpaid-orders";
     internal const string RecurringJobArchiveDeliveryData = "archive-old-delivery-data";
+    internal const string RecurringJobPurgeSoftDeletedProducts = "purge-soft-deleted-products";
 
     /// <summary>
     /// Resolves the same PostgreSQL connection used by EF Core migrations and the API.
@@ -63,6 +64,7 @@ public static class HangfireJobSetup
         services.AddTransient<CleanExpiredTokensJob>();
         services.AddTransient<BatchStaleOrdersJob>();
         services.AddTransient<ArchiveOldDeliveryDataJob>();
+        services.AddTransient<PurgeSoftDeletedProductsJob>();
         services.AddTransient<SendNotificationJob>();
 
         return services;
@@ -94,6 +96,11 @@ public static class HangfireJobSetup
             RecurringJobArchiveDeliveryData,
             job => job.Execute(),
             Cron.Weekly(dayOfWeek: DayOfWeek.Sunday, hour: 3));
+
+        recurringJobs.AddOrUpdate<PurgeSoftDeletedProductsJob>(
+            RecurringJobPurgeSoftDeletedProducts,
+            job => job.ExecuteAsync(),
+            Cron.Daily(hour: 4, minute: 0));
     }
 
     public static IApplicationBuilder UseZimMarketHangfireDashboard(this IApplicationBuilder app)

@@ -13,17 +13,20 @@ public sealed class DeleteProductCommandHandler : IRequestHandler<DeleteProductC
 {
     private readonly ICurrentUser _currentUser;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IFileStorage _fileStorage;
     private readonly ICacheService _cacheService;
     private readonly ILogger<DeleteProductCommandHandler> _logger;
 
     public DeleteProductCommandHandler(
         ICurrentUser currentUser,
         IUnitOfWork unitOfWork,
+        IFileStorage fileStorage,
         ICacheService cacheService,
         ILogger<DeleteProductCommandHandler> logger)
     {
         _currentUser = currentUser ?? throw new ArgumentNullException(nameof(currentUser));
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+        _fileStorage = fileStorage ?? throw new ArgumentNullException(nameof(fileStorage));
         _cacheService = cacheService ?? throw new ArgumentNullException(nameof(cacheService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
@@ -43,9 +46,12 @@ public sealed class DeleteProductCommandHandler : IRequestHandler<DeleteProductC
         if (product.SellerId != _currentUser.UserId)
             return Result.Failure("Products.Forbidden", "You can only delete your own products.");
 
+        IReadOnlyList<string> imageKeys = product.ImageKeys.ToList();
         product.Delete();
         await _unitOfWork.Products.UpdateAsync(product, cancellationToken).ConfigureAwait(false);
         await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        await ProductImageStorage.DeleteAllAsync(_fileStorage, imageKeys, _logger, cancellationToken)
+            .ConfigureAwait(false);
         await _cacheService.RemoveAsync(GetProductCacheKey(product.Id), cancellationToken).ConfigureAwait(false);
 
         return Result.Success();

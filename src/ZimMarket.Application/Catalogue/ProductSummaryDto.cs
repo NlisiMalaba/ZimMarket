@@ -10,6 +10,8 @@ public sealed class ProductSummaryDto
 
     public required string Title { get; init; }
 
+    public required string Description { get; init; }
+
     public required decimal PriceAmount { get; init; }
 
     public required string PriceCurrency { get; init; }
@@ -25,4 +27,10 @@ public sealed class ProductSummaryDto
     public required string CategoryName { get; init; }
 
     public string? PrimaryImageUrl { get; init; }
+
+    public string? PrimaryImageKey { get; init; }
+
+    public DateTimeOffset UpdatedAt { get; init; }
+
+    public DateTimeOffset CreatedAt { get; init; }
 }

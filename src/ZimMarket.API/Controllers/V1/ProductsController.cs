@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using ZimMarket.API.Http;
 using ZimMarket.Application.Auth;
 using ZimMarket.Application.Catalogue;
+using ZimMarket.Domain.Enums;
 
 namespace ZimMarket.API.Controllers.V1;
 
@@ -45,10 +46,19 @@ public sealed class ProductsController : ControllerBase
     public async Task<IActionResult> GetMyProducts(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20,
+        [FromQuery] SellerProductListScope scope = SellerProductListScope.Active,
         CancellationToken cancellationToken = default)
     {
-        var query = new GetSellerProductsQuery(page, pageSize);
+        var query = new GetSellerProductsQuery(page, pageSize, scope);
         return (await _sender.Send(query, cancellationToken).ConfigureAwait(false))
+            .ToOkActionResult(HttpContext);
+    }
+
+    [HttpGet("my/{id:guid}")]
+    [Authorize(Policy = AuthorizationPolicies.Seller)]
+    public async Task<IActionResult> GetMyProductById(Guid id, CancellationToken cancellationToken)
+    {
+        return (await _sender.Send(new GetSellerProductDetailQuery(id), cancellationToken).ConfigureAwait(false))
             .ToOkActionResult(HttpContext);
     }
 

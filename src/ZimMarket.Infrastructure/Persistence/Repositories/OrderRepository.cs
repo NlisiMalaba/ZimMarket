@@ -70,7 +70,7 @@ internal sealed class OrderRepository : IOrderRepository
     public async Task<PagedList<Order>> GetBySellerPagedAsync(
         Guid sellerId,
         PaginationParams pagination,
-        OrderStatus? statusFilter,
+        IReadOnlyList<OrderStatus>? statusFilters,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(pagination);
@@ -85,8 +85,8 @@ internal sealed class OrderRepository : IOrderRepository
             .Include(o => o.Items)
             .Where(o => o.Items.Any(i => sellerProductIds.Contains(i.ProductId)));
 
-        if (statusFilter.HasValue)
-            query = query.Where(o => o.Status == statusFilter.Value);
+        if (statusFilters is { Count: > 0 })
+            query = query.Where(o => statusFilters.Contains(o.Status));
 
         query = query.OrderByDescending(o => o.CreatedAt);
 

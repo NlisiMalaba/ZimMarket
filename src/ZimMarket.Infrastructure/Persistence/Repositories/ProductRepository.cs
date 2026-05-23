@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using ZimMarket.Domain.Common;
 using ZimMarket.Domain.Common.Specifications;
 using ZimMarket.Domain.Entities.Catalogue;
+using ZimMarket.Domain.Enums;
 using ZimMarket.Domain.Interfaces.Repositories;
 using ZimMarket.Shared;
 using ZimMarket.Infrastructure.Persistence.Specifications.Products;
@@ -21,6 +22,66 @@ internal sealed class ProductRepository : IProductRepository
         _dbContext.Products
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+
+    public Task<Product?> GetByIdIncludingDeletedAsync(Guid id, CancellationToken cancellationToken = default) =>
+        _dbContext.Products
+            .IgnoreQueryFilters()
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+
+    public async Task<PagedList<Product>> GetSellerPagedAsync(
+        Guid sellerId,
+        SellerProductListScope scope,
+        PaginationParams pagination,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(pagination);
+
+        IQueryable<Product> query = _dbContext.Products
+            .IgnoreQueryFilters()
+            .AsNoTracking()
+            .Where(x => x.SellerId == sellerId);
+
+        query = scope switch
+        {
+            SellerProductListScope.Active => query.Where(x => x.Status != ProductStatus.Deleted),
+            SellerProductListScope.Deleted => query.Where(x => x.Status == ProductStatus.Deleted),
+            SellerProductListScope.All => query,
+            _ => query.Where(x => x.Status != ProductStatus.Deleted),
+        };
+
+        query = query.OrderByDescending(x => x.CreatedAt);
+
+        long totalCount = await query.LongCountAsync(cancellationToken).ConfigureAwait(false);
+        List<Product> items = await query
+            .Skip((pagination.Page - 1) * pagination.PageSize)
+            .Take(pagination.PageSize)
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        return new PagedList<Product>(items, pagination.Page, pagination.PageSize, totalCount);
+    }
+
+    public async Task HardDeleteAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        Product? product = await _dbContext.Products
+            .IgnoreQueryFilters()
+            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (product is not null)
+            _dbContext.Products.Remove(product);
+    }
+
+    public async Task<IReadOnlyList<Product>> FindSoftDeletedOlderThanAsync(
+        DateTimeOffset deletedBeforeUtc,
+        CancellationToken cancellationToken = default) =>
+        await _dbContext.Products
+            .IgnoreQueryFilters()
+            .AsNoTracking()
+            .Where(x => x.Status == ProductStatus.Deleted && x.UpdatedAt <= deletedBeforeUtc)
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
 
     public async Task<PagedList<Product>> GetPagedAsync(
         ProductFilter filter,

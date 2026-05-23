@@ -24,7 +24,7 @@ public interface IOrderRepository
     Task<PagedList<Order>> GetBySellerPagedAsync(
         Guid sellerId,
         PaginationParams pagination,
-        OrderStatus? statusFilter,
+        IReadOnlyList<OrderStatus>? statusFilters,
         CancellationToken cancellationToken = default);
 
     /// <summary>All orders for admin consoles, optionally filtered by status and creation date range (inclusive).</summary>

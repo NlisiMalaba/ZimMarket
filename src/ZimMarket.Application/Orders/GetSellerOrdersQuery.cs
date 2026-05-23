@@ -7,5 +7,6 @@ namespace ZimMarket.Application.Orders;
 public sealed record GetSellerOrdersQuery(
     int Page,
     int PageSize,
-    OrderStatus? StatusFilter) : IQuery<PagedList<SellerOrderListItemDto>>;
+    OrderStatus? StatusFilter,
+    SellerOrderStatusGroup? StatusGroup) : IQuery<PagedList<SellerOrderListItemDto>>;
 

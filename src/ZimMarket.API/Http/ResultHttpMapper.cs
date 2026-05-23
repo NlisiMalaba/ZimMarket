@@ -87,6 +87,9 @@ public static class ResultHttpMapper
             CreateAdminErrorCodes.PhoneAllocationFailed => StatusCodes.Status503ServiceUnavailable,
             UserLifecycleErrorCodes.Forbidden => StatusCodes.Status403Forbidden,
             UserLifecycleErrorCodes.UserNotFound => StatusCodes.Status404NotFound,
+            "Files.Forbidden" => StatusCodes.Status403Forbidden,
+            "Files.NotFound" => StatusCodes.Status404NotFound,
+            "Files.StorageUnavailable" => StatusCodes.Status503ServiceUnavailable,
             UserLifecycleErrorCodes.CannotActOnSelf => StatusCodes.Status403Forbidden,
             UserLifecycleErrorCodes.InsufficientPrivilegeForTarget => StatusCodes.Status403Forbidden,
             LogisticsErrorCodes.LogisticsForbidden => StatusCodes.Status403Forbidden,
@@ -115,6 +118,9 @@ public static class ResultHttpMapper
             "Kyc.SellerNotFound" => StatusCodes.Status404NotFound,
             "Kyc.DriverNotFound" => StatusCodes.Status404NotFound,
             "Kyc.AlreadySubmitted" => StatusCodes.Status409Conflict,
+            "SellerDashboard.Forbidden" => StatusCodes.Status403Forbidden,
+            "Products.Forbidden" => StatusCodes.Status403Forbidden,
+            "Products.NotFound" => StatusCodes.Status404NotFound,
             AuthErrorCodes.AuthAccessTokenNotExpired => StatusCodes.Status400BadRequest,
             _ => StatusCodes.Status400BadRequest
         };

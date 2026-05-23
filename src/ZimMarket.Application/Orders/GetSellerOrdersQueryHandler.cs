@@ -3,6 +3,7 @@ using ZimMarket.Application.Common;
 using ZimMarket.Application.Common.Interfaces;
 using ZimMarket.Application.Common.Models;
 using ZimMarket.Domain.Entities.Orders;
+using ZimMarket.Domain.Entities.Users;
 using ZimMarket.Domain.Enums;
 using ZimMarket.Domain.Interfaces;
 
@@ -39,24 +40,50 @@ public sealed class GetSellerOrdersQueryHandler
             PageSize = request.PageSize
         };
 
+        IReadOnlyList<OrderStatus>? statusFilters = request.StatusGroup.HasValue
+            ? SellerOrderStatusGroups.ResolveStatuses(request.StatusGroup)
+            : request.StatusFilter.HasValue
+                ? [request.StatusFilter.Value]
+                : null;
+
         ZimMarket.Shared.PagedList<Order> orders = await _unitOfWork.Orders
-            .GetBySellerPagedAsync(_currentUser.UserId, pagination, request.StatusFilter, cancellationToken)
+            .GetBySellerPagedAsync(_currentUser.UserId, pagination, statusFilters, cancellationToken)
             .ConfigureAwait(false);
 
+        var sellerProducts = await _unitOfWork.Products
+            .FindBySellerAsync(_currentUser.UserId, cancellationToken)
+            .ConfigureAwait(false);
+
+        var sellerProductIds = sellerProducts.Select(p => p.Id).ToHashSet();
+        var customerCache = new Dictionary<Guid, Customer?>();
         var items = new List<SellerOrderListItemDto>(orders.Items.Count);
+
         foreach (Order order in orders.Items)
         {
-            int sellerLineItemCount = await CountSellerLineItemsAsync(order, _currentUser.UserId, cancellationToken).ConfigureAwait(false);
-            if (sellerLineItemCount == 0)
+            List<OrderItem> sellerItems = order.Items
+                .Where(item => sellerProductIds.Contains(item.ProductId))
+                .ToList();
+
+            if (sellerItems.Count == 0)
                 continue;
+
+            Customer? customer = await GetCustomerAsync(order.CustomerId, customerCache, cancellationToken)
+                .ConfigureAwait(false);
+
+            string primaryProductTitle = BuildPrimaryProductTitle(sellerItems);
+            decimal sellerTotalUsd = sellerItems.Sum(item => item.LineTotal.Amount);
 
             items.Add(new SellerOrderListItemDto(
                 order.Id,
                 order.Status,
                 order.PaymentStatus,
                 order.TotalAmount.Amount,
-                sellerLineItemCount,
-                order.CreatedAt));
+                sellerTotalUsd,
+                sellerItems.Count,
+                order.CreatedAt,
+                customer?.FullName ?? "Unknown customer",
+                customer?.Email ?? string.Empty,
+                primaryProductTitle));
         }
 
         return Result<ZimMarket.Shared.PagedList<SellerOrderListItemDto>>.Success(
@@ -67,18 +94,29 @@ public sealed class GetSellerOrdersQueryHandler
                 orders.TotalCount));
     }
 
-    private async Task<int> CountSellerLineItemsAsync(Order order, Guid sellerId, CancellationToken cancellationToken)
+    private async Task<Customer?> GetCustomerAsync(
+        Guid customerId,
+        Dictionary<Guid, Customer?> cache,
+        CancellationToken cancellationToken)
     {
-        int count = 0;
+        if (cache.TryGetValue(customerId, out Customer? cached))
+            return cached;
 
-        foreach (var item in order.Items)
-        {
-            var product = await _unitOfWork.Products.GetByIdAsync(item.ProductId, cancellationToken).ConfigureAwait(false);
-            if (product?.SellerId == sellerId)
-                count++;
-        }
+        Customer? customer = await _unitOfWork.Customers
+            .GetByIdAsync(customerId, cancellationToken)
+            .ConfigureAwait(false);
 
-        return count;
+        cache[customerId] = customer;
+        return customer;
+    }
+
+    private static string BuildPrimaryProductTitle(IReadOnlyList<OrderItem> sellerItems)
+    {
+        string primaryTitle = sellerItems[0].ProductTitle;
+
+        if (sellerItems.Count > 1)
+            return $"{primaryTitle} +{sellerItems.Count - 1} more";
+
+        return primaryTitle;
     }
 }
-
