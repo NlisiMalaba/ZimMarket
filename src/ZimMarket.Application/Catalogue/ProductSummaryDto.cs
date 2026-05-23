@@ -25,4 +25,6 @@ public sealed class ProductSummaryDto
     public required string CategoryName { get; init; }
 
     public string? PrimaryImageUrl { get; init; }
+
+    public DateTimeOffset UpdatedAt { get; init; }
 }

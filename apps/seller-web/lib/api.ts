@@ -132,4 +132,28 @@ export const api = {
   get<TResponse>(path: string, options?: RequestOptions): Promise<TResponse> {
     return request<TResponse>("GET", path, options);
   },
+  post<TResponse, TBody = unknown>(
+    path: string,
+    body?: TBody,
+    options?: RequestOptions,
+  ): Promise<TResponse> {
+    return request<TResponse, TBody>("POST", path, { ...options, body });
+  },
+  put<TResponse, TBody = unknown>(
+    path: string,
+    body?: TBody,
+    options?: RequestOptions,
+  ): Promise<TResponse> {
+    return request<TResponse, TBody>("PUT", path, { ...options, body });
+  },
+  patch<TResponse, TBody = unknown>(
+    path: string,
+    body?: TBody,
+    options?: RequestOptions,
+  ): Promise<TResponse> {
+    return request<TResponse, TBody>("PATCH", path, { ...options, body });
+  },
+  delete<TResponse>(path: string, options?: RequestOptions): Promise<TResponse> {
+    return request<TResponse>("DELETE", path, options);
+  },
 };

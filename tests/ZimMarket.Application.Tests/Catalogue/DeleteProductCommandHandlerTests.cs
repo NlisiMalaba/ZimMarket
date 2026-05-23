@@ -29,6 +29,7 @@ public sealed class DeleteProductCommandHandlerTests
         var handler = new DeleteProductCommandHandler(
             currentUser,
             unitOfWork,
+            Substitute.For<IFileStorage>(),
             Substitute.For<ICacheService>(),
             NullLogger<DeleteProductCommandHandler>.Instance);
 
@@ -51,9 +52,11 @@ public sealed class DeleteProductCommandHandlerTests
         products.GetByIdAsync(command.ProductId, Arg.Any<CancellationToken>()).Returns(existingProduct);
 
         var cache = Substitute.For<ICacheService>();
+        var fileStorage = Substitute.For<IFileStorage>();
         var handler = new DeleteProductCommandHandler(
             currentUser,
             unitOfWork,
+            fileStorage,
             cache,
             NullLogger<DeleteProductCommandHandler>.Instance);
 
@@ -61,6 +64,8 @@ public sealed class DeleteProductCommandHandlerTests
 
         result.IsSuccess.Should().BeTrue();
         existingProduct.Status.Should().Be(ProductStatus.Deleted);
+        existingProduct.ImageKeys.Should().BeEmpty();
+        await fileStorage.Received(1).DeleteAsync("product-images/seller/original.jpg", Arg.Any<CancellationToken>());
         await products.Received(1).UpdateAsync(existingProduct, Arg.Any<CancellationToken>());
         await unitOfWork.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
         await cache.Received(1).RemoveAsync($"product:{command.ProductId:D}", Arg.Any<CancellationToken>());

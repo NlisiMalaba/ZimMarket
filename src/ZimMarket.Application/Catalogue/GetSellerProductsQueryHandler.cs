@@ -31,21 +31,14 @@ public sealed class GetSellerProductsQueryHandler : IRequestHandler<GetSellerPro
         if (!_currentUser.IsAuthenticated || _currentUser.Role != UserRole.Seller || _currentUser.UserId == Guid.Empty)
             return Result<ZimMarket.Shared.PagedList<ProductSummaryDto>>.Failure("Products.Forbidden", "Only authenticated sellers can view seller products.");
 
-        var filter = new ProductFilter(
-            SearchTerm: null,
-            CategoryId: null,
-            MinPriceUsd: null,
-            MaxPriceUsd: null,
-            SellerId: _currentUser.UserId);
-
         var pagination = new ZimMarket.Shared.PaginationParams
         {
             Page = request.Page,
-            PageSize = request.PageSize
+            PageSize = request.PageSize,
         };
 
         ZimMarket.Shared.PagedList<Product> products = await _unitOfWork.Products
-            .GetPagedAsync(filter, pagination, cancellationToken)
+            .GetSellerPagedAsync(_currentUser.UserId, request.Scope, pagination, cancellationToken)
             .ConfigureAwait(false);
 
         var categoryNames = new Dictionary<Guid, string>();
@@ -69,7 +62,8 @@ public sealed class GetSellerProductsQueryHandler : IRequestHandler<GetSellerPro
                 SellerName = "You",
                 CategoryId = product.CategoryId,
                 CategoryName = categoryName,
-                PrimaryImageUrl = primaryImageUrl
+                PrimaryImageUrl = primaryImageUrl,
+                UpdatedAt = product.UpdatedAt,
             });
         }
 

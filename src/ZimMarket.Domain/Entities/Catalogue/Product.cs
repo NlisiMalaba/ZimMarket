@@ -188,6 +188,7 @@ public sealed class Product : BaseEntity
 
         Status = ProductStatus.Deleted;
         SuspensionReason = null;
+        _imageKeys.Clear();
         Touch();
     }
 

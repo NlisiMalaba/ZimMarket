@@ -117,6 +117,7 @@ public static class ResultHttpMapper
             "Kyc.AlreadySubmitted" => StatusCodes.Status409Conflict,
             "SellerDashboard.Forbidden" => StatusCodes.Status403Forbidden,
             "Products.Forbidden" => StatusCodes.Status403Forbidden,
+            "Products.NotFound" => StatusCodes.Status404NotFound,
             AuthErrorCodes.AuthAccessTokenNotExpired => StatusCodes.Status400BadRequest,
             _ => StatusCodes.Status400BadRequest
         };

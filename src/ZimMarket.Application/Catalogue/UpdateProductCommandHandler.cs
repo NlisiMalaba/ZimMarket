@@ -86,6 +86,7 @@ public sealed class UpdateProductCommandHandler : IRequestHandler<UpdateProductC
 
         try
         {
+            IReadOnlyList<string> previousImageKeys = product.ImageKeys.ToList();
             product.UpdateDetails(
                 request.Title,
                 request.Description,
@@ -93,14 +94,22 @@ public sealed class UpdateProductCommandHandler : IRequestHandler<UpdateProductC
                 request.CategoryId,
                 request.ImageKeys,
                 addressResult.Value);
+
+            await _unitOfWork.Products.UpdateAsync(product, cancellationToken).ConfigureAwait(false);
+            await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            await ProductImageStorage.DeleteOrphanedAsync(
+                    _fileStorage,
+                    previousImageKeys,
+                    request.ImageKeys,
+                    _logger,
+                    cancellationToken)
+                .ConfigureAwait(false);
         }
         catch (DomainException ex)
         {
             return Result.ValidationFailure([new ValidationError(string.Empty, ex.Message)]);
         }
 
-        await _unitOfWork.Products.UpdateAsync(product, cancellationToken).ConfigureAwait(false);
-        await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         await _cacheService.RemoveAsync(GetProductCacheKey(product.Id), cancellationToken).ConfigureAwait(false);
 
         return Result.Success();
