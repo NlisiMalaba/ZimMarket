@@ -26,6 +26,7 @@ public sealed class UnavailableUnitOfWork : IUnitOfWork
     public IWarehouseItemRepository WarehouseItems => throw CreateUnavailableException();
     public IPendingKycReadRepository PendingKyc => throw CreateUnavailableException();
     public IDashboardStatsReadRepository DashboardStats => throw CreateUnavailableException();
+    public ISellerDashboardReadRepository SellerDashboard => throw CreateUnavailableException();
     public IDriverLocationRepository DriverLocations => throw CreateUnavailableException();
     public IAuthTokenRepository AuthTokens => throw CreateUnavailableException();
     public IAdminApprovalStateRepository AdminApprovalStates => throw CreateUnavailableException();

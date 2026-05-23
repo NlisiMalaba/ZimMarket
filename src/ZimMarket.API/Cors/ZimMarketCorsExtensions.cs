@@ -11,9 +11,13 @@ public static class ZimMarketCorsExtensions
 
         string[] mobileOrigins = configuration.GetSection("Cors:MobileAppOrigins").Get<string[]>() ?? [];
         string? adminPanelOrigin = configuration["Cors:AdminPanelOrigin"];
+        string? sellerPanelOrigin = configuration["Cors:SellerPanelOrigin"];
+        string? driverPanelOrigin = configuration["Cors:DriverPanelOrigin"];
 
         var origins = mobileOrigins
             .Append(adminPanelOrigin)
+            .Append(sellerPanelOrigin)
+            .Append(driverPanelOrigin)
             .Where(x => !string.IsNullOrWhiteSpace(x))
             .Select(x => x!.Trim())
             .Distinct(StringComparer.OrdinalIgnoreCase)

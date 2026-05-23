@@ -29,7 +29,9 @@ type RequestWithBodyOptions<TBody> = RequestOptions & {
 
 type ErrorPayload = {
   message?: string;
+  Message?: string;
   errorCode?: string;
+  ErrorCode?: string;
 };
 
 function buildHeaders(headers?: HeadersInit): Headers {
@@ -47,9 +49,21 @@ function buildHeaders(headers?: HeadersInit): Headers {
   return result;
 }
 
+function getApiOrigin(): string {
+  // Browser calls are same-origin; Next.js rewrites proxy to the API (avoids CORS).
+  if (typeof window !== "undefined") {
+    return "";
+  }
+
+  return env.apiUrl;
+}
+
 function buildUrl(path: string, query?: RequestOptions["query"]): string {
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
-  const url = new URL(`${env.apiUrl}${normalizedPath}`);
+  const base = getApiOrigin();
+  const url = base
+    ? new URL(`${base}${normalizedPath}`)
+    : new URL(normalizedPath, window.location.origin);
 
   if (query) {
     for (const [key, value] of Object.entries(query)) {
@@ -105,9 +119,9 @@ async function request<TResponse, TBody = unknown>(
     const fallbackMessage = typeof payload === "string" ? payload : "Unexpected API error.";
 
     throw new ApiError(
-      errorPayload?.message ?? fallbackMessage,
+      errorPayload?.message ?? errorPayload?.Message ?? fallbackMessage,
       response.status,
-      errorPayload?.errorCode,
+      errorPayload?.errorCode ?? errorPayload?.ErrorCode,
     );
   }
 

@@ -33,6 +33,8 @@ public interface IUnitOfWork
 
     IDashboardStatsReadRepository DashboardStats { get; }
 
+    ISellerDashboardReadRepository SellerDashboard { get; }
+
     IDriverLocationRepository DriverLocations { get; }
 
     IAuthTokenRepository AuthTokens { get; }

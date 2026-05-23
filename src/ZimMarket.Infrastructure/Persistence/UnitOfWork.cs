@@ -26,6 +26,7 @@ public sealed class UnitOfWork : IUnitOfWork
     private IWarehouseItemRepository? _warehouseItems;
     private IPendingKycReadRepository? _pendingKyc;
     private IDashboardStatsReadRepository? _dashboardStats;
+    private ISellerDashboardReadRepository? _sellerDashboard;
     private IDriverLocationRepository? _driverLocations;
     private IAuthTokenRepository? _authTokens;
     private IAdminApprovalStateRepository? _adminApprovalStates;
@@ -64,6 +65,9 @@ public sealed class UnitOfWork : IUnitOfWork
 
     public IDashboardStatsReadRepository DashboardStats =>
         _dashboardStats ??= new DashboardStatsReadRepository(_dbContext);
+
+    public ISellerDashboardReadRepository SellerDashboard =>
+        _sellerDashboard ??= new SellerDashboardReadRepository(_dbContext);
 
     public IDriverLocationRepository DriverLocations =>
         _driverLocations ??= new DriverLocationRepository(_dbContext);

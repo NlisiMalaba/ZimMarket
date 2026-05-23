@@ -21,6 +21,13 @@ type ApiSuccessResponse<T> = {
   data: T;
 };
 
+type SellerDashboardStats = {
+  totalOrders: number;
+  totalRevenueUsd: number;
+  activeListings: number;
+  lowStockCount: number;
+};
+
 type SellerOrder = {
   orderId: string;
   status: number | string;
@@ -28,14 +35,6 @@ type SellerOrder = {
   totalUsd: number;
   sellerLineItemCount: number;
   createdAt: string;
-};
-
-type ProductSummary = {
-  productId: string;
-  status: number | string;
-  title: string;
-  priceAmount: number;
-  stockQuantity: number;
 };
 
 type PagedList<T> = {
@@ -46,6 +45,7 @@ type PagedList<T> = {
 };
 
 const refreshIntervalMs = 30_000;
+const recentOrdersPageSize = 10;
 
 function greeting(): string {
   const hour = new Date().getHours();
@@ -70,28 +70,22 @@ function formatDateTime(value: string): string {
 export default function SellerDashboardPage() {
   const displayName = useSyncExternalStore(subscribeToSession, getUserDisplayName, getUserDisplayName);
 
+  const [stats, setStats] = useState<SellerDashboardStats | null>(null);
   const [orders, setOrders] = useState<SellerOrder[]>([]);
-  const [products, setProducts] = useState<ProductSummary[]>([]);
-  const [totalOrders, setTotalOrders] = useState(0);
-  const [totalProducts, setTotalProducts] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const loadDashboard = useCallback(async () => {
     try {
-      const [ordersResponse, productsResponse] = await Promise.all([
+      const [statsResponse, ordersResponse] = await Promise.all([
+        api.get<ApiSuccessResponse<SellerDashboardStats>>("/api/v1/seller/dashboard"),
         api.get<ApiSuccessResponse<PagedList<SellerOrder>>>("/api/v1/orders/seller", {
-          query: { page: 1, pageSize: 50 },
-        }),
-        api.get<ApiSuccessResponse<PagedList<ProductSummary>>>("/api/v1/products/my", {
-          query: { page: 1, pageSize: 50 },
+          query: { page: 1, pageSize: recentOrdersPageSize },
         }),
       ]);
 
+      setStats(statsResponse.data);
       setOrders(ordersResponse.data.items);
-      setProducts(productsResponse.data.items);
-      setTotalOrders(ordersResponse.data.totalCount);
-      setTotalProducts(productsResponse.data.totalCount);
       setErrorMessage(null);
     } catch (error) {
       if (error instanceof ApiError) {
@@ -122,22 +116,12 @@ export default function SellerDashboardPage() {
     };
   }, [loadDashboard]);
 
-  const revenueUsd = useMemo(
-    () => orders.reduce((sum, order) => sum + Number(order.totalUsd ?? 0), 0),
-    [orders],
-  );
+  const revenueUsd = stats?.totalRevenueUsd ?? 0;
+  const totalOrders = stats?.totalOrders ?? 0;
+  const activeListings = stats?.activeListings ?? 0;
+  const lowStockCount = stats?.lowStockCount ?? 0;
 
-  const activeListings = useMemo(
-    () => products.filter((product) => Number(product.status) === 0).length,
-    [products],
-  );
-
-  const lowStockCount = useMemo(
-    () => products.filter((product) => product.stockQuantity < 5).length,
-    [products],
-  );
-
-  const seed = statsSeed(totalOrders, totalProducts, revenueUsd);
+  const seed = statsSeed(totalOrders, activeListings, revenueUsd);
   const revenueTarget = revenueUsd > 0 ? Math.round(Math.max(revenueUsd * 1.15, revenueUsd + 500)) : 55_000;
 
   const orderMixSlices = useMemo(() => {
@@ -183,7 +167,7 @@ export default function SellerDashboardPage() {
         />
         <MetricHighlightCard
           title="Active listings"
-          value={String(activeListings || totalProducts)}
+          value={String(activeListings)}
           seed={seed + 17}
           accent="teal"
           icon={Tag}
