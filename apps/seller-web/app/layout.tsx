@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-import { SellerFooter } from "@/components/seller-footer";
-import { SellerHeader } from "@/components/seller-header";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeScript } from "@/components/theme-script";
 
@@ -39,12 +37,8 @@ export default function RootLayout({
       <head>
         <ThemeScript />
       </head>
-      <body className="flex min-h-full flex-col bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
-        <ThemeProvider>
-          <SellerHeader />
-          <main className="flex-1">{children}</main>
-          <SellerFooter />
-        </ThemeProvider>
+      <body className="flex min-h-full flex-col bg-background text-foreground">
+        <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   );

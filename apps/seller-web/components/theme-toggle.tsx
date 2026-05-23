@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useTheme } from "@/components/theme-provider";
 
 const BUTTON_CLASS =
-  "inline-flex h-9 w-9 shrink-0 items-center justify-center border border-slate-300 bg-white text-slate-700 transition hover:bg-slate-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 dark:focus-visible:outline-slate-300";
+  "inline-flex h-10 w-9 shrink-0 items-center justify-center rounded-xl border border-border/80 bg-card text-muted-foreground transition hover:bg-muted hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring sm:h-10 sm:w-10";
 
 export function ThemeToggle() {
   const { theme, toggleTheme } = useTheme();

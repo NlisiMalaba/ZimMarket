@@ -1,78 +1,290 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
-import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { DollarSign, Eye, Package, Tag } from "lucide-react";
 
 import {
-  clearSession,
-  getAccessToken,
-  getCurrentUserRole,
-  getKycStatus,
-  subscribeToSession,
-} from "@/lib/auth-session";
+  MetricHighlightCard,
+  MonthlyGoalCard,
+  OrderMixDonut,
+  OverviewAreaChart,
+} from "@/components/dashboard/dashboard-widgets";
+import { ApiError, api } from "@/lib/api";
+import { getUserDisplayName, subscribeToSession } from "@/lib/auth-session";
+import {
+  formatCurrencyUsd,
+  getOrderStatusLabel,
+  getPaymentStatusLabel,
+} from "@/lib/domain-enums";
 
-const KYC_STATUS_LABELS: Record<string, string> = {
-  NotSubmitted: "KYC not submitted",
-  PendingReview: "KYC pending review",
-  Approved: "KYC approved",
-  Rejected: "KYC rejected",
-  "0": "KYC not submitted",
-  "1": "KYC pending review",
-  "2": "KYC approved",
-  "3": "KYC rejected",
+type ApiSuccessResponse<T> = {
+  data: T;
 };
 
+type SellerOrder = {
+  orderId: string;
+  status: number | string;
+  paymentStatus: number | string;
+  totalUsd: number;
+  sellerLineItemCount: number;
+  createdAt: string;
+};
+
+type ProductSummary = {
+  productId: string;
+  status: number | string;
+  title: string;
+  priceAmount: number;
+  stockQuantity: number;
+};
+
+type PagedList<T> = {
+  items: T[];
+  page: number;
+  pageSize: number;
+  totalCount: number;
+};
+
+const refreshIntervalMs = 30_000;
+
+function greeting(): string {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good morning";
+  if (hour < 17) return "Good afternoon";
+  return "Good evening";
+}
+
+function statsSeed(totalOrders: number, totalProducts: number, revenue: number): number {
+  return ((totalOrders * 7919) ^ (Math.round(revenue * 100) * 7933) ^ (totalProducts * 7949)) >>> 0;
+}
+
+function formatDateTime(value: string): string {
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    return value;
+  }
+
+  return parsed.toLocaleString();
+}
+
 export default function SellerDashboardPage() {
-  const router = useRouter();
-  const token = useSyncExternalStore(subscribeToSession, getAccessToken, getAccessToken);
-  const role = useSyncExternalStore(subscribeToSession, getCurrentUserRole, getCurrentUserRole);
-  const kycStatus = useSyncExternalStore(subscribeToSession, getKycStatus, getKycStatus);
+  const displayName = useSyncExternalStore(subscribeToSession, getUserDisplayName, getUserDisplayName);
 
-  const kycLabel = kycStatus ? (KYC_STATUS_LABELS[kycStatus] ?? `KYC status: ${kycStatus}`) : "Unknown";
+  const [orders, setOrders] = useState<SellerOrder[]>([]);
+  const [products, setProducts] = useState<ProductSummary[]>([]);
+  const [totalOrders, setTotalOrders] = useState(0);
+  const [totalProducts, setTotalProducts] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const onSignOut = async () => {
+  const loadDashboard = useCallback(async () => {
     try {
-      await fetch("/api/auth/logout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ accessToken: token }),
-      });
+      const [ordersResponse, productsResponse] = await Promise.all([
+        api.get<ApiSuccessResponse<PagedList<SellerOrder>>>("/api/v1/orders/seller", {
+          query: { page: 1, pageSize: 50 },
+        }),
+        api.get<ApiSuccessResponse<PagedList<ProductSummary>>>("/api/v1/products/my", {
+          query: { page: 1, pageSize: 50 },
+        }),
+      ]);
+
+      setOrders(ordersResponse.data.items);
+      setProducts(productsResponse.data.items);
+      setTotalOrders(ordersResponse.data.totalCount);
+      setTotalProducts(productsResponse.data.totalCount);
+      setErrorMessage(null);
+    } catch (error) {
+      if (error instanceof ApiError) {
+        setErrorMessage(error.message);
+      } else {
+        setErrorMessage("Unable to load dashboard data.");
+      }
     } finally {
-      clearSession();
-      router.replace("/login");
+      setIsLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const run = (): void => {
+      if (isMounted) {
+        void loadDashboard();
+      }
+    };
+
+    queueMicrotask(run);
+    const intervalId = window.setInterval(run, refreshIntervalMs);
+
+    return () => {
+      isMounted = false;
+      window.clearInterval(intervalId);
+    };
+  }, [loadDashboard]);
+
+  const revenueUsd = useMemo(
+    () => orders.reduce((sum, order) => sum + Number(order.totalUsd ?? 0), 0),
+    [orders],
+  );
+
+  const activeListings = useMemo(
+    () => products.filter((product) => Number(product.status) === 0).length,
+    [products],
+  );
+
+  const lowStockCount = useMemo(
+    () => products.filter((product) => product.stockQuantity < 5).length,
+    [products],
+  );
+
+  const seed = statsSeed(totalOrders, totalProducts, revenueUsd);
+  const revenueTarget = revenueUsd > 0 ? Math.round(Math.max(revenueUsd * 1.15, revenueUsd + 500)) : 55_000;
+
+  const orderMixSlices = useMemo(() => {
+    const pending = orders.filter((order) => Number(order.status) === 0).length;
+    const inProgress = orders.filter((order) => {
+      const status = Number(order.status);
+      return status >= 1 && status <= 5;
+    }).length;
+    const delivered = orders.filter((order) => Number(order.status) === 6).length;
+    const cancelled = orders.filter((order) => Number(order.status) === 7).length;
+    const bump = pending + inProgress + delivered + cancelled === 0 ? 1 : 0;
+
+    return [
+      { label: "Pending", value: pending + bump * 0.25, color: "rgb(249 115 22)" },
+      { label: "In progress", value: inProgress + bump * 0.25, color: "rgb(20 184 166)" },
+      { label: "Delivered", value: delivered + bump * 0.25, color: "rgb(51 65 85)" },
+      { label: "Cancelled", value: cancelled + bump * 0.25, color: "rgb(245 158 11)" },
+    ];
+  }, [orders]);
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">Seller dashboard</h1>
-          <p className="mt-2 text-slate-600 dark:text-slate-400">
-            You are signed in as a seller. Product and order tools will appear here next.
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={onSignOut}
-          className="border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
-        >
-          Sign out
-        </button>
-      </div>
+    <div className="mx-auto max-w-[1400px] space-y-8">
+      <header className="flex flex-col gap-1">
+        <h1 className="text-3xl font-semibold tracking-tight text-foreground">Dashboard</h1>
+        <p className="max-w-xl text-sm text-muted-foreground">
+          {greeting()}, {displayName}. Here&apos;s what&apos;s happening with your store today.
+        </p>
+      </header>
 
-      <div className="mt-8 grid gap-4 sm:grid-cols-2">
-        <div className="border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900">
-          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Account</p>
-          <p className="mt-1 text-lg font-semibold text-slate-900 dark:text-slate-100">
-            {role === "Seller" ? "Seller" : "Unknown"}
-          </p>
+      {errorMessage ? (
+        <div className="rounded-2xl border border-destructive/30 bg-destructive/10 px-5 py-4 text-sm text-destructive shadow-sm">
+          {errorMessage}
         </div>
-        <div className="border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900">
-          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Verification</p>
-          <p className="mt-1 text-lg font-semibold text-slate-900 dark:text-slate-100">{kycLabel}</p>
+      ) : null}
+
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <MetricHighlightCard
+          title="Total revenue"
+          value={formatCurrencyUsd(revenueUsd)}
+          seed={seed + 11}
+          accent="orange"
+          icon={DollarSign}
+        />
+        <MetricHighlightCard
+          title="Active listings"
+          value={String(activeListings || totalProducts)}
+          seed={seed + 17}
+          accent="teal"
+          icon={Tag}
+        />
+        <MetricHighlightCard
+          title="Total orders"
+          value={String(totalOrders)}
+          seed={seed + 23}
+          accent="slate"
+          icon={Package}
+        />
+        <MetricHighlightCard
+          title="Low stock items"
+          value={String(lowStockCount)}
+          seed={seed + 29}
+          accent="amber"
+          icon={Eye}
+        />
+      </section>
+
+      <section className="grid gap-6 lg:grid-cols-12">
+        <div className="lg:col-span-8">
+          <OverviewAreaChart revenueUsd={revenueUsd} seed={seed + 101} />
         </div>
-      </div>
+        <div className="flex flex-col gap-6 lg:col-span-4">
+          <OrderMixDonut
+            title="Order pipeline"
+            subtitle="Where your orders are in fulfilment"
+            centerLabel={String(totalOrders)}
+            centerCaption="orders"
+            slices={orderMixSlices}
+          />
+          <MonthlyGoalCard
+            title="Monthly goals"
+            subtitle="Track progress toward your revenue target"
+            current={revenueUsd}
+            target={revenueTarget}
+            formatter={formatCurrencyUsd}
+          />
+        </div>
+      </section>
+
+      <section className="overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/70 px-6 py-4">
+          <div>
+            <h2 className="text-lg font-semibold tracking-tight">Recent orders</h2>
+            <p className="text-sm text-muted-foreground">Latest orders assigned to your store</p>
+          </div>
+          {isLoading ? <span className="text-xs font-medium text-muted-foreground">Updating…</span> : null}
+        </div>
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-border/70">
+            <thead>
+              <tr className="text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                <th className="px-6 py-3">Order</th>
+                <th className="px-6 py-3">Status</th>
+                <th className="px-6 py-3">Payment</th>
+                <th className="px-6 py-3">Amount</th>
+                <th className="px-6 py-3">Items</th>
+                <th className="px-6 py-3">Created</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border/60 text-sm">
+              {orders.map((order) => (
+                <tr key={order.orderId} className="bg-card hover:bg-muted/30">
+                  <td className="whitespace-nowrap px-6 py-3 font-mono text-xs">{order.orderId.slice(0, 8)}</td>
+                  <td className="whitespace-nowrap px-6 py-3">
+                    <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium">
+                      {getOrderStatusLabel(order.status)}
+                    </span>
+                  </td>
+                  <td className="whitespace-nowrap px-6 py-3 text-muted-foreground">
+                    {getPaymentStatusLabel(order.paymentStatus)}
+                  </td>
+                  <td className="whitespace-nowrap px-6 py-3 font-medium tabular-nums">
+                    {formatCurrencyUsd(Number(order.totalUsd))}
+                  </td>
+                  <td className="whitespace-nowrap px-6 py-3 tabular-nums">{order.sellerLineItemCount}</td>
+                  <td className="whitespace-nowrap px-6 py-3 text-muted-foreground">
+                    {formatDateTime(order.createdAt)}
+                  </td>
+                </tr>
+              ))}
+              {!isLoading && orders.length === 0 ? (
+                <tr>
+                  <td className="px-6 py-12 text-center text-muted-foreground" colSpan={6}>
+                    No orders yet. They will appear here once customers buy your products.
+                  </td>
+                </tr>
+              ) : null}
+              {isLoading ? (
+                <tr>
+                  <td className="px-6 py-12 text-center text-muted-foreground" colSpan={6}>
+                    Loading dashboard…
+                  </td>
+                </tr>
+              ) : null}
+            </tbody>
+          </table>
+        </div>
+      </section>
     </div>
   );
 }

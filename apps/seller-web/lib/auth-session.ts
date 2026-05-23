@@ -58,6 +58,48 @@ export function getKycStatus(): string | null {
   return typeof kycStatus === "string" ? kycStatus : kycStatus != null ? String(kycStatus) : null;
 }
 
+export function getUserEmail(): string | null {
+  if (!accessToken) {
+    return null;
+  }
+
+  const payload = decodeJwtPayload(accessToken);
+  return typeof payload?.email === "string" ? payload.email : null;
+}
+
+export function getUserDisplayName(): string {
+  const email = getUserEmail();
+  if (!email) {
+    return "Seller";
+  }
+
+  const localPart = email.split("@")[0] ?? "Seller";
+  const normalized = localPart.replace(/[._-]+/g, " ").trim();
+  if (!normalized) {
+    return "Seller";
+  }
+
+  return normalized
+    .split(" ")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+export function getUserInitials(): string {
+  const email = getUserEmail();
+  if (!email) {
+    return "SE";
+  }
+
+  const localPart = email.split("@")[0] ?? "";
+  const parts = localPart.split(/[._-]+/).filter(Boolean);
+  if (parts.length >= 2) {
+    return `${parts[0]?.[0] ?? ""}${parts[1]?.[0] ?? ""}`.toUpperCase();
+  }
+
+  return localPart.slice(0, 2).toUpperCase() || "SE";
+}
+
 export function clearSession(): void {
   accessToken = null;
   notifyListeners();
