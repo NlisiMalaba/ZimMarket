@@ -45,3 +45,27 @@ export function formatCurrencyUsd(amount: number): string {
     maximumFractionDigits: 2,
   }).format(amount);
 }
+
+export type SellerOrderDisplayStatus = "Completed" | "Processing" | "Pending" | "Cancelled";
+
+export function getSellerOrderDisplayStatus(status: number | string): SellerOrderDisplayStatus {
+  const key = typeof status === "string" ? Number.parseInt(status, 10) : status;
+
+  if (key === 6) {
+    return "Completed";
+  }
+
+  if (key === 7) {
+    return "Cancelled";
+  }
+
+  if (key === 0) {
+    return "Pending";
+  }
+
+  return "Processing";
+}
+
+export function resolveOrderStatusNumber(status: number | string): number {
+  return typeof status === "string" ? Number.parseInt(status, 10) : status;
+}

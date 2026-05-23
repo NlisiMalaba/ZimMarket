@@ -57,9 +57,10 @@ public sealed class OrdersController : ControllerBase
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20,
         [FromQuery] OrderStatus? statusFilter = null,
+        [FromQuery] SellerOrderStatusGroup? statusGroup = null,
         CancellationToken cancellationToken = default)
     {
-        var query = new GetSellerOrdersQuery(page, pageSize, statusFilter);
+        var query = new GetSellerOrdersQuery(page, pageSize, statusFilter, statusGroup);
         return (await _sender.Send(query, cancellationToken).ConfigureAwait(false))
             .ToOkActionResult(HttpContext);
     }

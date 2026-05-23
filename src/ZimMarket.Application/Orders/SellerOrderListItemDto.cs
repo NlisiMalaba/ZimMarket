@@ -7,6 +7,10 @@ public sealed record SellerOrderListItemDto(
     OrderStatus Status,
     PaymentStatus PaymentStatus,
     decimal TotalUsd,
+    decimal SellerTotalUsd,
     int SellerLineItemCount,
-    DateTimeOffset CreatedAt);
+    DateTimeOffset CreatedAt,
+    string CustomerName,
+    string CustomerEmail,
+    string PrimaryProductTitle);
 
