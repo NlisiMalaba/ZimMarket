@@ -47,7 +47,7 @@ internal static class ProductImageStorage
         }
     }
 
-    private static bool IsProductImageKey(string key) =>
+    public static bool IsProductImageKey(string key) =>
         key.StartsWith(ProductImagesPrefix, StringComparison.OrdinalIgnoreCase);
 
     private static async Task TryDeleteAsync(

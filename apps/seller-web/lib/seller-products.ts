@@ -30,6 +30,7 @@ export type SellerProductSummary = {
   stockQuantity: number;
   categoryId: string;
   categoryName: string;
+  primaryImageKey: string | null;
   primaryImageUrl: string | null;
   updatedAt: string;
   createdAt: string;
@@ -148,7 +149,15 @@ export const sellerProductsService = {
       },
     );
 
-    return readData(response);
+    const page = readData(response);
+    return {
+      ...page,
+      items: page.items.map((item) => ({
+        ...item,
+        primaryImageKey: item.primaryImageKey ?? null,
+        primaryImageUrl: item.primaryImageUrl ?? null,
+      })),
+    };
   },
 
   async getProduct(productId: string): Promise<SellerProductDetail> {

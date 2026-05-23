@@ -10,7 +10,7 @@ namespace ZimMarket.Application.Catalogue;
 
 public sealed class GetSellerProductsQueryHandler : IRequestHandler<GetSellerProductsQuery, Result<ZimMarket.Shared.PagedList<ProductSummaryDto>>>
 {
-    private static readonly TimeSpan ImageUrlTtl = TimeSpan.FromHours(1);
+    private static readonly TimeSpan ImageUrlTtl = TimeSpan.FromHours(24);
 
     private readonly ICurrentUser _currentUser;
     private readonly IUnitOfWork _unitOfWork;
@@ -48,6 +48,7 @@ public sealed class GetSellerProductsQueryHandler : IRequestHandler<GetSellerPro
         foreach (Product product in products.Items)
         {
             string categoryName = await ResolveCategoryNameAsync(product.CategoryId, categoryNames, cancellationToken).ConfigureAwait(false);
+            string? primaryImageKey = product.ImageKeys.Count > 0 ? product.ImageKeys[0] : null;
             string? primaryImageUrl = await ResolvePrimaryImageUrlAsync(product.ImageKeys, imageExpiry, cancellationToken).ConfigureAwait(false);
 
             summaries.Add(new ProductSummaryDto
@@ -64,6 +65,7 @@ public sealed class GetSellerProductsQueryHandler : IRequestHandler<GetSellerPro
                 CategoryId = product.CategoryId,
                 CategoryName = categoryName,
                 PrimaryImageUrl = primaryImageUrl,
+                PrimaryImageKey = primaryImageKey,
                 UpdatedAt = product.UpdatedAt,
                 CreatedAt = product.CreatedAt,
             });

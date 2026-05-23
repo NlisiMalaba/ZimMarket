@@ -10,7 +10,7 @@ namespace ZimMarket.Application.Catalogue;
 public sealed class GetSellerProductDetailQueryHandler
     : IRequestHandler<GetSellerProductDetailQuery, Result<SellerProductDetailDto>>
 {
-    private static readonly TimeSpan ImageUrlTtl = TimeSpan.FromHours(1);
+    private static readonly TimeSpan ImageUrlTtl = TimeSpan.FromHours(24);
 
     private readonly ICurrentUser _currentUser;
     private readonly IUnitOfWork _unitOfWork;

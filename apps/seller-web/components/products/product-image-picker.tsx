@@ -2,6 +2,8 @@
 
 import Image from "next/image";
 import { useRef } from "react";
+
+import { ProductImage } from "@/components/products/product-image";
 import { ImagePlus, X } from "lucide-react";
 
 import { MAX_PRODUCT_IMAGES } from "@/lib/seller-products";
@@ -74,7 +76,7 @@ export function ProductImagePicker({
             key={image.key}
             className="relative size-24 overflow-hidden rounded-xl border border-border/70 bg-muted"
           >
-            <Image src={image.url} alt="" fill className="object-cover" unoptimized />
+            <ProductImage imageKey={image.key} alt="" />
             <button
               type="button"
               disabled={disabled}

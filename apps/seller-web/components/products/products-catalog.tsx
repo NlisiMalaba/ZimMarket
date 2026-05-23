@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -18,6 +17,7 @@ import {
   Trash2,
 } from "lucide-react";
 
+import { ProductImage } from "@/components/products/product-image";
 import { ProductStatusBadge } from "@/components/products/product-status-badge";
 import { DeleteProductDialog } from "@/components/products/delete-product-dialog";
 import { ApiError } from "@/lib/api";
@@ -207,6 +207,7 @@ export function ProductsCatalog({ kycApproved }: ProductsCatalogProps) {
         pageSize,
         scope: tabToApiScope(statusTab),
       });
+
       setProducts(response.items);
       setTotalCount(response.totalCount);
       setErrorMessage(null);
@@ -227,6 +228,22 @@ export function ProductsCatalog({ kycApproved }: ProductsCatalogProps) {
     closeProductMenu();
     void loadProducts();
   }, [closeProductMenu, loadProducts]);
+
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.visibilityState === "visible") {
+        void loadProducts();
+      }
+    };
+
+    window.addEventListener("focus", onVisible);
+    document.addEventListener("visibilitychange", onVisible);
+
+    return () => {
+      window.removeEventListener("focus", onVisible);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [loadProducts]);
 
   useEffect(() => {
     function onDocumentClick(event: MouseEvent) {
@@ -564,17 +581,7 @@ export function ProductsCatalog({ kycApproved }: ProductsCatalogProps) {
                   <td className="px-4 py-4">
                     <div className="flex items-center gap-3">
                       <div className="relative flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border/70 bg-muted">
-                        {product.primaryImageUrl ? (
-                          <Image
-                            src={product.primaryImageUrl}
-                            alt=""
-                            fill
-                            className="object-cover"
-                            unoptimized
-                          />
-                        ) : (
-                          <Package className="size-4 text-muted-foreground" />
-                        )}
+                        <ProductImage imageKey={product.primaryImageKey} alt={product.title} />
                       </div>
                       <div className="min-w-0">
                         <p className="truncate font-medium text-foreground">{product.title}</p>

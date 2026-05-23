@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { use, useEffect, useState, useSyncExternalStore } from "react";
@@ -15,6 +14,7 @@ import {
 } from "lucide-react";
 
 import { DeleteProductDialog } from "@/components/products/delete-product-dialog";
+import { ProductImage } from "@/components/products/product-image";
 import { ProductStatusBadge } from "@/components/products/product-status-badge";
 import { getKycStatus, subscribeToSession } from "@/lib/auth-session";
 import { formatCurrencyUsd } from "@/lib/domain-enums";
@@ -85,7 +85,7 @@ export default function ViewProductPage({ params }: ViewProductPageProps) {
   }, [productId]);
 
   const isDeleted = Number(product?.status) === 2;
-  const primaryImageUrl = product?.imageUrls[0] ?? null;
+  const primaryImageKey = product?.imageKeys[0] ?? null;
   const canManage = !isDeleted && kycApproved;
 
   const handleDeleteConfirm = async () => {
@@ -211,20 +211,12 @@ export default function ViewProductPage({ params }: ViewProductPageProps) {
           <div className="space-y-6 lg:col-span-4">
             <section className="rounded-xl border border-border/80 bg-card p-6">
               <h2 className="text-lg font-semibold text-foreground">Image</h2>
-              <div className="mt-4 flex aspect-square items-center justify-center overflow-hidden rounded-xl border border-border/80 bg-muted/40">
-                {primaryImageUrl ? (
-                  <div className="relative size-full">
-                    <Image
-                      src={primaryImageUrl}
-                      alt={product.title}
-                      fill
-                      className="object-cover"
-                      unoptimized
-                    />
-                  </div>
-                ) : (
-                  <Package className="size-16 text-muted-foreground/50" strokeWidth={1.25} />
-                )}
+              <div className="relative mt-4 flex aspect-square items-center justify-center overflow-hidden rounded-xl border border-border/80 bg-muted/40">
+                <ProductImage
+                  imageKey={primaryImageKey}
+                  alt={product.title}
+                  iconClassName="size-16"
+                />
               </div>
             </section>
 

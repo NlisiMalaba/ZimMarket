@@ -5,6 +5,8 @@ services:
   api:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
+    volumes:
+      - ./storage:/app/storage
 
   hangfire-dashboard:
     environment:

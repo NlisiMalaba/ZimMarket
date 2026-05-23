@@ -12,7 +12,7 @@ namespace ZimMarket.Application.Catalogue;
 
 public sealed class SearchProductsQueryHandler : IRequestHandler<SearchProductsQuery, Result<ZimMarket.Shared.PagedList<ProductSummaryDto>>>
 {
-    private static readonly TimeSpan ImageUrlTtl = TimeSpan.FromHours(1);
+    private static readonly TimeSpan ImageUrlTtl = TimeSpan.FromHours(24);
 
     private readonly IUnitOfWork _unitOfWork;
     private readonly IFileStorage _fileStorage;

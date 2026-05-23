@@ -28,6 +28,8 @@ public sealed class ProductSummaryDto
 
     public string? PrimaryImageUrl { get; init; }
 
+    public string? PrimaryImageKey { get; init; }
+
     public DateTimeOffset UpdatedAt { get; init; }
 
     public DateTimeOffset CreatedAt { get; init; }
