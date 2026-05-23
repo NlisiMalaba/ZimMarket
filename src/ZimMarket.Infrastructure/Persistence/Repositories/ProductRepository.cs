@@ -46,7 +46,8 @@ internal sealed class ProductRepository : IProductRepository
         {
             SellerProductListScope.Active => query.Where(x => x.Status != ProductStatus.Deleted),
             SellerProductListScope.Deleted => query.Where(x => x.Status == ProductStatus.Deleted),
-            _ => query,
+            SellerProductListScope.All => query,
+            _ => query.Where(x => x.Status != ProductStatus.Deleted),
         };
 
         query = query.OrderByDescending(x => x.CreatedAt);

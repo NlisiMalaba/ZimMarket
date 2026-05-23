@@ -7,6 +7,7 @@ import {
   ProductImagePicker,
   type PendingImage,
 } from "@/components/products/product-image-picker";
+import { DeleteProductDialog } from "@/components/products/delete-product-dialog";
 import type { Category, ExistingProductImage, ProductFormValues } from "@/lib/seller-products";
 import { sellerProductsService } from "@/lib/seller-products";
 import { cn } from "@/lib/utils";
@@ -55,6 +56,8 @@ export function ProductForm({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const canSubmit = useMemo(() => {
     const hasImages = existingImages.length + pendingImages.length > 0;
@@ -120,28 +123,20 @@ export function ProductForm({
     }
   };
 
-  const onDeleteClick = async () => {
+  const handleDeleteConfirm = async () => {
     if (!onDelete || readOnly) {
       return;
     }
 
-    const confirmed = window.confirm(
-      "Delete this product? It will be hidden from your store and images will be removed. The listing record is permanently deleted after 30 days.",
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
     setIsDeleting(true);
-    setErrorMessage(null);
+    setDeleteError(null);
 
     try {
       await onDelete();
       router.push("/products");
       router.refresh();
     } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : "Unable to delete product.");
+      setDeleteError(error instanceof Error ? error.message : "Unable to delete product.");
     } finally {
       setIsDeleting(false);
     }
@@ -359,15 +354,32 @@ export function ProductForm({
           {mode === "edit" && onDelete ? (
             <button
               type="button"
-              onClick={() => void onDeleteClick()}
+              onClick={() => {
+                setDeleteError(null);
+                setShowDeleteDialog(true);
+              }}
               disabled={isSubmitting || isDeleting}
               className="inline-flex h-10 items-center justify-center rounded-xl border border-destructive/40 px-5 text-sm font-medium text-destructive hover:bg-destructive/10 disabled:opacity-50"
             >
-              {isDeleting ? "Deleting…" : "Delete product"}
+              Delete product
             </button>
           ) : null}
         </div>
       ) : null}
+
+      <DeleteProductDialog
+        open={showDeleteDialog}
+        productTitle={values.title}
+        isDeleting={isDeleting}
+        errorMessage={deleteError}
+        onConfirm={() => void handleDeleteConfirm()}
+        onCancel={() => {
+          if (!isDeleting) {
+            setShowDeleteDialog(false);
+            setDeleteError(null);
+          }
+        }}
+      />
     </form>
   );
 }

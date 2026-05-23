@@ -55,6 +55,7 @@ public sealed class GetSellerProductsQueryHandler : IRequestHandler<GetSellerPro
                 ProductId = product.Id,
                 Status = product.Status,
                 Title = product.Title,
+                Description = ProductDescriptionFormatter.Truncate(product.Description),
                 PriceAmount = product.Price.Amount,
                 PriceCurrency = product.Price.Currency.ToString(),
                 StockQuantity = product.StockQuantity,
@@ -64,6 +65,7 @@ public sealed class GetSellerProductsQueryHandler : IRequestHandler<GetSellerPro
                 CategoryName = categoryName,
                 PrimaryImageUrl = primaryImageUrl,
                 UpdatedAt = product.UpdatedAt,
+                CreatedAt = product.CreatedAt,
             });
         }
 

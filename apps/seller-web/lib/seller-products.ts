@@ -12,7 +12,7 @@ type PagedList<T> = {
   totalCount: number;
 };
 
-export type SellerProductListScope = "active" | "deleted";
+export type SellerProductListScope = "active" | "deleted" | "all";
 
 export type Category = {
   id: string;
@@ -25,12 +25,14 @@ export type SellerProductSummary = {
   productId: string;
   status: number | string;
   title: string;
+  description: string;
   priceAmount: number;
   stockQuantity: number;
   categoryId: string;
   categoryName: string;
   primaryImageUrl: string | null;
   updatedAt: string;
+  createdAt: string;
 };
 
 export type SellerProductDetail = {
@@ -51,6 +53,7 @@ export type SellerProductDetail = {
   imageKeys: string[];
   imageUrls: string[];
   updatedAt: string;
+  createdAt: string;
 };
 
 export type ProductFormValues = {
@@ -76,7 +79,15 @@ export const DELETED_PRODUCT_RETENTION_DAYS = 30;
 export const MAX_PRODUCT_IMAGES = 5;
 
 function scopeToQuery(scope: SellerProductListScope): number {
-  return scope === "deleted" ? 1 : 0;
+  if (scope === "deleted") {
+    return 1;
+  }
+
+  if (scope === "all") {
+    return 2;
+  }
+
+  return 0;
 }
 
 function readData<T>(response: ApiSuccessResponse<T>): T {
@@ -157,6 +168,7 @@ export const sellerProductsService = {
       imageKeys: string[];
       imageUrls: string[];
       updatedAt: string;
+      createdAt: string;
     }>>(`/api/v1/products/my/${productId}`);
 
     const data = readData(response);
@@ -179,6 +191,7 @@ export const sellerProductsService = {
       imageKeys: data.imageKeys ?? [],
       imageUrls: data.imageUrls ?? [],
       updatedAt: data.updatedAt,
+      createdAt: data.createdAt,
     };
   },
 

@@ -63,6 +63,7 @@ public sealed class SearchProductsQueryHandler : IRequestHandler<SearchProductsQ
                 ProductId = product.Id,
                 Status = ProductStatus.Active,
                 Title = product.Title,
+                Description = ProductDescriptionFormatter.Truncate(product.Description),
                 PriceAmount = product.Price.Amount,
                 PriceCurrency = product.Price.Currency.ToString(),
                 StockQuantity = product.StockQuantity,
@@ -70,7 +71,9 @@ public sealed class SearchProductsQueryHandler : IRequestHandler<SearchProductsQ
                 SellerName = sellerName,
                 CategoryId = product.CategoryId,
                 CategoryName = categoryName,
-                PrimaryImageUrl = primaryImageUrl
+                PrimaryImageUrl = primaryImageUrl,
+                UpdatedAt = product.UpdatedAt,
+                CreatedAt = product.CreatedAt,
             });
         }
 

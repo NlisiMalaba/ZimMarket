@@ -35,4 +35,6 @@ public sealed class SellerProductDetailDto
     public required IReadOnlyList<string> ImageUrls { get; init; }
 
     public required DateTimeOffset UpdatedAt { get; init; }
+
+    public required DateTimeOffset CreatedAt { get; init; }
 }

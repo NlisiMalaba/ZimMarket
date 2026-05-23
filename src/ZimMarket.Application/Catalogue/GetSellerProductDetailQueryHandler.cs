@@ -77,6 +77,7 @@ public sealed class GetSellerProductDetailQueryHandler
             ImageKeys = product.ImageKeys.ToList(),
             ImageUrls = imageUrls,
             UpdatedAt = product.UpdatedAt,
+            CreatedAt = product.CreatedAt,
         });
     }
 }
