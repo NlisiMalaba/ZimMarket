@@ -117,6 +117,9 @@ export default function SellerHomeScreen() {
           <Pressable onPress={() => router.push('/(seller)/listings' as never)}>
             <Text style={styles.refreshAction}>Listings</Text>
           </Pressable>
+          <Pressable onPress={() => router.push('/(seller)/settings' as never)}>
+            <Text style={styles.refreshAction}>Settings</Text>
+          </Pressable>
           <Pressable onPress={() => void dashboardQuery.refetch()}>
             <Text style={styles.refreshAction}>Refresh</Text>
           </Pressable>

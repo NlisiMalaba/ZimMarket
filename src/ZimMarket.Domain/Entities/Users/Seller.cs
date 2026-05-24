@@ -94,6 +94,31 @@ public sealed class Seller : User
 
     public string? RejectionReason { get; private set; }
 
+    public string? ProfilePhotoKey { get; private set; }
+
+    public Address? DefaultPickupAddress { get; private set; }
+
+    public void UpdateBusinessName(string businessName)
+    {
+        if (string.IsNullOrWhiteSpace(businessName))
+            throw new DomainException("Business name is required.");
+
+        BusinessName = businessName.Trim();
+        UpdatedAt = DateTimeOffset.UtcNow;
+    }
+
+    public void SetProfilePhotoKey(string? profilePhotoKey)
+    {
+        ProfilePhotoKey = string.IsNullOrWhiteSpace(profilePhotoKey) ? null : profilePhotoKey.Trim();
+        UpdatedAt = DateTimeOffset.UtcNow;
+    }
+
+    public void SetDefaultPickupAddress(Address? address)
+    {
+        DefaultPickupAddress = address;
+        UpdatedAt = DateTimeOffset.UtcNow;
+    }
+
     public void Approve()
     {
         if (KycStatus != KycStatus.PendingReview)

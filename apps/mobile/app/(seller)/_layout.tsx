@@ -17,6 +17,7 @@ export default function SellerLayout() {
       <Stack.Screen name="edit-listing/[id]" options={{ title: 'Edit listing' }} />
       <Stack.Screen name="kyc-upload" options={{ title: 'Seller KYC upload' }} />
       <Stack.Screen name="application-submitted" options={{ title: 'Application submitted' }} />
+      <Stack.Screen name="settings" options={{ title: 'Account settings' }} />
     </Stack>
   );
 }

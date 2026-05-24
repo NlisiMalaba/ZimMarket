@@ -10,4 +10,14 @@ public interface IUserIdentityReadRepository
     Task<bool> ExistsWithEmailAsync(string normalizedEmail, CancellationToken cancellationToken = default);
 
     Task<bool> ExistsWithPhoneAsync(PhoneNumber phoneNumber, CancellationToken cancellationToken = default);
+
+    Task<bool> ExistsWithEmailForOtherUserAsync(
+        string normalizedEmail,
+        Guid excludeUserId,
+        CancellationToken cancellationToken = default);
+
+    Task<bool> ExistsWithPhoneForOtherUserAsync(
+        PhoneNumber phoneNumber,
+        Guid excludeUserId,
+        CancellationToken cancellationToken = default);
 }

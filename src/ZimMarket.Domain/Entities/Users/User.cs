@@ -102,6 +102,31 @@ public abstract class User : BaseEntity
         UpdatedAt = DateTimeOffset.UtcNow;
     }
 
+    public void UpdateFullName(string fullName)
+    {
+        if (string.IsNullOrWhiteSpace(fullName))
+            throw new ArgumentException("Full name is required.", nameof(fullName));
+
+        FullName = fullName.Trim();
+        UpdatedAt = DateTimeOffset.UtcNow;
+    }
+
+    public void UpdateEmail(string email)
+    {
+        if (string.IsNullOrWhiteSpace(email))
+            throw new ArgumentException("Email is required.", nameof(email));
+
+        Email = email.Trim().ToLowerInvariant();
+        UpdatedAt = DateTimeOffset.UtcNow;
+    }
+
+    public void UpdatePhoneNumber(PhoneNumber phoneNumber)
+    {
+        ArgumentNullException.ThrowIfNull(phoneNumber);
+        PhoneNumber = phoneNumber;
+        UpdatedAt = DateTimeOffset.UtcNow;
+    }
+
     protected void SetKycStatus(KycStatus kycStatus)
     {
         KycStatus = kycStatus;

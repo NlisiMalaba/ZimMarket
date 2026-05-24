@@ -16,4 +16,16 @@ internal sealed class UnavailableUserIdentityReadRepository : IUserIdentityReadR
 
     public Task<bool> ExistsWithPhoneAsync(PhoneNumber phoneNumber, CancellationToken cancellationToken = default) =>
         throw CreateUnavailableException();
+
+    public Task<bool> ExistsWithEmailForOtherUserAsync(
+        string normalizedEmail,
+        Guid excludeUserId,
+        CancellationToken cancellationToken = default) =>
+        throw CreateUnavailableException();
+
+    public Task<bool> ExistsWithPhoneForOtherUserAsync(
+        PhoneNumber phoneNumber,
+        Guid excludeUserId,
+        CancellationToken cancellationToken = default) =>
+        throw CreateUnavailableException();
 }

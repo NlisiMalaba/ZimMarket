@@ -10,6 +10,7 @@ public sealed class GetPresignedUploadUrlQueryHandler : IRequestHandler<GetPresi
 {
     private static readonly TimeSpan PresignedUploadTtl = TimeSpan.FromHours(1);
     private const string ContainerProductImages = "product-images";
+    private const string ContainerProfilePhotos = "profile-photos";
     private const string ContainerKycDocuments = "kyc-documents";
     private const string ContainerDeliveryPhotos = "delivery-photos";
 
@@ -103,6 +104,13 @@ public sealed class GetPresignedUploadUrlQueryHandler : IRequestHandler<GetPresi
                 "Product image uploads are only available to seller accounts.");
         }
 
+        if (fileType == FileType.ProfilePhoto && _currentUser.Role != UserRole.Seller)
+        {
+            return Result<PresignedUrlDto>.Failure(
+                "Files.Forbidden",
+                "Profile photo uploads are only available to seller accounts.");
+        }
+
         return null;
     }
 
@@ -115,7 +123,7 @@ public sealed class GetPresignedUploadUrlQueryHandler : IRequestHandler<GetPresi
             FileType.DriverLicense => ContainerKycDocuments,
             FileType.VehicleDoc => ContainerKycDocuments,
             FileType.DeliveryPhoto => ContainerDeliveryPhotos,
-            FileType.ProfilePhoto => ContainerProductImages,
+            FileType.ProfilePhoto => ContainerProfilePhotos,
             _ => throw new ArgumentOutOfRangeException(nameof(fileType), fileType, "Unsupported file type.")
         };
 

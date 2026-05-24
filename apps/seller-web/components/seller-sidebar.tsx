@@ -8,6 +8,7 @@ import {
   LayoutDashboard,
   LogOut,
   Package,
+  Settings,
   ShieldCheck,
   Tag,
 } from "lucide-react";
@@ -15,6 +16,7 @@ import {
 import {
   clearSession,
   getAccessToken,
+  getProfilePhotoUrl,
   getUserDisplayName,
   getUserEmail,
   getUserInitials,
@@ -48,7 +50,10 @@ const navSections: NavSection[] = [
   },
   {
     title: "Account",
-    items: [{ href: "/verification", label: "Verification", icon: ShieldCheck }],
+    items: [
+      { href: "/settings", label: "Settings", icon: Settings },
+      { href: "/verification", label: "Verification", icon: ShieldCheck },
+    ],
   },
 ];
 
@@ -73,6 +78,7 @@ export function SellerSidebar({ orderCount }: { orderCount?: number }) {
   const displayName = useSyncExternalStore(subscribeToSession, getUserDisplayName, getUserDisplayName);
   const email = useSyncExternalStore(subscribeToSession, getUserEmail, getUserEmail);
   const initials = useSyncExternalStore(subscribeToSession, getUserInitials, getUserInitials);
+  const profilePhotoUrl = useSyncExternalStore(subscribeToSession, getProfilePhotoUrl, getProfilePhotoUrl);
 
   const sections = navSections.map((section) => ({
     ...section,
@@ -157,8 +163,13 @@ export function SellerSidebar({ orderCount }: { orderCount?: number }) {
 
       <div className="mt-auto border-t border-border/60 px-4 pt-4">
         <div className="flex items-center gap-3 rounded-xl bg-muted/50 p-3">
-          <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-orange-400 to-amber-600 text-xs font-semibold text-white">
-            {initials}
+          <div className="relative flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-orange-400 to-amber-600 text-xs font-semibold text-white">
+            {profilePhotoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={profilePhotoUrl} alt="" className="size-full object-cover" />
+            ) : (
+              initials
+            )}
           </div>
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-medium text-foreground">{displayName}</p>

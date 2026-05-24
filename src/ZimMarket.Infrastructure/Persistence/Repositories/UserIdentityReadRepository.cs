@@ -29,4 +29,30 @@ internal sealed class UserIdentityReadRepository : IUserIdentityReadRepository
         return _dbContext.Set<User>()
             .AnyAsync(u => u.PhoneNumber.Value == phoneNumber.Value, cancellationToken);
     }
+
+    public Task<bool> ExistsWithEmailForOtherUserAsync(
+        string normalizedEmail,
+        Guid excludeUserId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(normalizedEmail);
+
+        return _dbContext.Set<User>()
+            .AnyAsync(
+                u => u.Id != excludeUserId && u.Email.ToLower() == normalizedEmail,
+                cancellationToken);
+    }
+
+    public Task<bool> ExistsWithPhoneForOtherUserAsync(
+        PhoneNumber phoneNumber,
+        Guid excludeUserId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(phoneNumber);
+
+        return _dbContext.Set<User>()
+            .AnyAsync(
+                u => u.Id != excludeUserId && u.PhoneNumber.Value == phoneNumber.Value,
+                cancellationToken);
+    }
 }
