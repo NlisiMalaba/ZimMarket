@@ -4,7 +4,9 @@ import { router } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 
 import { Text, View } from '@/components/Themed';
+import { formatKycStatusLabel, isSellerKycApproved, normalizeKycStatus } from '@/lib/seller-kyc';
 import { sellerDashboardService } from '@/lib/services/seller-dashboard-service';
+import { useAuthStore } from '@/store/auth-store';
 
 const formatUsd = (value: number): string =>
   new Intl.NumberFormat('en-US', {
@@ -24,6 +26,10 @@ const formatDateTime = (value: string): string => {
 };
 
 export default function SellerHomeScreen() {
+  const kycStatus = useAuthStore((state) => state.kycStatus);
+  const kycApproved = isSellerKycApproved(kycStatus);
+  const normalizedKyc = normalizeKycStatus(kycStatus);
+
   const dashboardQuery = useQuery({
     queryKey: ['seller-dashboard'],
     queryFn: () => sellerDashboardService.getStats(),
@@ -60,6 +66,32 @@ export default function SellerHomeScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Seller dashboard</Text>
+
+      {!kycApproved ? (
+        <View style={styles.verificationBanner}>
+          <Text style={styles.verificationTitle}>Verification: {formatKycStatusLabel(kycStatus)}</Text>
+          <Text style={styles.verificationBody}>
+            {normalizedKyc === 'pendingReview'
+              ? 'Your documents are under admin review. You can manage orders but cannot create listings yet.'
+              : 'Upload your national ID and proof of residence to start selling on ZimMarket.'}
+          </Text>
+          <Pressable
+            style={styles.verificationButton}
+            onPress={() => {
+              if (normalizedKyc === 'pendingReview') {
+                router.push('/(seller)/application-submitted' as never);
+                return;
+              }
+
+              router.push('/(seller)/kyc-upload' as never);
+            }}
+          >
+            <Text style={styles.verificationButtonText}>
+              {normalizedKyc === 'pendingReview' ? 'View application status' : 'Complete verification'}
+            </Text>
+          </Pressable>
+        </View>
+      ) : null}
 
       <View style={styles.statsGrid}>
         <View style={styles.statCard}>
@@ -114,9 +146,11 @@ export default function SellerHomeScreen() {
         }
       />
 
-      <Pressable style={styles.button} onPress={() => router.push('/(seller)/kyc-upload' as never)}>
-        <Text style={styles.buttonText}>Update KYC documents</Text>
-      </Pressable>
+      {kycApproved ? (
+        <Pressable style={styles.button} onPress={() => router.push('/(seller)/listings' as never)}>
+          <Text style={styles.buttonText}>Manage listings</Text>
+        </Pressable>
+      ) : null}
     </View>
   );
 }
@@ -136,6 +170,33 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
+    fontWeight: '700',
+  },
+  verificationBanner: {
+    borderWidth: 1,
+    borderColor: '#fcd34d',
+    backgroundColor: '#fffbeb',
+    borderRadius: 12,
+    padding: 12,
+    gap: 8,
+  },
+  verificationTitle: {
+    fontWeight: '700',
+    color: '#92400e',
+  },
+  verificationBody: {
+    color: '#78350f',
+    lineHeight: 20,
+  },
+  verificationButton: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#0f766e',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  verificationButtonText: {
+    color: '#ffffff',
     fontWeight: '700',
   },
   statsGrid: {

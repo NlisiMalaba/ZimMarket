@@ -32,6 +32,8 @@ type ErrorPayload = {
   Message?: string;
   errorCode?: string;
   ErrorCode?: string;
+  title?: string;
+  Title?: string;
 };
 
 function buildHeaders(headers?: HeadersInit): Headers {
@@ -116,10 +118,17 @@ async function request<TResponse, TBody = unknown>(
     }
 
     const errorPayload = typeof payload === "object" && payload !== null ? (payload as ErrorPayload) : undefined;
-    const fallbackMessage = typeof payload === "string" ? payload : "Unexpected API error.";
+    const fallbackMessage =
+      typeof payload === "string" && payload.trim().length > 0
+        ? payload
+        : `Request failed (${response.status}).`;
 
     throw new ApiError(
-      errorPayload?.message ?? errorPayload?.Message ?? fallbackMessage,
+      errorPayload?.message ??
+        errorPayload?.Message ??
+        errorPayload?.title ??
+        errorPayload?.Title ??
+        fallbackMessage,
       response.status,
       errorPayload?.errorCode ?? errorPayload?.ErrorCode,
     );

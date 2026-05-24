@@ -4,8 +4,11 @@ import { ActivityIndicator, StyleSheet } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 
 import { ListingFormScreen } from '@/app/(seller)/listing-form-screen';
+import { KycGate } from '@/components/seller/kyc-gate';
 import type { ListingFormValues } from '@/components/seller/listing-form';
 import { Text, View } from '@/components/Themed';
+import { isSellerKycApproved } from '@/lib/seller-kyc';
+import { useAuthStore } from '@/store/auth-store';
 import type { UploadableImage } from '@/lib/services/file-upload-service';
 import { sellerProductsService } from '@/lib/services/seller-products-service';
 
@@ -20,6 +23,11 @@ const readId = (value: string | string[] | undefined): string => {
 export default function EditListingScreen() {
   const params = useLocalSearchParams();
   const listingId = readId(params.id);
+  const kycStatus = useAuthStore((state) => state.kycStatus);
+
+  if (!isSellerKycApproved(kycStatus)) {
+    return <KycGate actionLabel="Complete verification" />;
+  }
 
   const productQuery = useQuery({
     queryKey: ['seller-product', listingId],

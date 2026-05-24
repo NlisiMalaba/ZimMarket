@@ -1,4 +1,5 @@
 import { api } from '@/lib/api/client';
+import { normalizeKycStatus } from '@/lib/seller-kyc';
 import type { KycStatus } from '@/types/auth';
 
 type ApiEnvelope<T> = {
@@ -16,17 +17,34 @@ type PresignedUploadResult = {
   fileKey: string;
 };
 
+/** Matches API `FileType`: NationalId = 2, ProofOfResidence = 3. */
+export const SELLER_KYC_FILE_TYPE = {
+  nationalId: 2,
+  proofOfResidence: 3,
+} as const;
+
 export type SellerKycUploadInput = {
+  /** Storage key from presigned upload (`fileType` 2). */
   nationalIdKey: string;
+  /** Storage key from presigned upload (`fileType` 3). */
   proofOfResidenceKey: string;
 };
 
-const normalizeKycStatus = (value: unknown): KycStatus => {
-  if (typeof value !== 'string' || value.trim().length === 0) {
-    return 'pending';
+const toKycStatus = (value: unknown): KycStatus => {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return normalizeKycStatus(value) as KycStatus;
   }
 
-  return value.trim();
+  if (typeof value === 'string' && value.trim().length > 0) {
+    return normalizeKycStatus(value) as KycStatus;
+  }
+
+  return 'pendingReview';
+};
+
+export type SellerVerificationStatus = {
+  kycStatus: KycStatus;
+  rejectionReason: string | null;
 };
 
 const readEnvelopeData = <T>(responseData: T | ApiEnvelope<T>): T => {
@@ -43,6 +61,18 @@ const readEnvelopeData = <T>(responseData: T | ApiEnvelope<T>): T => {
 };
 
 export const sellerOnboardingService = {
+  async getVerificationStatus(): Promise<SellerVerificationStatus> {
+    const response = await api.get<ApiEnvelope<{ kycStatus?: string | number; rejectionReason?: string | null }>>(
+      '/seller/verification'
+    );
+
+    const data = readEnvelopeData(response.data);
+    return {
+      kycStatus: toKycStatus(data.kycStatus),
+      rejectionReason: data.rejectionReason?.trim() || null,
+    };
+  },
+
   async getPresignedUploadUrl(
     fileType: 2 | 3,
     contentType: 'image/jpeg' | 'image/png' | 'image/webp',
@@ -99,7 +129,7 @@ export const sellerOnboardingService = {
     return {
       accessToken: data.accessToken,
       refreshToken: data.refreshToken,
-      kycStatus: normalizeKycStatus(data.kycStatus),
+      kycStatus: toKycStatus(data.kycStatus),
     };
   },
 };

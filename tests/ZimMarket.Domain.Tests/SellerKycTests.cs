@@ -28,4 +28,19 @@ public class SellerKycTests
         var act = () => notSubmitted.Approve();
         act.Should().Throw<DomainException>();
     }
+
+    [Fact]
+    public void SubmitKyc_allowed_after_rejection_clears_reason()
+    {
+        var seller = DomainTestHelpers.NewSeller(KycStatus.NotSubmitted);
+        seller.SubmitKyc("id-key", "proof-key");
+        seller.Reject("Blurry ID photo");
+
+        seller.SubmitKyc("new-id", "new-proof");
+
+        seller.KycStatus.Should().Be(KycStatus.PendingReview);
+        seller.RejectionReason.Should().BeNull();
+        seller.NationalIdDocumentKey.Should().Be("new-id");
+        seller.ProofOfResidenceDocumentKey.Should().Be("new-proof");
+    }
 }

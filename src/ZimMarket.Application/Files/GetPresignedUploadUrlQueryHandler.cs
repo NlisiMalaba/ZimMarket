@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using ZimMarket.Application.Common.Models;
 using ZimMarket.Application.Common.Interfaces;
+using ZimMarket.Domain.Enums;
 
 namespace ZimMarket.Application.Files;
 
@@ -36,6 +37,12 @@ public sealed class GetPresignedUploadUrlQueryHandler : IRequestHandler<GetPresi
             return Result<PresignedUrlDto>.Failure("Files.Forbidden", "Authentication is required.");
         }
 
+        Result<PresignedUrlDto>? roleCheck = ValidateFileTypeForRole(request.FileType);
+        if (roleCheck is not null)
+        {
+            return roleCheck;
+        }
+
         string contentType = request.ContentType.Trim().ToLowerInvariant();
         string container = ResolveContainer(request.FileType);
         string extension = ResolveFileExtension(contentType);
@@ -62,6 +69,41 @@ public sealed class GetPresignedUploadUrlQueryHandler : IRequestHandler<GetPresi
                 new ValidationError(nameof(GetPresignedUploadUrlQuery.ContentType), ex.Message)
             ]);
         }
+    }
+
+    private Result<PresignedUrlDto>? ValidateFileTypeForRole(FileType fileType)
+    {
+        if (fileType is FileType.NationalId or FileType.ProofOfResidence)
+        {
+            if (_currentUser.Role != UserRole.Seller)
+            {
+                _logger.LogDebug(
+                    "Presigned upload URL rejected: file type {FileType} requires seller role.",
+                    fileType);
+                return Result<PresignedUrlDto>.Failure(
+                    "Files.Forbidden",
+                    "National ID and proof of residence uploads are only available to seller accounts.");
+            }
+        }
+
+        if (fileType is FileType.DriverLicense or FileType.VehicleDoc)
+        {
+            if (_currentUser.Role != UserRole.Driver)
+            {
+                return Result<PresignedUrlDto>.Failure(
+                    "Files.Forbidden",
+                    "Driver license and vehicle document uploads are only available to driver accounts.");
+            }
+        }
+
+        if (fileType == FileType.ProductImage && _currentUser.Role != UserRole.Seller)
+        {
+            return Result<PresignedUrlDto>.Failure(
+                "Files.Forbidden",
+                "Product image uploads are only available to seller accounts.");
+        }
+
+        return null;
     }
 
     private static string ResolveContainer(FileType fileType) =>

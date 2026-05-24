@@ -122,14 +122,21 @@ public sealed class Seller : User
 
     public void SubmitKyc(string nationalIdKey, string proofKey)
     {
-        if (KycStatus != KycStatus.NotSubmitted)
-            throw new DomainException("KYC documents can only be submitted when KYC has not yet been submitted.");
+        if (KycStatus is not (KycStatus.NotSubmitted or KycStatus.Rejected))
+            throw new DomainException(
+                "KYC documents can only be submitted before review or after a rejection.");
 
         if (string.IsNullOrWhiteSpace(nationalIdKey))
             throw new DomainException("National ID document key is required.");
 
         if (string.IsNullOrWhiteSpace(proofKey))
             throw new DomainException("Proof of residence document key is required.");
+
+        if (KycStatus == KycStatus.Rejected)
+        {
+            RejectionReason = null;
+            IsApproved = false;
+        }
 
         NationalIdDocumentKey = nationalIdKey.Trim();
         ProofOfResidenceDocumentKey = proofKey.Trim();

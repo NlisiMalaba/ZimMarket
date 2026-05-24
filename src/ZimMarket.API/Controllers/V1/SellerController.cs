@@ -26,4 +26,12 @@ public sealed class SellerController : ControllerBase
         return (await _sender.Send(new GetSellerDashboardStatsQuery(), cancellationToken).ConfigureAwait(false))
             .ToOkActionResult(HttpContext);
     }
+
+    /// <summary>Current seller KYC status and rejection reason (if any).</summary>
+    [HttpGet("verification")]
+    public async Task<IActionResult> GetVerification(CancellationToken cancellationToken)
+    {
+        return (await _sender.Send(new GetSellerVerificationQuery(), cancellationToken).ConfigureAwait(false))
+            .ToOkActionResult(HttpContext);
+    }
 }

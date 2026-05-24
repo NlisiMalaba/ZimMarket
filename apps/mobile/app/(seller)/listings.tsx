@@ -3,7 +3,10 @@ import { useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
 
 import { Text, View } from '@/components/Themed';
+import { KycGate } from '@/components/seller/kyc-gate';
+import { isSellerKycApproved } from '@/lib/seller-kyc';
 import { sellerListingsService } from '@/lib/services/seller-listings-service';
+import { useAuthStore } from '@/store/auth-store';
 
 const formatUsd = (value: number): string =>
   new Intl.NumberFormat('en-US', {
@@ -53,6 +56,9 @@ const badgeStylesByStatus = (status: string) => {
 };
 
 export default function SellerListingsScreen() {
+  const kycStatus = useAuthStore((state) => state.kycStatus);
+  const kycApproved = isSellerKycApproved(kycStatus);
+
   const listingsQuery = useQuery({
     queryKey: ['seller-listings'],
     queryFn: () => sellerListingsService.listMine(),
@@ -60,6 +66,12 @@ export default function SellerListingsScreen() {
 
   return (
     <View style={styles.container}>
+      {!kycApproved ? (
+        <View style={styles.kycGateContainer}>
+          <KycGate actionLabel="Complete verification to list products" />
+        </View>
+      ) : null}
+
       {listingsQuery.isLoading ? (
         <View style={styles.stateContainer}>
           <ActivityIndicator size="large" color="#0f766e" />
@@ -111,13 +123,15 @@ export default function SellerListingsScreen() {
         />
       )}
 
-      <Pressable
-        style={styles.fab}
-        onPress={() => router.push('/(seller)/create-listing' as never)}
-        accessibilityLabel="Create new listing"
-      >
-        <Text style={styles.fabText}>+</Text>
-      </Pressable>
+      {kycApproved ? (
+        <Pressable
+          style={styles.fab}
+          onPress={() => router.push('/(seller)/create-listing' as never)}
+          accessibilityLabel="Create new listing"
+        >
+          <Text style={styles.fabText}>+</Text>
+        </Pressable>
+      ) : null}
     </View>
   );
 }
@@ -126,6 +140,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
+  },
+  kycGateContainer: {
+    marginBottom: 12,
   },
   listContent: {
     gap: 10,
