@@ -1,9 +1,9 @@
 namespace ZimMarket.Domain.ReadModels;
 
-/// <summary>Raw aggregates for the admin dashboard before application-layer currency conversion.</summary>
+/// <summary>Raw operational aggregates for the admin dashboard (no revenue).</summary>
 public sealed record DashboardStatsRaw(
     int OrdersTodayCount,
-    IReadOnlyList<PaidOrderTotalRow> PaidOrderTotalsToday,
-    int PendingKycCount,
+    int PendingSellersCount,
+    int PendingDriversCount,
     int ActiveDriversCount,
     int LowStockProductsCount);

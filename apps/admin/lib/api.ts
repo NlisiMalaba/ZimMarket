@@ -32,7 +32,12 @@ type RequestWithBodyOptions<TBody> = RequestOptions & {
 
 type ErrorPayload = {
   message?: string;
+  Message?: string;
   code?: string;
+  errorCode?: string;
+  ErrorCode?: string;
+  title?: string;
+  Title?: string;
   details?: unknown;
 };
 
@@ -51,9 +56,37 @@ function buildHeaders(headers?: HeadersInit): Headers {
   return result;
 }
 
+function getApiBaseUrl(): string {
+  // Browser calls use same-origin rewrites (see next.config.mjs) to avoid CORS.
+  if (typeof window !== "undefined") {
+    return "";
+  }
+
+  return env.apiUrl;
+}
+
 function buildUrl(path: string, query?: RequestOptions["query"]): string {
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
-  const url = new URL(`${env.apiUrl}${normalizedPath}`);
+  const base = getApiBaseUrl();
+
+  if (!base) {
+    const relative = normalizedPath;
+    if (!query) {
+      return relative;
+    }
+
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(query)) {
+      if (value !== null && value !== undefined) {
+        params.set(key, String(value));
+      }
+    }
+
+    const qs = params.toString();
+    return qs ? `${relative}?${qs}` : relative;
+  }
+
+  const url = new URL(`${base}${normalizedPath}`);
 
   if (query) {
     for (const [key, value] of Object.entries(query)) {
@@ -64,6 +97,54 @@ function buildUrl(path: string, query?: RequestOptions["query"]): string {
   }
 
   return url.toString();
+}
+
+function readApiErrorMessage(payload: unknown, status: number): string {
+  if (typeof payload === "string" && payload.trim()) {
+    return payload.trim().slice(0, 300);
+  }
+
+  if (!payload || typeof payload !== "object") {
+    return status === 404
+      ? "The requested API endpoint was not found. Restart the API with the latest build."
+      : "Unexpected API error.";
+  }
+
+  const record = payload as ErrorPayload;
+  const message =
+    record.message ??
+    record.Message ??
+    record.title ??
+    record.Title;
+
+  if (typeof message === "string" && message.trim()) {
+    return message.trim();
+  }
+
+  const code = record.errorCode ?? record.ErrorCode ?? record.code;
+  if (typeof code === "string" && code.trim()) {
+    return code.trim();
+  }
+
+  return status === 404
+    ? "The requested API endpoint was not found. Restart the API with the latest build."
+    : "Unexpected API error.";
+}
+
+/** Unwraps `{ data }` / `{ Data }` success envelopes from the .NET API. */
+export function unwrapApiData<T>(payload: unknown): T {
+  if (!payload || typeof payload !== "object") {
+    throw new ApiError("Invalid API response.", 502);
+  }
+
+  const record = payload as Record<string, unknown>;
+  const data = record.data ?? record.Data;
+
+  if (data === undefined) {
+    throw new ApiError("Invalid API response envelope.", 502);
+  }
+
+  return data as T;
 }
 
 function safeParseJson(text: string): unknown {
@@ -97,14 +178,23 @@ async function request<TResponse, TBody = unknown>(
   path: string,
   options?: RequestWithBodyOptions<TBody>,
 ): Promise<TResponse> {
-  const response = await fetch(buildUrl(path, options?.query), {
-    method,
-    headers: buildHeaders(options?.headers),
-    body: options?.body === undefined ? undefined : JSON.stringify(options.body),
-    signal: options?.signal,
-    credentials: "include",
-    cache: "no-store",
-  });
+  let response: Response;
+
+  try {
+    response = await fetch(buildUrl(path, options?.query), {
+      method,
+      headers: buildHeaders(options?.headers),
+      body: options?.body === undefined ? undefined : JSON.stringify(options.body),
+      signal: options?.signal,
+      credentials: "include",
+      cache: "no-store",
+    });
+  } catch {
+    throw new ApiError(
+      "Cannot reach the API. Ensure the backend is running and NEXT_PUBLIC_API_URL is correct.",
+      0,
+    );
+  }
 
   if (response.status === 204) {
     return undefined as TResponse;
@@ -117,17 +207,18 @@ async function request<TResponse, TBody = unknown>(
     handleHttpSideEffects(response.status);
 
     const errorPayload = typeof payload === "object" && payload !== null ? (payload as ErrorPayload) : undefined;
-    const fallbackMessage = typeof payload === "string" ? payload : "Unexpected API error.";
+    const errorCode =
+      errorPayload?.errorCode ?? errorPayload?.ErrorCode ?? errorPayload?.code;
 
     throw new ApiError(
-      errorPayload?.message ?? fallbackMessage,
+      readApiErrorMessage(payload, response.status),
       response.status,
-      errorPayload?.code,
+      typeof errorCode === "string" ? errorCode : undefined,
       errorPayload?.details,
     );
   }
 
-  return payload as TResponse;
+  return unwrapApiData<TResponse>(payload);
 }
 
 export const api = {

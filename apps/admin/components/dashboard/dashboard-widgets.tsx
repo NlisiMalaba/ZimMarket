@@ -205,7 +205,7 @@ export function OverviewAreaChart({
         </div>
       </div>
       <p className="mt-2 text-[11px] text-muted-foreground">
-        Historical series will replace this placeholder when the API exposes trends.
+        Placeholder trend from today&apos;s paid revenue; month/year/all-time totals are on the cards above.
       </p>
     </div>
   );

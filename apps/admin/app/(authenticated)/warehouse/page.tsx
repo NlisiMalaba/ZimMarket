@@ -9,10 +9,6 @@ import {
   type WarehouseQcStatusName,
 } from "@/lib/domain-enums";
 
-type ApiSuccessResponse<T> = {
-  data: T;
-};
-
 type PagedList<T> = {
   items: T[];
   page: number;
@@ -96,7 +92,7 @@ export default function WarehousePage() {
     setIsLoadingQc(true);
 
     try {
-      const response = await api.get<ApiSuccessResponse<PagedList<WarehouseItem>>>("/api/v1/warehouse/items", {
+      const response = await api.get<PagedList<WarehouseItem>>("/api/v1/warehouse/items", {
         query: {
           qcStatus: "Pending",
           page: qcPage,
@@ -104,10 +100,10 @@ export default function WarehousePage() {
         },
       });
 
-      setQcItems(response.data.items);
-      setQcTotalCount(response.data.totalCount);
+      setQcItems(response.items);
+      setQcTotalCount(response.totalCount);
       setErrorMessage(null);
-      setSelectedQcItemId((current) => current ?? response.data.items[0]?.warehouseItemId ?? null);
+      setSelectedQcItemId((current) => current ?? response.items[0]?.warehouseItemId ?? null);
     } catch (error) {
       setErrorMessage(error instanceof ApiError ? error.message : "Unable to load QC queue.");
     } finally {
@@ -120,17 +116,17 @@ export default function WarehousePage() {
 
     try {
       const [itemsResponse, driversResponse] = await Promise.all([
-        api.get<ApiSuccessResponse<WarehouseItem[]>>("/api/v1/warehouse/items/unbatched"),
-        api.get<ApiSuccessResponse<DriverLocation[]>>("/api/v1/batches/drivers/locations"),
+        api.get<WarehouseItem[]>("/api/v1/warehouse/items/unbatched"),
+        api.get<DriverLocation[]>("/api/v1/batches/drivers/locations"),
       ]);
 
-      setUnbatchedItems(itemsResponse.data);
-      setDrivers(driversResponse.data);
+      setUnbatchedItems(itemsResponse);
+      setDrivers(driversResponse);
       setSelectedOrderIds((current) =>
-        current.filter((orderId) => itemsResponse.data.some((item) => item.orderId === orderId)),
+        current.filter((orderId) => itemsResponse.some((item) => item.orderId === orderId)),
       );
       setSelectedDriverId((current) =>
-        current && driversResponse.data.some((driver) => driver.driverId === current) ? current : "",
+        current && driversResponse.some((driver) => driver.driverId === current) ? current : "",
       );
       setErrorMessage(null);
     } catch (error) {
@@ -160,7 +156,7 @@ export default function WarehousePage() {
     setIsSubmittingArrival(true);
 
     try {
-      await api.post<ApiSuccessResponse<null>, { orderId: string; notes?: string }>(
+      await api.post<null, { orderId: string; notes?: string }>(
         "/api/v1/warehouse/arrivals",
         {
           orderId: arrivalOrderId.trim(),
@@ -194,7 +190,7 @@ export default function WarehousePage() {
     setSelectedQcItemId(null);
 
     try {
-      await api.patch<ApiSuccessResponse<null>, { qcStatus: number; notes?: string }>(
+      await api.patch<null, { qcStatus: number; notes?: string }>(
         `/api/v1/warehouse/items/${itemId}/qc`,
         {
           qcStatus: getWarehouseQcStatusValue(qcStatus),
@@ -235,7 +231,7 @@ export default function WarehousePage() {
     setIsCreatingBatch(true);
 
     try {
-      await api.post<ApiSuccessResponse<{ batchId: string }>, { orderIds: string[]; driverId: string }>(
+      await api.post<{ batchId: string }, { orderIds: string[]; driverId: string }>(
         "/api/v1/batches",
         {
           orderIds: selectedOrderIds,

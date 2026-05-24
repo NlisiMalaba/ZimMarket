@@ -50,7 +50,7 @@ services:
       ASPNETCORE_URLS: http://+:8080
       LocalFileStorage__RootPath: /app/storage
       # Required at startup (see ZimMarketCorsExtensions). Override for real deployments.
-      Cors__AdminPanelOrigin: ${CORS_ADMIN_PANEL_ORIGIN:-http://localhost:5173}
+      Cors__AdminPanelOrigin: ${CORS_ADMIN_PANEL_ORIGIN:-http://localhost:3000}
       Cors__SellerPanelOrigin: ${CORS_SELLER_PANEL_ORIGIN:-http://localhost:3001}
       Cors__DriverPanelOrigin: ${CORS_DRIVER_PANEL_ORIGIN:-http://localhost:3002}
       Cors__MobileAppOrigins__0: ${CORS_MOBILE_APP_ORIGIN_0:-http://localhost:8081}
@@ -74,7 +74,7 @@ services:
       - .env
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
-      Cors__AdminPanelOrigin: ${CORS_ADMIN_PANEL_ORIGIN:-http://localhost:5173}
+      Cors__AdminPanelOrigin: ${CORS_ADMIN_PANEL_ORIGIN:-http://localhost:3000}
       Cors__SellerPanelOrigin: ${CORS_SELLER_PANEL_ORIGIN:-http://localhost:3001}
       Cors__DriverPanelOrigin: ${CORS_DRIVER_PANEL_ORIGIN:-http://localhost:3002}
       Cors__MobileAppOrigins__0: ${CORS_MOBILE_APP_ORIGIN_0:-http://localhost:8081}

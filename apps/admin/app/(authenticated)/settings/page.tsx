@@ -4,10 +4,6 @@ import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 
 import { ApiError, api } from "@/lib/api";
 
-type ApiSuccessResponse<T> = {
-  data: T;
-};
-
 type AdminListItem = {
   userId: string;
   email: string;
@@ -44,8 +40,8 @@ export default function SettingsPage() {
     setIsLoadingAdmins(true);
 
     try {
-      const response = await api.get<ApiSuccessResponse<AdminListItem[]>>("/api/v1/admin/admins");
-      setAdmins(response.data);
+      const response = await api.get<AdminListItem[]>("/api/v1/admin/admins");
+      setAdmins(response);
       setListEndpointUnavailable(false);
       setErrorMessage(null);
     } catch (error) {
@@ -79,7 +75,7 @@ export default function SettingsPage() {
     setSuccessMessage(null);
 
     try {
-      await api.post<ApiSuccessResponse<unknown>, { email: string; fullName: string; password: string }>(
+      await api.post<unknown, { email: string; fullName: string; password: string }>(
         "/api/v1/admin/admins",
         {
           email: email.trim(),
@@ -110,7 +106,7 @@ export default function SettingsPage() {
     );
 
     try {
-      await api.post<ApiSuccessResponse<null>, undefined>(`/api/v1/admin/users/${admin.userId}/deactivate`);
+      await api.post<null, undefined>(`/api/v1/admin/users/${admin.userId}/deactivate`);
       setSuccessMessage(`Deactivated ${admin.email}.`);
     } catch (error) {
       setAdmins((current) =>

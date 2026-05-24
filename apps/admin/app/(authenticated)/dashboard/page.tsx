@@ -1,9 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { DollarSign, Package, Truck, UserSearch } from "lucide-react";
+import Link from "next/link";
+import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { DollarSign, Package, Truck, UserSearch, Users } from "lucide-react";
 
 import { ApiError, api } from "@/lib/api";
+import { getCurrentUserRole, subscribeToSession } from "@/lib/auth-session";
 import { getCurrencyLabel, getOrderStatusLabel, getPaymentStatusLabel } from "@/lib/domain-enums";
 import {
   MetricHighlightCard,
@@ -12,16 +14,25 @@ import {
   OverviewAreaChart,
 } from "@/components/dashboard/dashboard-widgets";
 
-type ApiSuccessResponse<T> = {
-  data: T;
+type OperationalStats = {
+  ordersToday: number;
+  pendingSellers: number;
+  pendingDrivers: number;
+  activeDrivers: number;
+  lowStockProducts: number;
 };
 
-type DashboardStats = {
-  ordersToday: number;
+/** Supports current API shape plus legacy combined KYC / revenue fields. */
+type OperationalStatsResponse = OperationalStats & {
+  pendingKycCount?: number;
+  revenueTodayUsd?: number;
+};
+
+type FinanceStats = {
   revenueTodayUsd: number;
-  activeDrivers: number;
-  pendingKycCount: number;
-  lowStockProducts: number;
+  revenueMonthUsd: number;
+  revenueYearUsd: number;
+  revenueAllTimeUsd: number;
 };
 
 type RecentOrder = {
@@ -61,17 +72,16 @@ function formatDateTime(value: string): string {
   return parsed.toLocaleString();
 }
 
-function statsSeed(stats: DashboardStats | null): number {
-  if (!stats) {
+function statsSeed(stats: OperationalStats | null, finance: FinanceStats | null): number {
+  if (!stats && !finance) {
     return 1;
   }
-  return (
-    ((stats.ordersToday * 7919) ^
-      (Math.round(stats.revenueTodayUsd * 100) * 7933) ^
-      (stats.activeDrivers * 7949) ^
-      (stats.pendingKycCount * 7967)) >>>
-    0
-  );
+  const mixed =
+    ((stats?.ordersToday ?? 0) * 7919) ^
+    Math.round((finance?.revenueTodayUsd ?? 0) * 100) * 7933 ^
+    (stats?.pendingSellers ?? 0) * 7949 ^
+    (stats?.pendingDrivers ?? 0) * 7967;
+  return mixed | 0;
 }
 
 function greeting(): string {
@@ -81,37 +91,143 @@ function greeting(): string {
   return "Good evening";
 }
 
+function normalizeOperationalStats(raw: OperationalStatsResponse): OperationalStats {
+  const pendingSellers = Number(raw.pendingSellers ?? 0);
+  const pendingDrivers = Number(raw.pendingDrivers ?? 0);
+  const legacyPendingKyc = raw.pendingKycCount;
+
+  return {
+    ordersToday: Number(raw.ordersToday ?? 0),
+    pendingSellers:
+      pendingSellers > 0 || pendingDrivers > 0 || legacyPendingKyc === undefined
+        ? pendingSellers
+        : Number(legacyPendingKyc),
+    pendingDrivers,
+    activeDrivers: Number(raw.activeDrivers ?? 0),
+    lowStockProducts: Number(raw.lowStockProducts ?? 0),
+  };
+}
+
+function legacyFinanceFromOperational(raw: OperationalStatsResponse): FinanceStats | null {
+  if (raw.revenueTodayUsd === undefined) {
+    return null;
+  }
+
+  return {
+    revenueTodayUsd: Number(raw.revenueTodayUsd),
+    revenueMonthUsd: 0,
+    revenueYearUsd: 0,
+    revenueAllTimeUsd: 0,
+  };
+}
+
+function PendingApprovalCard({
+  title,
+  count,
+  href,
+  seed,
+}: {
+  title: string;
+  count: number;
+  href: string;
+  seed: number;
+}) {
+  return (
+    <Link
+      href={href}
+      className="group flex flex-col rounded-2xl border border-border/70 bg-card p-5 shadow-sm transition-colors hover:border-orange-500/40 hover:bg-muted/20"
+    >
+      <p className="text-sm font-medium text-muted-foreground">{title}</p>
+      <p className="mt-2 text-3xl font-semibold tracking-tight text-foreground tabular-nums">{count}</p>
+      <p className="mt-2 text-xs font-medium text-orange-600 group-hover:underline dark:text-orange-400">
+        Review pending approvals →
+      </p>
+      <span className="sr-only">Seed {seed}</span>
+    </Link>
+  );
+}
+
 export default function DashboardPage() {
-  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const role = useSyncExternalStore(subscribeToSession, getCurrentUserRole, getCurrentUserRole);
+  const isSuperAdmin = role === "SuperAdmin";
+
+  const [stats, setStats] = useState<OperationalStats | null>(null);
+  const [finance, setFinance] = useState<FinanceStats | null>(null);
   const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [financeNotice, setFinanceNotice] = useState<string | null>(null);
 
   const loadDashboard = useCallback(async () => {
-    try {
-      const [statsResponse, ordersResponse] = await Promise.all([
-        api.get<ApiSuccessResponse<DashboardStats>>("/api/v1/admin/dashboard"),
-        api.get<ApiSuccessResponse<PagedList<RecentOrder>>>("/api/v1/admin/orders", {
-          query: {
-            page: 1,
-            pageSize: 10,
-          },
-        }),
-      ]);
+    setIsLoading(true);
+    const errors: string[] = [];
+    let operationalRaw: OperationalStatsResponse | null = null;
 
-      setStats(statsResponse.data);
-      setRecentOrders(ordersResponse.data.items);
-      setErrorMessage(null);
-    } catch (error) {
-      if (error instanceof ApiError) {
-        setErrorMessage(error.message);
-      } else {
-        setErrorMessage("Unable to load dashboard data.");
-      }
-    } finally {
-      setIsLoading(false);
+    const [statsResult, ordersResult, financeResult] = await Promise.allSettled([
+      api.get<OperationalStatsResponse>("/api/v1/admin/dashboard"),
+      api.get<PagedList<RecentOrder>>("/api/v1/admin/orders", {
+        query: { page: 1, pageSize: 10 },
+      }),
+      isSuperAdmin ? api.get<FinanceStats>("/api/v1/admin/dashboard/finance") : Promise.resolve(null),
+    ]);
+
+    if (statsResult.status === "fulfilled") {
+      operationalRaw = statsResult.value;
+      setStats(normalizeOperationalStats(statsResult.value));
+    } else {
+      setStats(null);
+      errors.push(
+        statsResult.reason instanceof ApiError
+          ? statsResult.reason.message
+          : "Unable to load operational statistics.",
+      );
     }
-  }, []);
+
+    if (ordersResult.status === "fulfilled") {
+      setRecentOrders(ordersResult.value.items);
+    } else {
+      setRecentOrders([]);
+      errors.push(
+        ordersResult.reason instanceof ApiError
+          ? ordersResult.reason.message
+          : "Unable to load recent orders.",
+      );
+    }
+
+    if (financeResult.status === "fulfilled") {
+      setFinance(financeResult.value);
+      setFinanceNotice(null);
+    } else if (isSuperAdmin && financeResult.status === "rejected") {
+      const financeError =
+        financeResult.reason instanceof ApiError ? financeResult.reason : null;
+      const legacyFinance = operationalRaw ? legacyFinanceFromOperational(operationalRaw) : null;
+
+      if (legacyFinance) {
+        setFinance(legacyFinance);
+        setFinanceNotice(
+          financeError?.status === 404
+            ? "Full revenue breakdown (month/year/all time) requires an API restart with the latest build. Showing today's revenue from the dashboard endpoint."
+            : (financeError?.message ??
+              "Full revenue breakdown is unavailable. Showing today's revenue only."),
+        );
+      } else {
+        setFinance(null);
+        if (financeError?.status !== 404) {
+          errors.push(financeError?.message ?? "Unable to load financial statistics.");
+        } else {
+          setFinanceNotice(
+            "Financial statistics are not available until the API is rebuilt and restarted (missing /api/v1/admin/dashboard/finance).",
+          );
+        }
+      }
+    } else {
+      setFinance(null);
+      setFinanceNotice(null);
+    }
+
+    setErrorMessage(errors.length > 0 ? errors.join(" ") : null);
+    setIsLoading(false);
+  }, [isSuperAdmin]);
 
   useEffect(() => {
     let isMounted = true;
@@ -131,26 +247,32 @@ export default function DashboardPage() {
     };
   }, [loadDashboard]);
 
-  const seed = statsSeed(stats);
+  const seed = statsSeed(stats, finance);
 
   const opsSlices = useMemo(() => {
     const o = stats?.ordersToday ?? 0;
+    const ps = stats?.pendingSellers ?? 0;
+    const pd = stats?.pendingDrivers ?? 0;
     const d = stats?.activeDrivers ?? 0;
-    const k = stats?.pendingKycCount ?? 0;
     const l = stats?.lowStockProducts ?? 0;
-    const bump = o + d + k + l === 0 ? 1 : 0;
+    const bump = o + ps + pd + d + l === 0 ? 1 : 0;
     return [
-      { label: "Orders today", value: Math.max(0, o) + bump * 0.25, color: "rgb(249 115 22)" },
-      { label: "Active drivers", value: Math.max(0, d) + bump * 0.25, color: "rgb(20 184 166)" },
-      { label: "Pending KYC", value: Math.max(0, k) + bump * 0.25, color: "rgb(51 65 85)" },
-      { label: "Low stock SKUs", value: Math.max(0, l) + bump * 0.25, color: "rgb(245 158 11)" },
+      { label: "Orders today", value: Math.max(0, o) + bump * 0.2, color: "rgb(249 115 22)" },
+      { label: "Pending sellers", value: Math.max(0, ps) + bump * 0.2, color: "rgb(51 65 85)" },
+      { label: "Pending drivers", value: Math.max(0, pd) + bump * 0.2, color: "rgb(20 184 166)" },
+      { label: "Active drivers", value: Math.max(0, d) + bump * 0.2, color: "rgb(14 165 233)" },
+      { label: "Low stock SKUs", value: Math.max(0, l) + bump * 0.2, color: "rgb(245 158 11)" },
     ];
   }, [stats]);
 
   const revenueTarget = useMemo(() => {
-    const r = stats?.revenueTodayUsd ?? 0;
+    const r = finance?.revenueTodayUsd ?? 0;
     return r > 0 ? Math.round(Math.max(r * 1.15, r + 500)) : 55_000;
-  }, [stats]);
+  }, [finance]);
+
+  const subtitle = isSuperAdmin
+    ? "Operations and financial overview. Refreshes every 30s."
+    : "Pending approvals, orders, and live operations. Refreshes every 30s.";
 
   return (
     <div className="mx-auto max-w-[1400px] space-y-8">
@@ -158,8 +280,7 @@ export default function DashboardPage() {
         <div>
           <h1 className="text-3xl font-semibold tracking-tight text-foreground">Dashboard</h1>
           <p className="mt-2 max-w-xl text-sm text-muted-foreground">
-            {greeting()} — here&apos;s what&apos;s happening across ZimMarket operations. Refreshes every{" "}
-            {refreshIntervalMs / 1000}s.
+            {greeting()} — {subtitle}
           </p>
         </div>
       </header>
@@ -170,19 +291,38 @@ export default function DashboardPage() {
         </div>
       ) : null}
 
+      {financeNotice && !errorMessage ? (
+        <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 px-5 py-4 text-sm text-amber-900 shadow-sm dark:text-amber-200">
+          {financeNotice}
+        </div>
+      ) : null}
+
+      <section>
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+          Pending approvals
+        </h2>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <PendingApprovalCard
+            title="Sellers awaiting approval"
+            count={stats?.pendingSellers ?? 0}
+            href="/sellers"
+            seed={seed + 3}
+          />
+          <PendingApprovalCard
+            title="Drivers awaiting approval"
+            count={stats?.pendingDrivers ?? 0}
+            href="/drivers"
+            seed={seed + 5}
+          />
+        </div>
+      </section>
+
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <MetricHighlightCard
-          title="Total revenue (today)"
-          value={formatCurrencyUsd(stats?.revenueTodayUsd ?? 0)}
-          seed={seed + 11}
-          accent="orange"
-          icon={DollarSign}
-        />
         <MetricHighlightCard
           title="Orders today"
           value={String(stats?.ordersToday ?? 0)}
           seed={seed + 17}
-          accent="slate"
+          accent="orange"
           icon={Package}
         />
         <MetricHighlightCard
@@ -193,34 +333,90 @@ export default function DashboardPage() {
           icon={Truck}
         />
         <MetricHighlightCard
-          title="Pending KYC"
-          value={String(stats?.pendingKycCount ?? 0)}
+          title="Low stock SKUs"
+          value={String(stats?.lowStockProducts ?? 0)}
           seed={seed + 29}
           accent="amber"
           icon={UserSearch}
         />
+        <MetricHighlightCard
+          title="Total pending KYC"
+          value={String((stats?.pendingSellers ?? 0) + (stats?.pendingDrivers ?? 0))}
+          seed={seed + 31}
+          accent="slate"
+          icon={Users}
+        />
       </section>
 
-      <section className="grid gap-6 lg:grid-cols-12">
-        <div className="lg:col-span-8">
-          <OverviewAreaChart revenueUsd={stats?.revenueTodayUsd ?? 0} seed={seed + 101} />
-        </div>
-        <div className="flex flex-col gap-6 lg:col-span-4">
+      {isSuperAdmin ? (
+        <>
+          <section>
+            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+              Revenue (USD, paid orders)
+            </h2>
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              <MetricHighlightCard
+                title="Today"
+                value={formatCurrencyUsd(finance?.revenueTodayUsd ?? 0)}
+                seed={seed + 41}
+                accent="orange"
+                icon={DollarSign}
+              />
+              <MetricHighlightCard
+                title="This month"
+                value={formatCurrencyUsd(finance?.revenueMonthUsd ?? 0)}
+                seed={seed + 43}
+                accent="slate"
+                icon={DollarSign}
+              />
+              <MetricHighlightCard
+                title="This year"
+                value={formatCurrencyUsd(finance?.revenueYearUsd ?? 0)}
+                seed={seed + 47}
+                accent="teal"
+                icon={DollarSign}
+              />
+              <MetricHighlightCard
+                title="All time"
+                value={formatCurrencyUsd(finance?.revenueAllTimeUsd ?? 0)}
+                seed={seed + 53}
+                accent="amber"
+                icon={DollarSign}
+              />
+            </div>
+          </section>
+
+          <section className="grid gap-6 lg:grid-cols-12">
+            <div className="lg:col-span-8">
+              <OverviewAreaChart revenueUsd={finance?.revenueTodayUsd ?? 0} seed={seed + 101} />
+            </div>
+            <div className="flex flex-col gap-6 lg:col-span-4">
+              <OpsMixDonut slices={opsSlices} />
+              <MonthlyGoalCard
+                title="Daily revenue goal"
+                current={finance?.revenueTodayUsd ?? 0}
+                target={revenueTarget}
+                formatter={formatCurrencyUsd}
+              />
+            </div>
+          </section>
+        </>
+      ) : (
+        <section className="max-w-md">
           <OpsMixDonut slices={opsSlices} />
-          <MonthlyGoalCard
-            title="Daily revenue goal"
-            current={stats?.revenueTodayUsd ?? 0}
-            target={revenueTarget}
-            formatter={formatCurrencyUsd}
-          />
-        </div>
-      </section>
+        </section>
+      )}
 
       <section className="overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/70 px-6 py-4">
           <div>
             <h2 className="text-lg font-semibold tracking-tight">Recent orders</h2>
-            <p className="text-sm text-muted-foreground">Latest 10 records from the API</p>
+            <p className="text-sm text-muted-foreground">
+              Latest 10 records —{" "}
+              <Link href="/orders" className="font-medium text-orange-600 hover:underline dark:text-orange-400">
+                view all orders
+              </Link>
+            </p>
           </div>
           {isLoading ? (
             <span className="text-xs font-medium text-muted-foreground">Updating…</span>
