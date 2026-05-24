@@ -80,3 +80,4 @@ docker-compose.override.yml.local
 
 # Local file uploads (Storage__Provider=Local)
 /storage/
+/planning/
