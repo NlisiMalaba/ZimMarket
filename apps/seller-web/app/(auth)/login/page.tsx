@@ -5,6 +5,7 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { setAccessToken } from "@/lib/auth-session";
+import { resolveSellerPostAuthPath } from "@/lib/seller-kyc";
 
 type AuthApiResponse = {
   accessToken: string;
@@ -40,7 +41,7 @@ export default function SellerLoginPage() {
       }
 
       setAccessToken(payload.accessToken);
-      router.replace("/dashboard");
+      router.replace(resolveSellerPostAuthPath(payload.kycStatus));
     } catch {
       setErrorMessage("Unable to sign in right now. Please try again shortly.");
     } finally {

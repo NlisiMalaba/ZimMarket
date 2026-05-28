@@ -1,6 +1,8 @@
 import { Redirect } from 'expo-router';
 
 import { useAuth } from '@/hooks/useAuth';
+import { resolveSellerOnboardingRoute } from '@/lib/seller-kyc';
+import { useAuthStore } from '@/store/auth-store';
 
 const normalizeRole = (role: string | undefined): string => {
   if (!role) {
@@ -12,6 +14,7 @@ const normalizeRole = (role: string | undefined): string => {
 
 export default function RootIndexScreen() {
   const { isHydrated, isAuthenticated, user } = useAuth();
+  const kycStatus = useAuthStore((state) => state.kycStatus);
 
   if (!isHydrated) {
     return null;
@@ -24,7 +27,7 @@ export default function RootIndexScreen() {
   const role = normalizeRole(typeof user?.role === 'string' ? user.role : undefined);
 
   if (role === 'seller') {
-    return <Redirect href="/(seller)" />;
+    return <Redirect href={resolveSellerOnboardingRoute(kycStatus)} />;
   }
 
   if (role === 'driver') {

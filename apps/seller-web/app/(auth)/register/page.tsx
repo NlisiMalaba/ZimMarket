@@ -5,6 +5,7 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { setAccessToken } from "@/lib/auth-session";
+import { resolveSellerPostAuthPath } from "@/lib/seller-kyc";
 
 type AuthApiResponse = {
   accessToken: string;
@@ -66,7 +67,7 @@ export default function SellerRegisterPage() {
       }
 
       setAccessToken(payload.accessToken);
-      router.replace("/dashboard");
+      router.replace(resolveSellerPostAuthPath(payload.kycStatus));
     } catch {
       setErrorMessage("Unable to register right now. Please try again shortly.");
     } finally {
@@ -79,7 +80,7 @@ export default function SellerRegisterPage() {
       <div className="w-full border border-slate-200 bg-white p-6 shadow-sm sm:p-8 dark:border-slate-700 dark:bg-slate-900">
         <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">Create seller account</h1>
         <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
-          Register your business to start listing products on ZimMarket.
+          Register your business, then upload your national ID and proof of residence for verification.
         </p>
 
         <form className="mt-6 space-y-4" onSubmit={onSubmit}>

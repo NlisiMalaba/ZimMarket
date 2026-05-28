@@ -3,28 +3,12 @@ import { Pressable, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
 
 import { Text, View } from '@/components/Themed';
+import { formatKycStatusLabel, normalizeKycStatus } from '@/lib/seller-kyc';
 import { sellerOnboardingService } from '@/lib/services/seller-onboarding-service';
 import { useAuthStore } from '@/store/auth-store';
 import type { KycStatus } from '@/types/auth';
 
 const POLL_INTERVAL_MS = 10000;
-
-const formatKycStatus = (status: KycStatus): string => {
-  const normalized = status.trim().toLowerCase();
-  if (normalized === 'approved') {
-    return 'Approved';
-  }
-
-  if (normalized === 'rejected') {
-    return 'Rejected';
-  }
-
-  if (normalized === 'notsubmitted') {
-    return 'Not submitted';
-  }
-
-  return 'Pending review';
-};
 
 export default function SellerApplicationSubmittedScreen() {
   const { accessToken, refreshToken, setSession, clearAuth } = useAuthStore((state) => ({
@@ -33,7 +17,8 @@ export default function SellerApplicationSubmittedScreen() {
     setSession: state.setSession,
     clearAuth: state.clearAuth,
   }));
-  const [status, setStatus] = useState<KycStatus>('pending');
+  const [status, setStatus] = useState<KycStatus>(useAuthStore.getState().kycStatus ?? 'pendingReview');
+  const [rejectionReason, setRejectionReason] = useState<string | null>(null);
   const [pollError, setPollError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -44,16 +29,22 @@ export default function SellerApplicationSubmittedScreen() {
     let isMounted = true;
     const pollStatus = async () => {
       try {
-        const response = await sellerOnboardingService.pollKycStatus(accessToken, refreshToken);
+        const [refreshResult, verification] = await Promise.all([
+          sellerOnboardingService.pollKycStatus(accessToken, refreshToken),
+          sellerOnboardingService.getVerificationStatus(),
+        ]);
+
         if (!isMounted) {
           return;
         }
 
-        setStatus(response.kycStatus);
+        setStatus(refreshResult.kycStatus);
+        setRejectionReason(verification.rejectionReason);
         setPollError(null);
         setSession({
-          accessToken: response.accessToken,
-          refreshToken: response.refreshToken,
+          accessToken: refreshResult.accessToken,
+          refreshToken: refreshResult.refreshToken,
+          kycStatus: refreshResult.kycStatus,
         });
       } catch (error) {
         if (!isMounted) {
@@ -75,13 +66,15 @@ export default function SellerApplicationSubmittedScreen() {
     };
   }, [accessToken, refreshToken, setSession]);
 
-  const statusText = useMemo(() => formatKycStatus(status), [status]);
+  const statusText = useMemo(() => formatKycStatusLabel(status), [status]);
+  const normalizedStatus = normalizeKycStatus(status);
 
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>Application submitted</Text>
       <Text style={styles.description}>
-        Your KYC documents are under review. We are checking your status every 10 seconds.
+        Your KYC documents are under review. We refresh your status every 10 seconds and will notify you when a
+        decision is made.
       </Text>
 
       <View style={styles.statusCard}>
@@ -89,11 +82,24 @@ export default function SellerApplicationSubmittedScreen() {
         <Text style={styles.statusValue}>{statusText}</Text>
       </View>
 
+      {normalizedStatus === 'rejected' && rejectionReason ? (
+        <View style={styles.rejectionCard}>
+          <Text style={styles.rejectionTitle}>Rejection reason</Text>
+          <Text style={styles.rejectionBody}>{rejectionReason}</Text>
+        </View>
+      ) : null}
+
       {pollError ? <Text style={styles.error}>{pollError}</Text> : null}
 
-      {status.trim().toLowerCase() === 'approved' ? (
-        <Pressable style={styles.primaryButton} onPress={() => router.replace('/(seller)')}>
+      {normalizedStatus === 'approved' ? (
+        <Pressable style={styles.primaryButton} onPress={() => router.replace('/(seller)' as never)}>
           <Text style={styles.primaryButtonText}>Continue to seller dashboard</Text>
+        </Pressable>
+      ) : null}
+
+      {normalizedStatus === 'rejected' ? (
+        <Pressable style={styles.primaryButton} onPress={() => router.replace('/(seller)/kyc-upload' as never)}>
+          <Text style={styles.primaryButtonText}>Resubmit documents</Text>
         </Pressable>
       ) : null}
 
@@ -142,6 +148,22 @@ const styles = StyleSheet.create({
   statusValue: {
     fontSize: 20,
     fontWeight: '700',
+  },
+  rejectionCard: {
+    borderWidth: 1,
+    borderColor: '#fecaca',
+    backgroundColor: '#fef2f2',
+    borderRadius: 12,
+    padding: 14,
+    gap: 6,
+  },
+  rejectionTitle: {
+    fontWeight: '700',
+    color: '#991b1b',
+  },
+  rejectionBody: {
+    color: '#7f1d1d',
+    lineHeight: 20,
   },
   error: {
     color: '#dc2626',

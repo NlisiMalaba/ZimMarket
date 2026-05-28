@@ -614,6 +614,11 @@ namespace ZimMarket.Infrastructure.Persistence.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
+                    b.Property<string>("ProfilePhotoKey")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("profile_photo_key");
+
                     b.Property<string>("ProofOfResidenceDocumentKey")
                         .IsRequired()
                         .HasMaxLength(500)
@@ -941,6 +946,48 @@ namespace ZimMarket.Infrastructure.Persistence.Migrations
                         });
 
                     b.Navigation("LastKnownLocation");
+                });
+
+            modelBuilder.Entity("ZimMarket.Domain.Entities.Users.Seller", b =>
+                {
+                    b.OwnsOne("ZimMarket.Domain.ValueObjects.Address", "DefaultPickupAddress", b1 =>
+                        {
+                            b1.Property<Guid>("SellerId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("City")
+                                .IsRequired()
+                                .HasMaxLength(100)
+                                .HasColumnType("character varying(100)")
+                                .HasColumnName("default_pickup_city");
+
+                            b1.Property<string>("Country")
+                                .IsRequired()
+                                .HasMaxLength(100)
+                                .HasColumnType("character varying(100)")
+                                .HasColumnName("default_pickup_country");
+
+                            b1.Property<string>("Street")
+                                .IsRequired()
+                                .HasMaxLength(200)
+                                .HasColumnType("character varying(200)")
+                                .HasColumnName("default_pickup_street");
+
+                            b1.Property<string>("Suburb")
+                                .IsRequired()
+                                .HasMaxLength(100)
+                                .HasColumnType("character varying(100)")
+                                .HasColumnName("default_pickup_suburb");
+
+                            b1.HasKey("SellerId");
+
+                            b1.ToTable("users");
+
+                            b1.WithOwner()
+                                .HasForeignKey("SellerId");
+                        });
+
+                    b.Navigation("DefaultPickupAddress");
                 });
 
             modelBuilder.Entity("ZimMarket.Domain.Entities.Orders.Order", b =>

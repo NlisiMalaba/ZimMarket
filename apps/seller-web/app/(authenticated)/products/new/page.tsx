@@ -7,9 +7,10 @@ import { ProductForm } from "@/components/products/product-form";
 import { KycGate } from "@/components/products/kyc-gate";
 import { getKycStatus, subscribeToSession } from "@/lib/auth-session";
 import { isSellerKycApproved } from "@/lib/seller-kyc";
-import { sellerProductsService, type Category } from "@/lib/seller-products";
+import { getSellerProfile } from "@/lib/seller-settings";
+import { sellerProductsService, type Category, type ProductFormValues } from "@/lib/seller-products";
 
-const emptyValues = {
+const emptyValues: ProductFormValues = {
   title: "",
   description: "",
   priceUsd: 0,
@@ -27,6 +28,7 @@ export default function NewProductPage() {
   const kycStatus = useSyncExternalStore(subscribeToSession, getKycStatus, getKycStatus);
   const kycApproved = isSellerKycApproved(kycStatus);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [initialValues, setInitialValues] = useState<ProductFormValues>(emptyValues);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -35,9 +37,24 @@ export default function NewProductPage() {
 
     const load = async () => {
       try {
-        const loadedCategories = await sellerProductsService.listCategories();
+        const [loadedCategories, profile] = await Promise.all([
+          sellerProductsService.listCategories(),
+          getSellerProfile().catch(() => null),
+        ]);
+
         if (isMounted) {
           setCategories(loadedCategories);
+          if (profile?.defaultPickupAddress) {
+            setInitialValues({
+              ...emptyValues,
+              pickupAddress: {
+                street: profile.defaultPickupAddress.street,
+                suburb: profile.defaultPickupAddress.suburb,
+                city: profile.defaultPickupAddress.city,
+                country: profile.defaultPickupAddress.country || "Zimbabwe",
+              },
+            });
+          }
           setErrorMessage(null);
         }
       } catch (error) {
@@ -90,7 +107,7 @@ export default function NewProductPage() {
       {isLoading ? (
         <p className="text-sm text-muted-foreground">Loading categories…</p>
       ) : (
-        <ProductForm mode="create" categories={categories} initialValues={emptyValues} />
+        <ProductForm mode="create" categories={categories} initialValues={initialValues} />
       )}
     </div>
   );

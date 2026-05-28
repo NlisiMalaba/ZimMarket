@@ -199,7 +199,13 @@ public sealed class AuthController : ControllerBase
 
     public sealed record ResetPasswordRequest(string Token, string NewPassword);
 
-    public sealed record SubmitSellerKycRequest(string NationalIdKey, string ProofOfResidenceKey);
+    /// <summary>
+    /// Keys returned from <c>POST /api/v1/files/presigned-url</c> with
+    /// <see cref="FileType.NationalId"/> (2) and <see cref="FileType.ProofOfResidence"/> (3) after upload.
+    /// </summary>
+    public sealed record SubmitSellerKycRequest(
+        [property: JsonPropertyName("nationalIdKey")] string NationalIdKey,
+        [property: JsonPropertyName("proofOfResidenceKey")] string ProofOfResidenceKey);
 
     public sealed record SubmitDriverKycRequest(
         string LicenseDocKey,

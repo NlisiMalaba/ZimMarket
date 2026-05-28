@@ -11,17 +11,19 @@ namespace ZimMarket.Infrastructure.Storage;
 /// <summary>
 /// Azure Blob implementation of <see cref="IFileStorage"/>.
 /// Keys must be <c>{container}/{blobPath}</c> where <c>container</c> is one of:
-/// <c>product-images</c>, <c>kyc-documents</c>, or <c>delivery-photos</c>.
+/// <c>product-images</c>, <c>profile-photos</c>, <c>kyc-documents</c>, or <c>delivery-photos</c>.
 /// </summary>
 public sealed class AzureBlobStorageService : IFileStorage
 {
     public const string ContainerProductImages = "product-images";
+    public const string ContainerProfilePhotos = "profile-photos";
     public const string ContainerKycDocuments = "kyc-documents";
     public const string ContainerDeliveryPhotos = "delivery-photos";
 
     private static readonly HashSet<string> AllowedContainers =
     [
         ContainerProductImages,
+        ContainerProfilePhotos,
         ContainerKycDocuments,
         ContainerDeliveryPhotos
     ];
@@ -178,6 +180,7 @@ public sealed class AzureBlobStorageService : IFileStorage
         containerName switch
         {
             ContainerProductImages => _options.ProductImagesAllowedContentTypes,
+            ContainerProfilePhotos => _options.ProductImagesAllowedContentTypes,
             ContainerKycDocuments => _options.KycDocumentsAllowedContentTypes,
             ContainerDeliveryPhotos => _options.DeliveryPhotosAllowedContentTypes,
             _ => throw new ArgumentOutOfRangeException(nameof(containerName), containerName, null)
