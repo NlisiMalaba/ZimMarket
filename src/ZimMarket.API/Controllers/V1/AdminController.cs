@@ -105,11 +105,20 @@ public sealed class AdminController : ControllerBase
 
     public sealed record OverrideOrderStatusRequest(OrderStatus NewStatus, string Reason);
 
-    /// <summary>Aggregate operational metrics for the current UTC day (orders placed, paid revenue in USD, drivers on duty, KYC backlog, low stock SKUs).</summary>
+    /// <summary>Operational metrics for administrators: orders today, pending seller/driver KYC, active drivers, low stock SKUs.</summary>
     [HttpGet("dashboard")]
     public async Task<IActionResult> GetDashboardStats(CancellationToken cancellationToken = default)
     {
         return (await _sender.Send(new GetDashboardStatsQuery(), cancellationToken).ConfigureAwait(false))
+            .ToOkActionResult(HttpContext);
+    }
+
+    /// <summary>Paid revenue in USD for today, current month, current year, and all time (super administrators only).</summary>
+    [HttpGet("dashboard/finance")]
+    [Authorize(Policy = AuthorizationPolicies.SuperAdmin)]
+    public async Task<IActionResult> GetFinanceDashboardStats(CancellationToken cancellationToken = default)
+    {
+        return (await _sender.Send(new GetFinanceDashboardStatsQuery(), cancellationToken).ConfigureAwait(false))
             .ToOkActionResult(HttpContext);
     }
 

@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.OpenApi;
 using Scalar.AspNetCore;
@@ -34,7 +35,12 @@ try
 
     builder.Services.AddInfrastructure(builder.Configuration);
     builder.Services.AddApplication();
-    builder.Services.AddControllers();
+    builder.Services.AddControllers()
+        .AddJsonOptions(options =>
+        {
+            options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+            options.JsonSerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
+        });
     builder.Services.AddZimMarketCors(builder.Configuration);
     builder.Services.AddZimMarketRateLimiter();
     builder.Services.AddZimMarketHealthChecks(builder.Configuration);

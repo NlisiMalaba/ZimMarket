@@ -1,8 +1,9 @@
 namespace ZimMarket.Application.Admin;
 
+/// <summary>Operational admin dashboard metrics (all administrators).</summary>
 public sealed record DashboardStatsDto(
     int OrdersToday,
-    decimal RevenueTodayUsd,
+    int PendingSellers,
+    int PendingDrivers,
     int ActiveDrivers,
-    int PendingKycCount,
     int LowStockProducts);

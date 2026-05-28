@@ -7,10 +7,6 @@ import { getUserRoleLabel, getUserRoleValue } from "@/lib/domain-enums";
 
 type UserRole = "Seller" | "Driver";
 
-type ApiSuccessResponse<T> = {
-  data: T;
-};
-
 type PagedList<T> = {
   items: T[];
   page: number;
@@ -63,7 +59,7 @@ export function KycReviewPage({ role, title, description }: KycReviewPageProps) 
     setIsLoading(true);
 
     try {
-      const response = await api.get<ApiSuccessResponse<PagedList<PendingKycQueueItemDto>>>("/api/v1/admin/kyc", {
+      const response = await api.get<PagedList<PendingKycQueueItemDto>>("/api/v1/admin/kyc", {
         query: {
           role,
           page: currentPage,
@@ -71,33 +67,32 @@ export function KycReviewPage({ role, title, description }: KycReviewPageProps) 
         },
       });
 
-      setItems(response.data.items);
-      setTotalCount(response.data.totalCount);
+      setItems(response.items);
+      setTotalCount(response.totalCount);
       setErrorMessage(null);
 
-      if (response.data.items.length === 0) {
-        setSelectedItem(null);
-      } else if (!selectedItem) {
-        setSelectedItem(response.data.items[0]);
-      } else {
-        const stillVisible = response.data.items.find((item) => item.userId === selectedItem.userId);
-        setSelectedItem(stillVisible ?? response.data.items[0]);
-      }
+      setSelectedItem((current) => {
+        if (response.items.length === 0) {
+          return null;
+        }
+
+        if (!current) {
+          return response.items[0];
+        }
+
+        const next =
+          response.items.find((item) => item.userId === current.userId) ?? response.items[0];
+        return next.userId === current.userId ? current : next;
+      });
     } catch (error) {
       setErrorMessage(error instanceof ApiError ? error.message : "Unable to load pending KYC submissions.");
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, role, selectedItem]);
+  }, [currentPage, role]);
 
   useEffect(() => {
-    const timeoutId = window.setTimeout(() => {
-      void loadPage();
-    }, 0);
-
-    return () => {
-      window.clearTimeout(timeoutId);
-    };
+    void loadPage();
   }, [loadPage]);
 
   const removeItemOptimistically = (userId: string) => {
@@ -116,7 +111,7 @@ export function KycReviewPage({ role, title, description }: KycReviewPageProps) 
     setIsMutating(true);
 
     try {
-      await api.post<ApiSuccessResponse<null>, { role: number }>(
+      await api.post<null, { role: number }>(
         `/api/v1/admin/kyc/${target.userId}/approve`,
         { role: getUserRoleValue(role) },
       );
@@ -147,7 +142,7 @@ export function KycReviewPage({ role, title, description }: KycReviewPageProps) 
     setIsMutating(true);
 
     try {
-      await api.post<ApiSuccessResponse<null>, { role: number; reason: string }>(
+      await api.post<null, { role: number; reason: string }>(
         `/api/v1/admin/kyc/${target.userId}/reject`,
         { role: getUserRoleValue(role), reason },
       );

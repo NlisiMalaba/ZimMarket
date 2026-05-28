@@ -8,10 +8,6 @@ import { ApiError, api } from "@/lib/api";
 import { getAccessToken } from "@/lib/auth-session";
 import { env } from "@/lib/env";
 
-type ApiSuccessResponse<T> = {
-  data: T;
-};
-
 type DriverLocation = {
   driverId: string;
   latitude?: number | null;
@@ -83,8 +79,8 @@ export function DriversLiveMap() {
   const loadInitialData = useCallback(async () => {
     try {
       const [locationsResponse, batchesResponse] = await Promise.all([
-        api.get<ApiSuccessResponse<DriverLocation[]>>("/api/v1/batches/drivers/locations"),
-        api.get<ApiSuccessResponse<PagedList<DeliveryBatchListItemDto>>>("/api/v1/batches", {
+        api.get<DriverLocation[]>("/api/v1/batches/drivers/locations"),
+        api.get<PagedList<DeliveryBatchListItemDto>>("/api/v1/batches", {
           query: {
             page: 1,
             pageSize: 100,
@@ -93,7 +89,7 @@ export function DriversLiveMap() {
       ]);
 
       const nextLocations: Record<string, DriverLocation> = {};
-      for (const location of locationsResponse.data) {
+      for (const location of locationsResponse) {
         nextLocations[location.driverId] = location;
       }
       setLocations(nextLocations);
@@ -106,7 +102,7 @@ export function DriversLiveMap() {
       ]);
       const nextInfo: Record<string, DriverMapInfo> = {};
 
-      for (const location of locationsResponse.data) {
+      for (const location of locationsResponse) {
         nextInfo[location.driverId] = {
           name: `Driver ${location.driverId.slice(0, 8)}`,
           currentBatchId: null,
@@ -114,7 +110,7 @@ export function DriversLiveMap() {
         };
       }
 
-      for (const batch of batchesResponse.data.items) {
+      for (const batch of batchesResponse.items) {
         if (!activeStatuses.has(batch.status)) {
           continue;
         }

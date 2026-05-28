@@ -12,10 +12,6 @@ import {
   type OrderStatusName,
 } from "@/lib/domain-enums";
 
-type ApiSuccessResponse<T> = {
-  data: T;
-};
-
 type PagedList<T> = {
   items: T[];
   page: number;
@@ -100,7 +96,7 @@ export default function OrdersPage() {
     setIsLoadingList(true);
 
     try {
-      const response = await api.get<ApiSuccessResponse<PagedList<AdminOrderListItemDto>>>("/api/v1/admin/orders", {
+      const response = await api.get<PagedList<AdminOrderListItemDto>>("/api/v1/admin/orders", {
         query: {
           page: currentPage,
           pageSize,
@@ -110,8 +106,8 @@ export default function OrdersPage() {
         },
       });
 
-      setOrders(response.data.items);
-      setTotalCount(response.data.totalCount);
+      setOrders(response.items);
+      setTotalCount(response.totalCount);
       setErrorMessage(null);
     } catch (error) {
       setErrorMessage(error instanceof ApiError ? error.message : "Unable to load orders.");
@@ -125,8 +121,8 @@ export default function OrdersPage() {
     setSelectedOrderId(orderId);
 
     try {
-      const response = await api.get<ApiSuccessResponse<OrderDetailDto>>(`/api/v1/orders/${orderId}`);
-      setSelectedOrderDetail(response.data);
+      const response = await api.get<OrderDetailDto>(`/api/v1/orders/${orderId}`);
+      setSelectedOrderDetail(response);
       setErrorMessage(null);
     } catch (error) {
       setSelectedOrderDetail(null);
@@ -206,7 +202,7 @@ export default function OrdersPage() {
     setIsMutating(true);
 
     try {
-      await api.patch<ApiSuccessResponse<null>, { newStatus: number; reason: string }>(
+      await api.patch<null, { newStatus: number; reason: string }>(
         `/api/v1/admin/orders/${selectedOrderDetail.orderId}/status`,
         {
           newStatus: getOrderStatusValue(overrideStatus),
