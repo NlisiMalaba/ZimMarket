@@ -1,7 +1,21 @@
 type SessionListener = () => void;
 
 let accessToken: string | null = null;
+let sessionFullName: string | null = null;
+let sessionProfilePhotoUrl: string | null = null;
 const listeners = new Set<SessionListener>();
+
+export type SessionProfile = {
+  fullName: string;
+  email: string;
+  profilePhotoUrl: string | null;
+};
+
+export function setSessionProfile(profile: SessionProfile): void {
+  sessionFullName = profile.fullName.trim() || null;
+  sessionProfilePhotoUrl = profile.profilePhotoUrl;
+  notifyListeners();
+}
 
 function notifyListeners(): void {
   listeners.forEach((listener) => listener());
@@ -68,6 +82,10 @@ export function getUserEmail(): string | null {
 }
 
 export function getUserDisplayName(): string {
+  if (sessionFullName) {
+    return sessionFullName;
+  }
+
   const email = getUserEmail();
   if (!email) {
     return "Seller";
@@ -102,7 +120,13 @@ export function getUserInitials(): string {
 
 export function clearSession(): void {
   accessToken = null;
+  sessionFullName = null;
+  sessionProfilePhotoUrl = null;
   notifyListeners();
+}
+
+export function getProfilePhotoUrl(): string | null {
+  return sessionProfilePhotoUrl;
 }
 
 export function subscribeToSession(listener: SessionListener): () => void {

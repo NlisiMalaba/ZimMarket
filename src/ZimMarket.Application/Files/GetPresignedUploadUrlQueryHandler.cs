@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using ZimMarket.Application.Common.Models;
 using ZimMarket.Application.Common.Interfaces;
+using ZimMarket.Domain.Enums;
 
 namespace ZimMarket.Application.Files;
 
@@ -9,6 +10,7 @@ public sealed class GetPresignedUploadUrlQueryHandler : IRequestHandler<GetPresi
 {
     private static readonly TimeSpan PresignedUploadTtl = TimeSpan.FromHours(1);
     private const string ContainerProductImages = "product-images";
+    private const string ContainerProfilePhotos = "profile-photos";
     private const string ContainerKycDocuments = "kyc-documents";
     private const string ContainerDeliveryPhotos = "delivery-photos";
 
@@ -34,6 +36,12 @@ public sealed class GetPresignedUploadUrlQueryHandler : IRequestHandler<GetPresi
         {
             _logger.LogDebug("Presigned upload URL rejected: unauthenticated caller.");
             return Result<PresignedUrlDto>.Failure("Files.Forbidden", "Authentication is required.");
+        }
+
+        Result<PresignedUrlDto>? roleCheck = ValidateFileTypeForRole(request.FileType);
+        if (roleCheck is not null)
+        {
+            return roleCheck;
         }
 
         string contentType = request.ContentType.Trim().ToLowerInvariant();
@@ -64,6 +72,48 @@ public sealed class GetPresignedUploadUrlQueryHandler : IRequestHandler<GetPresi
         }
     }
 
+    private Result<PresignedUrlDto>? ValidateFileTypeForRole(FileType fileType)
+    {
+        if (fileType is FileType.NationalId or FileType.ProofOfResidence)
+        {
+            if (_currentUser.Role != UserRole.Seller)
+            {
+                _logger.LogDebug(
+                    "Presigned upload URL rejected: file type {FileType} requires seller role.",
+                    fileType);
+                return Result<PresignedUrlDto>.Failure(
+                    "Files.Forbidden",
+                    "National ID and proof of residence uploads are only available to seller accounts.");
+            }
+        }
+
+        if (fileType is FileType.DriverLicense or FileType.VehicleDoc)
+        {
+            if (_currentUser.Role != UserRole.Driver)
+            {
+                return Result<PresignedUrlDto>.Failure(
+                    "Files.Forbidden",
+                    "Driver license and vehicle document uploads are only available to driver accounts.");
+            }
+        }
+
+        if (fileType == FileType.ProductImage && _currentUser.Role != UserRole.Seller)
+        {
+            return Result<PresignedUrlDto>.Failure(
+                "Files.Forbidden",
+                "Product image uploads are only available to seller accounts.");
+        }
+
+        if (fileType == FileType.ProfilePhoto && _currentUser.Role != UserRole.Seller)
+        {
+            return Result<PresignedUrlDto>.Failure(
+                "Files.Forbidden",
+                "Profile photo uploads are only available to seller accounts.");
+        }
+
+        return null;
+    }
+
     private static string ResolveContainer(FileType fileType) =>
         fileType switch
         {
@@ -73,7 +123,7 @@ public sealed class GetPresignedUploadUrlQueryHandler : IRequestHandler<GetPresi
             FileType.DriverLicense => ContainerKycDocuments,
             FileType.VehicleDoc => ContainerKycDocuments,
             FileType.DeliveryPhoto => ContainerDeliveryPhotos,
-            FileType.ProfilePhoto => ContainerProductImages,
+            FileType.ProfilePhoto => ContainerProfilePhotos,
             _ => throw new ArgumentOutOfRangeException(nameof(fileType), fileType, "Unsupported file type.")
         };
 

@@ -14,11 +14,13 @@ type UseAuthResult = {
   clearError: () => void;
   updateProfile: (payload: { name?: string; phone?: string }) => void;
   user: ReturnType<typeof useAuthStore.getState>['user'];
+  kycStatus: ReturnType<typeof useAuthStore.getState>['kycStatus'];
 };
 
 export const useAuth = (): UseAuthResult => {
   const accessToken = useAuthStore((state) => state.accessToken);
   const user = useAuthStore((state) => state.user);
+  const kycStatus = useAuthStore((state) => state.kycStatus);
   const isHydrated = useAuthStore((state) => state.isHydrated);
   const isAuthLoading = useAuthStore((state) => state.isAuthLoading);
   const authError = useAuthStore((state) => state.authError);
@@ -40,6 +42,7 @@ export const useAuth = (): UseAuthResult => {
       error: authError,
       clearError: clearAuthError,
       user,
+      kycStatus,
     }),
     [
       login,
@@ -52,6 +55,7 @@ export const useAuth = (): UseAuthResult => {
       authError,
       clearAuthError,
       user,
+      kycStatus,
     ]
   );
 };

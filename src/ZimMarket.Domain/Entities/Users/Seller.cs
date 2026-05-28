@@ -94,6 +94,31 @@ public sealed class Seller : User
 
     public string? RejectionReason { get; private set; }
 
+    public string? ProfilePhotoKey { get; private set; }
+
+    public Address? DefaultPickupAddress { get; private set; }
+
+    public void UpdateBusinessName(string businessName)
+    {
+        if (string.IsNullOrWhiteSpace(businessName))
+            throw new DomainException("Business name is required.");
+
+        BusinessName = businessName.Trim();
+        UpdatedAt = DateTimeOffset.UtcNow;
+    }
+
+    public void SetProfilePhotoKey(string? profilePhotoKey)
+    {
+        ProfilePhotoKey = string.IsNullOrWhiteSpace(profilePhotoKey) ? null : profilePhotoKey.Trim();
+        UpdatedAt = DateTimeOffset.UtcNow;
+    }
+
+    public void SetDefaultPickupAddress(Address? address)
+    {
+        DefaultPickupAddress = address;
+        UpdatedAt = DateTimeOffset.UtcNow;
+    }
+
     public void Approve()
     {
         if (KycStatus != KycStatus.PendingReview)
@@ -122,14 +147,21 @@ public sealed class Seller : User
 
     public void SubmitKyc(string nationalIdKey, string proofKey)
     {
-        if (KycStatus != KycStatus.NotSubmitted)
-            throw new DomainException("KYC documents can only be submitted when KYC has not yet been submitted.");
+        if (KycStatus is not (KycStatus.NotSubmitted or KycStatus.Rejected))
+            throw new DomainException(
+                "KYC documents can only be submitted before review or after a rejection.");
 
         if (string.IsNullOrWhiteSpace(nationalIdKey))
             throw new DomainException("National ID document key is required.");
 
         if (string.IsNullOrWhiteSpace(proofKey))
             throw new DomainException("Proof of residence document key is required.");
+
+        if (KycStatus == KycStatus.Rejected)
+        {
+            RejectionReason = null;
+            IsApproved = false;
+        }
 
         NationalIdDocumentKey = nationalIdKey.Trim();
         ProofOfResidenceDocumentKey = proofKey.Trim();

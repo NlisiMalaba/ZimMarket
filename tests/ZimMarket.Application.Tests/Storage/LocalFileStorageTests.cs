@@ -35,6 +35,18 @@ public sealed class LocalFileStorageTests : IDisposable
     }
 
     [Fact]
+    public async Task Upload_profile_photo_uses_profile_photos_container()
+    {
+        LocalFileStorage storage = CreateStorage();
+        const string key = "profile-photos/00000000-0000-4000-8000-000000000099/avatar.webp";
+        await using var input = new MemoryStream(Encoding.UTF8.GetBytes("avatar-bytes"));
+
+        await storage.UploadAsync(input, key, "image/webp", CancellationToken.None);
+
+        (await storage.ExistsAsync(key, CancellationToken.None)).Should().BeTrue();
+    }
+
+    [Fact]
     public async Task Presigned_upload_url_authorizes_matching_request_only()
     {
         LocalFileStorage storage = CreateStorage();

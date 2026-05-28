@@ -5,8 +5,8 @@ export function KycGate({ children }: { children: React.ReactNode }) {
     <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 px-6 py-8 text-center shadow-sm">
       <h2 className="text-lg font-semibold text-foreground">Verification required</h2>
       <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-        Your seller account must be KYC-approved before you can create or edit product listings.
-        Images are removed when you delete a listing; records are permanently purged after 30 days.
+        Submit your national ID and proof of residence for admin review. Your account must be KYC-approved before you
+        can create or edit product listings.
       </p>
       <Link
         href="/verification"

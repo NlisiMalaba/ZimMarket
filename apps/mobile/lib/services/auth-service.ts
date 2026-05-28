@@ -26,6 +26,10 @@ type RawAuthTokensResponse = {
 };
 
 const normalizeKycStatus = (value: unknown): KycStatus | undefined => {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return String(value) as KycStatus;
+  }
+
   if (typeof value !== 'string') {
     return undefined;
   }

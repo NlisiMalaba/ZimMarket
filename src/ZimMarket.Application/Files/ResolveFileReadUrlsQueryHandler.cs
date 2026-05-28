@@ -27,7 +27,7 @@ public sealed class ResolveFileReadUrlsQueryHandler
         foreach (string key in request.Keys)
         {
             string trimmed = key.Trim();
-            if (!IsAllowedProductImageKey(trimmed))
+            if (!IsAllowedReadKey(trimmed))
             {
                 return Result<IReadOnlyList<FileReadUrlDto>>.ValidationFailure(
                 [
@@ -45,5 +45,7 @@ public sealed class ResolveFileReadUrlsQueryHandler
         return Result<IReadOnlyList<FileReadUrlDto>>.Success(items);
     }
 
-    private static bool IsAllowedProductImageKey(string key) => ProductImageStorage.IsProductImageKey(key);
+    private static bool IsAllowedReadKey(string key) =>
+        ProductImageStorage.IsProductImageKey(key) ||
+        key.StartsWith("profile-photos/", StringComparison.OrdinalIgnoreCase);
 }

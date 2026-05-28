@@ -30,7 +30,11 @@ const refreshAccessToken = async (): Promise<string | null> => {
     const response = await authService.refresh({ accessToken, refreshToken });
     const newAccessToken = response.accessToken;
     const newRefreshToken = response.refreshToken ?? refreshToken;
-    setSession({ accessToken: newAccessToken, refreshToken: newRefreshToken });
+    setSession({
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
+      kycStatus: response.kycStatus,
+    });
 
     return newAccessToken;
   } catch {

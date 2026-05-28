@@ -12,6 +12,7 @@ namespace ZimMarket.Infrastructure.Storage;
 public sealed class LocalFileStorage : IFileStorage, ILocalFileStorageAccess
 {
     public const string ContainerProductImages = "product-images";
+    public const string ContainerProfilePhotos = "profile-photos";
     public const string ContainerKycDocuments = "kyc-documents";
     public const string ContainerDeliveryPhotos = "delivery-photos";
 
@@ -21,6 +22,7 @@ public sealed class LocalFileStorage : IFileStorage, ILocalFileStorageAccess
     private static readonly HashSet<string> AllowedContainers =
     [
         ContainerProductImages,
+        ContainerProfilePhotos,
         ContainerKycDocuments,
         ContainerDeliveryPhotos
     ];
@@ -268,6 +270,7 @@ public sealed class LocalFileStorage : IFileStorage, ILocalFileStorageAccess
         containerName switch
         {
             ContainerProductImages => _options.ProductImagesAllowedContentTypes,
+            ContainerProfilePhotos => _options.ProductImagesAllowedContentTypes,
             ContainerKycDocuments => _options.KycDocumentsAllowedContentTypes,
             ContainerDeliveryPhotos => _options.DeliveryPhotosAllowedContentTypes,
             _ => throw new ArgumentOutOfRangeException(nameof(containerName), containerName, null)

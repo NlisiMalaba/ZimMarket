@@ -118,6 +118,8 @@ public static class ResultHttpMapper
             "Kyc.SellerNotFound" => StatusCodes.Status404NotFound,
             "Kyc.DriverNotFound" => StatusCodes.Status404NotFound,
             "Kyc.AlreadySubmitted" => StatusCodes.Status409Conflict,
+            "Seller.Forbidden" => StatusCodes.Status403Forbidden,
+            "Seller.NotFound" => StatusCodes.Status404NotFound,
             "SellerDashboard.Forbidden" => StatusCodes.Status403Forbidden,
             "Products.Forbidden" => StatusCodes.Status403Forbidden,
             "Products.NotFound" => StatusCodes.Status404NotFound,

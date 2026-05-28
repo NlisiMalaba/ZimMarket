@@ -36,6 +36,31 @@ public sealed class FilesController : ControllerBase
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
+    [HttpPost("profile-photo")]
+    [Authorize(Policy = AuthorizationPolicies.Seller)]
+    [RequestSizeLimit(2 * 1024 * 1024)]
+    public async Task<IActionResult> UploadProfilePhoto(
+        IFormFile file,
+        CancellationToken cancellationToken)
+    {
+        if (file.Length == 0)
+        {
+            return Result<string>.ValidationFailure(
+            [
+                new ValidationError(nameof(file), "Image file is required.")
+            ]).ToOkActionResult(HttpContext);
+        }
+
+        await using Stream stream = file.OpenReadStream();
+        var command = new UploadProfilePhotoCommand(
+            file.ContentType,
+            stream,
+            file.Length);
+
+        return (await _sender.Send(command, cancellationToken).ConfigureAwait(false))
+            .ToOkActionResult(HttpContext);
+    }
+
     [HttpPost("product-image")]
     [Authorize(Policy = AuthorizationPolicies.Seller)]
     [RequestSizeLimit(5 * 1024 * 1024)]
